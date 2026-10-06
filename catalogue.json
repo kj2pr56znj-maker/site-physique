@@ -8,7 +8,61 @@
    "court": "Électrotechnique",
    "mini": "ET",
    "sous": "BTS ET",
-   "chapitres": []
+   "chapitres": [
+    {
+     "num": "",
+     "titre": "Les régimes transitoires",
+     "docs": [
+      {
+       "titre": "l'essentiel du chapitre",
+       "type": "Cours",
+       "fichier": "060200090b206e05be087ee6.bin",
+       "taille": 451731,
+       "pages": 10
+      },
+      {
+       "titre": "bilan",
+       "type": "Fiche",
+       "fichier": "4750d776cf59ec6db95caa78.bin",
+       "taille": 175024,
+       "pages": 5
+      },
+      {
+       "titre": "fiche animation à compléter",
+       "type": "Fiche",
+       "fichier": "d58c5cfebd0a74d315330f0c.bin",
+       "taille": 135326,
+       "pages": 3
+      },
+      {
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "ed176390ee9f8610f11ff834.bin",
+       "taille": 143656,
+       "pages": 4
+      },
+      {
+       "titre": "activité 1. Surveillance thermique moteur industriel",
+       "type": "Activité",
+       "fichier": "2716e95c3fb88670d2a913c3.bin",
+       "taille": 170837,
+       "pages": 2
+      },
+      {
+       "titre": "activité 2. mise en vitesse convoyeur automatisé",
+       "type": "Activité",
+       "fichier": "00cb3903517641dad7b39f35.bin",
+       "taille": 258409,
+       "pages": 3
+      },
+      {
+       "titre": "animation régimes transitoires",
+       "type": "Animation",
+       "lien": "animations/et/animation-regimes-transitoires.html"
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "cira",

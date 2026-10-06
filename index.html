@@ -94,6 +94,7 @@ ul.docs li{display:grid;grid-template-columns:7.2em 1fr auto;gap:12px;align-item
 .actions{display:flex;gap:6px}
 .open{font:inherit;font-weight:700;font-size:.92rem;border:1px solid var(--ink);color:var(--ink);background:var(--surface);
   border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+a.open{text-decoration:none;display:inline-block}
 .open[disabled]{opacity:.45;cursor:not-allowed}
 .open.dl{border-color:var(--grid);color:var(--muted)}
 @media (max-width:560px){
@@ -226,6 +227,12 @@ function renderNav(){
 
 function docRow(c, d, open){
   const li = document.createElement("li");
+  if (d.lien) {
+    li.innerHTML = `<span class="type">${esc(d.type)}</span>
+      <span class="title">${esc(d.titre)}<span class="meta">Animation interactive, accès libre</span></span>
+      <span class="actions"><a class="open" href="${esc(d.lien)}" target="_blank" rel="noopener">Ouvrir</a></span>`;
+    return li;
+  }
   li.innerHTML = `<span class="${typeClass(d.type)}">${esc(d.type)}</span>
     <span class="title">${esc(d.titre)}<span class="meta">PDF, ${d.pages ? d.pages + " p., " : ""}${size(d.taille)}</span></span>
     <span class="actions"><button class="open" type="button" ${open?"":"disabled"}>Ouvrir</button>
