@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}#calc mjx-container,.fb mjx-container{display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden;vertical-align:middle}</style>
+<script>
+window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  chtml: { scale: 1.05 }, options: { enableMenu: false }, startup: { typeset: false } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
 </head>
 <body>
 <title>Banc d'analyse spectrale</title>
@@ -267,7 +272,7 @@ const PRESETS = {
     txt: 'Le transmetteur de niveau de la cuve d\'eau d\'alimentation débite 4 à 20 mA dans une résistance de 500 Ω : la tension mesurée (2 à 10 V) est numérisée par la carte d\'entrée de l\'automate (plage 0–10 V). Enregistrement sur 20 s.',
     def: {}, sl: [] },
   sinus: { name: 'GBF : sinusoïde', unit: 'V', periodic: true, can: [-10, 10],
-    txt: 'Signal d\'essai sinusoïdal délivré par le GBF : s(t) = décalage + A·sin(2πft).',
+    txt: 'Signal d\'essai sinusoïdal délivré par le GBF : \\(s(t) = \\text{décalage} + A\\sin(2\\pi f t)\\).',
     def: { A: 2, f: 1000, off: 0 }, sl: [['A', 'Amplitude A', [0.5, 10, 0.5], 'V'], ['f', 'Fréquence f', [100, 5000, 100], 'Hz'], ['off', 'Décalage (offset)', [-5, 5, 0.5], 'V']] },
   carre: { name: 'GBF : signal carré ±A', unit: 'V', periodic: true, can: [-10, 10],
     txt: 'Signal carré alterné symétrique, de +A à −A.',
@@ -622,10 +627,10 @@ const PARTS = [
     load: () => load('mesure'),
     qs: [
       { q: 'Observez l\'oscillogramme. Quelle est la nature de la tension délivrée par le transmetteur ?', opts: ['Analogique : continue en temps et en amplitude', 'Échantillonnée : définie seulement à certains instants', 'Numérique : suite de mots binaires', 'Périodique de période 20 s'], a: 0, ex: 'La tension existe à chaque instant et peut prendre n\'importe quelle valeur entre 2 et 10 V : c\'est un signal analogique. Il n\'est pas périodique : le niveau de la cuve évolue de façon imprévisible.' },
-      { q: 'Activez l\'échantillonnage. Mesurez au curseur la durée entre deux échantillons successifs : c\'est la période d\'échantillonnage Tₑ.', set: { ech: true, Fe: 2 }, u: 's', a: 0.5, tol: 0.02, ex: 'Les échantillons sont espacés de Tₑ = 0,5 s, soit Fₑ = 1 / Tₑ = 2 Hz. Le signal échantillonné n\'est défini qu\'aux instants k·Tₑ.' },
-      { q: 'On quantifie avec un CAN de 3 bits (pour bien voir l\'effet). Combien de niveaux de tension différents le convertisseur peut-il coder ?', set: { ech: true, Fe: 2, quant: true, bits: 3 }, u: 'niveaux', a: 8, tol: 0, ex: 'Un CAN n bits code 2ⁿ niveaux : 2³ = 8 niveaux.' },
-      { q: 'Calculer le quantum q de ce CAN 3 bits (plage 0–10 V).', set: { ech: true, Fe: 2, quant: true, bits: 3 }, u: 'V', a: 1.25, tol: 0.01, hint: 'q = plage / nombre de niveaux', ex: 'q = 10 / 8 = 1,25 V : l\'amplitude est arrondie au multiple de 1,25 V inférieur, d\'où l\'allure en escalier.' },
-      { q: 'La carte réelle possède un CAN 12 bits (plage 0–10 V). Calculer son quantum.', set: { ech: true, Fe: 2, quant: true, bits: 12 }, u: 'mV', a: 2.44, tol: 0.02, ex: '2¹² = 4 096 niveaux ; q = 10 / 4 096 ≈ 2,44 mV. L\'escalier n\'est plus visible : la résolution est suffisante pour une mesure de niveau.' },
+      { q: 'Activez l\'échantillonnage. Mesurez au curseur la durée entre deux échantillons successifs : c\'est la période d\'échantillonnage \\(T_e\\).', set: { ech: true, Fe: 2 }, u: 's', a: 0.5, tol: 0.02, ex: 'Les échantillons sont espacés de \\(T_e = 0{,}5\\ \\text{s}\\), soit \\(F_e = \\dfrac{1}{T_e} = 2\\ \\text{Hz}\\). Le signal échantillonné n\'est défini qu\'aux instants \\(k\\,T_e\\).' },
+      { q: 'On quantifie avec un CAN de 3 bits (pour bien voir l\'effet). Combien de niveaux de tension différents le convertisseur peut-il coder ?', set: { ech: true, Fe: 2, quant: true, bits: 3 }, u: 'niveaux', a: 8, tol: 0, ex: 'Un CAN \\(n\\) bits code \\(2^n\\) niveaux : \\(2^3 = 8\\) niveaux.' },
+      { q: 'Calculer le quantum q de ce CAN 3 bits (plage 0–10 V).', set: { ech: true, Fe: 2, quant: true, bits: 3 }, u: 'V', a: 1.25, tol: 0.01, hint: '\\(q = \\dfrac{\\text{plage}}{\\text{nombre de niveaux}}\\)', ex: '\\(q = \\dfrac{10}{8} = 1{,}25\\ \\text{V}\\) : l\'amplitude est arrondie au multiple de 1,25 V inférieur, d\'où l\'allure en escalier.' },
+      { q: 'La carte réelle possède un CAN 12 bits (plage 0–10 V). Calculer son quantum.', set: { ech: true, Fe: 2, quant: true, bits: 12 }, u: 'mV', a: 2.44, tol: 0.02, ex: '\\(2^{12} = 4\\,096\\) niveaux ; \\(q = \\dfrac{10}{4\\,096} \\approx 2{,}44\\ \\text{mV}\\). L\'escalier n\'est plus visible : la résolution est suffisante pour une mesure de niveau.' },
       { q: 'Le signal à la sortie du CAN est à la fois échantillonné et quantifié. Comment le qualifie-t-on ?', opts: ['Analogique', 'Numérique', 'Modulé', 'Aléatoire'], a: 1, ex: 'Échantillonné + quantifié = numérique : l\'automate manipule une suite de nombres binaires.' },
       { q: 'Retirez la numérisation et activez le bruit de mesure. Comment qualifier ce bruit ?', set: { ech: false, quant: false, noise: true }, opts: ['Périodique', 'Aléatoire : son évolution est imprévisible', 'Modulé'], a: 1, ex: 'Le bruit de mesure (perturbations CEM, agitation de surface) évolue de façon imprévisible : c\'est un signal aléatoire, décrit par des grandeurs statistiques.' },
       { q: 'Observez le spectre de la mesure de niveau. De quel type est-il ?', opts: ['Discret : quelques raies isolées à des fréquences multiples d\'une fréquence f', 'Continu : de l\'énergie à toutes les fréquences d\'une bande', 'Vide : le signal n\'a pas de spectre'], a: 1, ex: 'Le signal n\'est pas périodique : son spectre est continu (ici concentré en dessous de 2 Hz). Seul un signal périodique possède un spectre de raies.' },
@@ -633,46 +638,46 @@ const PARTS = [
   { id: 'B', title: 'B · Série de Fourier', intro: 'Avant de remplacer la carte de sortie de l\'automate, le technicien analyse les signaux d\'essai du GBF. Signal carré ±5 V à 1 kHz, puis signal triangle, puis signal PWM 0 / 5 V.',
     load: () => load('carre'),
     qs: [
-      { q: 'Signal carré ±5 V, 1 kHz : lire sur le spectre l\'amplitude du fondamental.', u: 'V', a: 6.37, tol: 0.08, ex: 'S₁ = 4A/π = 4 × 5 / π ≈ 6,37 V. Le fondamental a la fréquence du signal : 1 kHz.' },
-      { q: 'Lire l\'amplitude de l\'harmonique de rang 3 (fréquence 3 kHz).', u: 'V', a: 2.12, tol: 0.05, ex: 'S₃ = 4A/(3π) = S₁ / 3 ≈ 2,12 V. Les raies du carré décroissent en 1/n.' },
+      { q: 'Signal carré ±5 V, 1 kHz : lire sur le spectre l\'amplitude du fondamental.', u: 'V', a: 6.37, tol: 0.08, ex: '\\(S_1 = \\dfrac{4A}{\\pi} = \\dfrac{4 \\times 5}{\\pi} \\approx 6{,}37\\ \\text{V}\\). Le fondamental a la fréquence du signal : 1 kHz.' },
+      { q: 'Lire l\'amplitude de l\'harmonique de rang 3 (fréquence 3 kHz).', u: 'V', a: 2.12, tol: 0.05, ex: '\\(S_3 = \\dfrac{4A}{3\\pi} = \\dfrac{S_1}{3} \\approx 2{,}12\\ \\text{V}\\). Les raies du carré décroissent en \\(1/n\\).' },
       { q: 'Que dire des raies de rang pair (2, 4, 6…) ?', opts: ['Elles sont présentes mais faibles', 'Elles sont absentes car le signal est alterné symétrique', 'Elles sont plus grandes que les raies impaires'], a: 1, ex: 'Un signal alterné et symétrique (carré, triangle) ne contient que des harmoniques impairs.' },
       { q: 'Cochez « Reconstitution » et faites varier le nombre de rangs de 1 à 25. Que constate-t-on ?', set: { rec: true, Nrec: 1 }, opts: ['La reconstitution se rapproche du carré : les fronts deviennent de plus en plus raides', 'La reconstitution s\'éloigne du carré quand on ajoute des rangs', 'Seul le fondamental compte : rien ne change au-delà du rang 1'], a: 0, ex: 'C\'est le théorème de Fourier : la somme du fondamental et des harmoniques redonne le signal. Les harmoniques de rang élevé fabriquent les fronts raides.' },
       { q: 'Lire le THD affiché par l\'analyseur.', u: '%', a: 47.3, tol: 1.2, ex: 'THD ≈ 47 %. La valeur théorique (≈ 48 %) suppose une infinité de rangs ; l\'analyseur s\'arrête au rang 50, d\'où le léger écart.' },
-      { q: 'Chargez le signal triangle ±5 V, 1 kHz. Lire l\'amplitude du fondamental.', set: { preset: 'triangle' }, u: 'V', a: 4.05, tol: 0.06, ex: 'S₁ = 8A/π² = 8 × 5 / π² ≈ 4,05 V.' },
-      { q: 'Lire le THD du triangle.', set: { preset: 'triangle' }, u: '%', a: 12.1, tol: 0.5, ex: 'THD ≈ 12 % : les raies du triangle décroissent en 1/n² (S₃ = S₁/9), beaucoup plus vite que celles du carré. Ses fronts sont moins raides.' },
-      { q: 'Chargez le signal PWM 0 / 5 V, α = 50 %. Lire la composante continue (rang 0).', set: { preset: 'pwm' }, u: 'V', a: 2.5, tol: 0.03, ex: '⟨u⟩ = α × A = 0,5 × 5 = 2,5 V. Le reste du spectre est celui d\'un carré ±2,5 V (raies impaires).' },
-      { q: 'Réglez α = 20 %. Que deviennent les raies de rang pair ?', set: { preset: 'pwm', alpha: 0.2 }, opts: ['Elles restent absentes', 'Elles apparaissent : le signal n\'est plus symétrique', 'Toutes les raies disparaissent'], a: 1, ex: 'Avec α ≠ 50 %, les alternances ne sont plus symétriques : les raies paires apparaissent. La valeur moyenne vaut 0,2 × 5 = 1 V.' },
+      { q: 'Chargez le signal triangle ±5 V, 1 kHz. Lire l\'amplitude du fondamental.', set: { preset: 'triangle' }, u: 'V', a: 4.05, tol: 0.06, ex: '\\(S_1 = \\dfrac{8A}{\\pi^2} = \\dfrac{8 \\times 5}{\\pi^2} \\approx 4{,}05\\ \\text{V}\\).' },
+      { q: 'Lire le THD du triangle.', set: { preset: 'triangle' }, u: '%', a: 12.1, tol: 0.5, ex: 'THD ≈ 12 % : les raies du triangle décroissent en \\(1/n^2\\) (\\(S_3 = S_1/9\\)), beaucoup plus vite que celles du carré. Ses fronts sont moins raides.' },
+      { q: 'Chargez le signal PWM 0 / 5 V, α = 50 %. Lire la composante continue (rang 0).', set: { preset: 'pwm' }, u: 'V', a: 2.5, tol: 0.03, ex: '\\(\\langle u \\rangle = \\alpha \\times A = 0{,}5 \\times 5 = 2{,}5\\ \\text{V}\\). Le reste du spectre est celui d\'un carré ±2,5 V (raies impaires).' },
+      { q: 'Réglez α = 20 %. Que deviennent les raies de rang pair ?', set: { preset: 'pwm', alpha: 0.2 }, opts: ['Elles restent absentes', 'Elles apparaissent : le signal n\'est plus symétrique', 'Toutes les raies disparaissent'], a: 1, ex: 'Avec \\(\\alpha \\neq 50\\ \\%\\), les alternances ne sont plus symétriques : les raies paires apparaissent. La valeur moyenne vaut \\(0{,}2 \\times 5 = 1\\ \\text{V}\\).' },
     ] },
   { id: 'C', title: 'C · Filtrage', intro: 'Le signal PWM 1 kHz (0 / 5 V, α = 50 %) traverse un filtre RC passe-bas (R = 1,6 kΩ) avant d\'attaquer la vanne. Chaque raie est multipliée par le gain du filtre à sa fréquence.',
     load: () => load('pwm', { filt: true, fc: 994.7 }),
     qs: [
-      { q: 'Calculer la fréquence de coupure du filtre pour C = 100 nF.', u: 'Hz', a: 995, tol: 10, hint: 'f꜀ = 1 / (2πRC)', ex: 'f꜀ = 1 / (2π × 1 600 × 100 × 10⁻⁹) ≈ 995 Hz.' },
-      { q: 'Lire l\'amplitude du fondamental (1 kHz) en sortie du filtre.', u: 'V', a: 2.25, tol: 0.05, ex: 'En entrée, S₁ = 4 × 2,5 / π ≈ 3,18 V ; en sortie, il reste ≈ 2,25 V.' },
-      { q: 'En déduire le gain G du filtre à 1 kHz.', u: '', a: 0.705, tol: 0.015, ex: 'G = 2,25 / 3,18 ≈ 0,71 ≈ 1/√2 : le fondamental est à la fréquence de coupure, où le gain vaut −3 dB.' },
-      { q: 'On remplace le condensateur par C = 10 µF (f꜀ ≈ 10 Hz). Calculer l\'atténuation du fondamental en décibels.', set: { filt: true, fc: 9.947 }, u: 'dB', a: -40, tol: 0.6, hint: 'G = 1 / √(1 + (f/f꜀)²) puis G_dB = 20 log G', ex: 'f / f꜀ ≈ 100 donc G ≈ 0,01 et G_dB = 20 log 0,01 = −40 dB : le fondamental est divisé par 100.' },
+      { q: 'Calculer la fréquence de coupure du filtre pour C = 100 nF.', u: 'Hz', a: 995, tol: 10, hint: '\\(f_c = \\dfrac{1}{2\\pi RC}\\)', ex: '\\(f_c = \\dfrac{1}{2\\pi \\times 1\\,600 \\times 100 \\times 10^{-9}} \\approx 995\\ \\text{Hz}\\).' },
+      { q: 'Lire l\'amplitude du fondamental (1 kHz) en sortie du filtre.', u: 'V', a: 2.25, tol: 0.05, ex: 'En entrée, \\(S_1 = \\dfrac{4 \\times 2{,}5}{\\pi} \\approx 3{,}18\\ \\text{V}\\) ; en sortie, il reste ≈ 2,25 V.' },
+      { q: 'En déduire le gain G du filtre à 1 kHz.', u: '', a: 0.705, tol: 0.015, ex: '\\(G = \\dfrac{2{,}25}{3{,}18} \\approx 0{,}71 \\approx \\dfrac{1}{\\sqrt{2}}\\) : le fondamental est à la fréquence de coupure, où le gain vaut −3 dB.' },
+      { q: 'On remplace le condensateur par C = 10 µF (\\(f_c \\approx 10\\ \\text{Hz}\\)). Calculer l\'atténuation du fondamental en décibels.', set: { filt: true, fc: 9.947 }, u: 'dB', a: -40, tol: 0.6, hint: '\\(G = \\dfrac{1}{\\sqrt{1 + (f/f_c)^2}}\\) puis \\(G_{\\text{dB}} = 20 \\log G\\)', ex: '\\(f/f_c \\approx 100\\) donc \\(G \\approx 0{,}01\\) et \\(G_{\\text{dB}} = 20 \\log 0{,}01 = -40\\ \\text{dB}\\) : le fondamental est divisé par 100.' },
       { q: 'Lire la valeur moyenne de la tension en sortie du filtre.', set: { filt: true, fc: 9.947 }, u: 'V', a: 2.5, tol: 0.03, ex: 'Le gain d\'un passe-bas vaut 1 pour la composante continue : la valeur moyenne 2,5 V est intégralement transmise.' },
-      { q: 'Quelle est la nature du signal obtenu en sortie ?', set: { filt: true, fc: 9.947 }, opts: ['Un signal quasi continu, égal à la valeur moyenne du PWM', 'Un signal carré d\'amplitude réduite', 'Un signal aléatoire'], a: 0, ex: 'Toutes les raies (1 kHz et au-delà) sont fortement atténuées : il ne reste que la composante continue α × A, avec une ondulation résiduelle d\'environ 30 mV.' },
+      { q: 'Quelle est la nature du signal obtenu en sortie ?', set: { filt: true, fc: 9.947 }, opts: ['Un signal quasi continu, égal à la valeur moyenne du PWM', 'Un signal carré d\'amplitude réduite', 'Un signal aléatoire'], a: 0, ex: 'Toutes les raies (1 kHz et au-delà) sont fortement atténuées : il ne reste que la composante continue \\(\\alpha \\times A\\), avec une ondulation résiduelle d\'environ 30 mV.' },
     ] },
   { id: 'D', title: 'D · THD et True RMS', intro: 'Situation déclenchante : le disjoncteur de l\'armoire de régulation déclenche alors que la pince de l\'électricien indique un courant faible. On étudie le courant absorbé par une alimentation à découpage 24 V (spectre en valeurs efficaces).',
     load: () => load('alim'),
     qs: [
       { q: 'Alimentée sous une tension sinusoïdale, cette charge absorbe-t-elle un courant sinusoïdal ?', opts: ['Oui, c\'est une charge linéaire', 'Non, c\'est une charge non linéaire : le courant est formé d\'impulsions'], a: 1, ex: 'Le courant n\'est pas sinusoïdal : l\'alimentation à découpage est une charge non linéaire, source d\'harmoniques.' },
-      { q: 'Lire la valeur efficace du fondamental I₁ (50 Hz).', u: 'A', a: 1.46, tol: 0.03, ex: 'I₁ ≈ 1,46 A.' },
+      { q: 'Lire la valeur efficace du fondamental \\(I_1\\) (50 Hz).', u: 'A', a: 1.46, tol: 0.03, ex: '\\(I_1 \\approx 1{,}46\\ \\text{A}\\).' },
       { q: 'Quel est le rang de l\'harmonique le plus important ?', u: '(rang)', a: 3, tol: 0, ex: 'Le rang 3 (150 Hz) domine, comme pour toutes les charges monophasées à redresseur (alimentations, LED).' },
-      { q: 'Lire la valeur efficace de l\'harmonique de rang 3.', u: 'A', a: 1.18, tol: 0.03, ex: 'I₃ ≈ 1,18 A, soit 81 % du fondamental.' },
-      { q: 'Lire (ou calculer) le taux de distorsion harmonique du courant.', u: '%', a: 97.4, tol: 3, hint: 'THD = √(I₂² + I₃² + …) / I₁', ex: 'THD ≈ 97 % : la pollution harmonique est très forte.' },
-      { q: 'Lire la valeur efficace vraie du courant (appareil True RMS).', u: 'A', a: 2.04, tol: 0.04, ex: 'I = √(I₁² + I₃² + I₅² + …) ≈ 2,04 A.' },
+      { q: 'Lire la valeur efficace de l\'harmonique de rang 3.', u: 'A', a: 1.18, tol: 0.03, ex: '\\(I_3 \\approx 1{,}18\\ \\text{A}\\), soit 81 % du fondamental.' },
+      { q: 'Lire (ou calculer) le taux de distorsion harmonique du courant.', u: '%', a: 97.4, tol: 3, hint: '\\(\\text{THD} = \\dfrac{\\sqrt{I_2^2 + I_3^2 + \\dots}}{I_1}\\)', ex: 'THD ≈ 97 % : la pollution harmonique est très forte.' },
+      { q: 'Lire la valeur efficace vraie du courant (appareil True RMS).', u: 'A', a: 2.04, tol: 0.04, ex: '\\(I = \\sqrt{I_1^2 + I_3^2 + I_5^2 + \\dots} \\approx 2{,}04\\ \\text{A}\\).' },
       { q: 'Lire l\'indication d\'un appareil non True RMS (pince à lecture moyenne).', u: 'A', a: 1.18, tol: 0.03, ex: 'La pince indique ≈ 1,18 A au lieu de 2,04 A : elle sous-estime le courant de 42 %, car elle est étalonnée pour une sinusoïde.' },
       { q: 'Pourquoi le disjoncteur déclenche-t-il alors que la pince indique un courant inférieur à son calibre ?', opts: ['Le disjoncteur est défectueux', 'Le vrai courant efficace, qui échauffe les conducteurs, est bien plus grand que l\'indication de la pince', 'Les harmoniques n\'ont aucun effet thermique'], a: 1, ex: 'Il faut mesurer avec un appareil True RMS : le courant efficace réel (2,04 A) est celui qui échauffe les câbles et fait réagir les protections.' },
-      { q: 'Lire le facteur de crête du courant.', u: '', a: 2.45, tol: 0.05, ex: 'F꜀ = Î / I ≈ 5 / 2,04 ≈ 2,45, bien plus que √2 ≈ 1,41 pour une sinusoïde.' },
+      { q: 'Lire le facteur de crête du courant.', u: '', a: 2.45, tol: 0.05, ex: '\\(F_c = \\dfrac{\\hat{I}}{I} \\approx \\dfrac{5}{2{,}04} \\approx 2{,}45\\), bien plus que \\(\\sqrt{2} \\approx 1{,}41\\) pour une sinusoïde.' },
     ] },
   { id: 'E', title: 'E · Harmoniques sur le réseau', intro: 'Effets des charges non linéaires de la chaufferie sur l\'installation électrique : variateur triphasé du ventilateur de tirage, puis alimentations à découpage réparties sur les trois phases.',
     load: () => load('variateur'),
     qs: [
-      { q: 'Variateur triphasé : quels rangs d\'harmoniques sont présents ?', opts: ['3, 5, 7, 9…', '5, 7, 11, 13… (rangs 6k ± 1)', 'Tous les rangs, pairs et impairs'], a: 1, ex: 'Le courant en créneaux de 120° d\'un redresseur triphasé contient les rangs 5, 7, 11, 13… Il n\'y a ni rangs pairs, ni rangs multiples de 3.' },
-      { q: 'Lire le THD du courant de ligne.', u: '%', a: 30, tol: 1, ex: 'THD ≈ 30 % (raies en 1/n : I₅ = I₁/5, I₇ = I₁/7…).' },
+      { q: 'Variateur triphasé : quels rangs d\'harmoniques sont présents ?', opts: ['3, 5, 7, 9…', '5, 7, 11, 13… (rangs \\(6k \\pm 1\\))', 'Tous les rangs, pairs et impairs'], a: 1, ex: 'Le courant en créneaux de 120° d\'un redresseur triphasé contient les rangs 5, 7, 11, 13… Il n\'y a ni rangs pairs, ni rangs multiples de 3.' },
+      { q: 'Lire le THD du courant de ligne.', u: '%', a: 30, tol: 1, ex: 'THD ≈ 30 % (raies en \\(1/n\\) : \\(I_5 = I_1/5\\), \\(I_7 = I_1/7\\)…).' },
       { q: 'On installe une self de ligne : les fronts durent 20°. Lire le nouveau THD.', set: { mu: 20 }, u: '%', a: 21.5, tol: 1, ex: 'Le THD descend à ≈ 21 % : des fronts moins raides contiennent moins d\'harmoniques de rang élevé. C\'est le principe des selfs et des filtres d\'harmoniques.' },
-      { q: 'Trois alimentations à découpage identiques sont réparties sur les trois phases (400 V / 230 V + N). Calculer le courant de rang 3 dans le neutre : I_N3 = 3 × I₃.', set: { preset: 'alim' }, u: 'A', a: 3.54, tol: 0.1, ex: 'Les courants de rang 3 sont en phase d\'une phase à l\'autre et s\'additionnent : I_N3 = 3 × 1,18 ≈ 3,5 A.' },
+      { q: 'Trois alimentations à découpage identiques sont réparties sur les trois phases (400 V / 230 V + N). Calculer le courant de rang 3 dans le neutre : \\(I_{N3} = 3 \\times I_3\\).', set: { preset: 'alim' }, u: 'A', a: 3.54, tol: 0.1, ex: 'Les courants de rang 3 sont en phase d\'une phase à l\'autre et s\'additionnent : \\(I_{N3} = 3 \\times 1{,}18 \\approx 3{,}5\\ \\text{A}\\).' },
       { q: 'Comparer ce courant au courant efficace d\'une phase (≈ 2,04 A). Quelle conséquence ?', set: { preset: 'alim' }, opts: ['Le neutre est moins chargé que les phases', 'Le neutre est plus chargé que les phases : il risque de chauffer s\'il a la même section', 'Le courant de neutre est toujours nul en triphasé'], a: 1, ex: 'Le neutre transporte ≈ 3,5 A contre 2,04 A par phase. Solutions : neutre surdimensionné, filtre d\'harmoniques, alimentations à absorption sinusoïdale (PFC).' },
     ] },
 ];
@@ -773,9 +778,9 @@ $('#mystForm').addEventListener('submit', (e) => {
   const rows = [];
   const chk = (lbl, v, ref, tol, tip) => { const n = parseNum(v); const ok = !isNaN(n) && Math.abs(n - ref) <= tol; rows.push(`<div class="fb ${ok ? 'ok' : 'bad'}" style="margin:0 0 6px">${lbl} : ${isNaN(n) ? 'non renseigné' : (ok ? 'correct' : 'à revoir' + (tip ? ` (${tip})` : ''))}</div>`); return ok; };
   const fm = $('#mForm').value; rows.push(`<div class="fb ${fm === m.k ? 'ok' : 'bad'}" style="margin:0 0 6px">Forme : ${fm ? (fm === m.k ? 'correct' : 'à revoir : observez l\'oscillogramme et les rangs présents') : 'non choisie'}</div>`);
-  chk('Fréquence du fondamental', $('#mF').value, m.f, m.f * 0.03, 'f = 1 / T, ou fréquence de la première raie non nulle');
+  chk('Fréquence du fondamental', $('#mF').value, m.f, m.f * 0.03, '\\(f = 1/T\\), ou fréquence de la première raie non nulle');
   chk('Valeur moyenne', $('#mMoy').value, m.mean, Math.max(0.05, 0.03 * m.scale), 'raie de rang 0');
-  chk('Valeur efficace', $('#mEff').value, m.rms, m.rms * 0.05, 'S² = S₀² + Σ (Sₙ/√2)²');
+  chk('Valeur efficace', $('#mEff').value, m.rms, m.rms * 0.05, '\\(S^2 = S_0^2 + \\sum \\left(\\dfrac{S_n}{\\sqrt{2}}\\right)^2\\)');
   if (isFinite(m.thd)) chk('THD', $('#mThd').value, m.thd, Math.max(3, 0.08 * m.thd), 'utilisez les raies au moins jusqu\'au rang 15');
   const allOk = !rows.some((x) => x.includes('fb bad'));
   mystStats.tries++; if (allOk && !m.solved) { m.solved = true; mystStats.ok++; }
@@ -794,15 +799,17 @@ function buildHarm() {
 }
 function drawCalc() {
   if (st.preset !== 'compose') return;
-  const h = st.h, terms = [], sq = [];
+  const h = st.h, terms = [], sq = [], tx = (v) => fmt(v, 2).replace(',', '{,}').replace(/ | /g, '\\,');
   let s2 = h[0] ** 2, hs = 0;
-  if (h[0]) { terms.push(`${fmt(h[0], 2)}²`); }
-  for (let n = 1; n < h.length; n++) if (h[n]) { s2 += h[n] ** 2 / 2; terms.push(`(${fmt(Math.abs(h[n]), 2)}/√2)²`); if (n >= 2) { hs += h[n] ** 2; sq.push(`${fmt(Math.abs(h[n]), 2)}²`); } }
-  const rms = Math.sqrt(s2);
-  $('#calc').innerHTML = `<div>s(t) = ${(((h[0] ? fmt(h[0], 2) : '') + h.slice(1).map((v, i) => v ? ` ${v < 0 ? '−' : '+'} ${fmt(Math.abs(v), 2)}·sin(${i + 1 > 1 ? i + 1 : ''}ωt)` : '').join('')).replace(/^ \+ /, '').replace(/^ − /, '−')) || '0'}</div>
-  <div style="margin-top:8px"><b>Valeur efficace</b> : S = √(${terms.join(' + ') || '0'}) = <b>${sig(rms, 3)} V</b></div>
+  if (h[0]) terms.push(`${tx(h[0])}^2`);
+  for (let n = 1; n < h.length; n++) if (h[n]) { s2 += h[n] ** 2 / 2; terms.push(`\\left(\\dfrac{${tx(Math.abs(h[n]))}}{\\sqrt{2}}\\right)^2`); if (n >= 2) { hs += h[n] ** 2; sq.push(`${tx(Math.abs(h[n]))}^2`); } }
+  const rms = Math.sqrt(s2), tn = (v, d) => sig(v, d).replace(',', '{,}').replace(/ | /g, '\\,');
+  const st0 = ((h[0] ? tx(h[0]) : '') + h.slice(1).map((v, i) => v ? ` ${v < 0 ? '-' : '+'} ${tx(Math.abs(v))}\\sin(${i + 1 > 1 ? i + 1 : ''}\\omega t)` : '').join('')).replace(/^ \+ /, '').replace(/^ - /, '-') || '0';
+  const thd = h[1] ? `\\(\\text{THD} = \\dfrac{\\sqrt{${sq.join(' + ') || '0'}}}{${tx(Math.abs(h[1]))}} = ${tn(100 * Math.sqrt(hs) / Math.abs(h[1]), 3)}\\ \\%\\)` : '<b>THD</b> : — (pas de fondamental)';
+  $('#calc').innerHTML = `<div>\\(s(t) = ${st0}\\)</div>
+  <div style="margin-top:8px"><b>Valeur efficace</b> : \\(S = \\sqrt{${terms.join(' + ') || '0'}} = ${tn(rms, 3)}\\ \\text{V}\\)</div>
   <div class="small">mesure True RMS de l'analyseur : ${sig(C.rms, 3)} V</div>
-  <div style="margin-top:8px"><b>THD</b> = √(${sq.join(' + ') || '0'}) / ${fmt(Math.abs(h[1]), 2)} = <b>${h[1] ? sig(100 * Math.sqrt(hs) / Math.abs(h[1]), 3) + ' %' : '— (pas de fondamental)'}</b></div>
+  <div style="margin-top:8px">${thd}</div>
   <div class="small" style="margin-top:8px">Amplitudes et valeurs efficaces ne se mélangent pas : ici, le THD est calculé avec les amplitudes, ce qui donne le même résultat qu'avec les valeurs efficaces.</div>`;
 }
 document.querySelectorAll('[data-comp]').forEach((b) => b.addEventListener('click', () => {
@@ -817,7 +824,7 @@ document.querySelectorAll('[data-comp]').forEach((b) => b.addEventListener('clic
 function buildRecap() {
   const nom = $('#nom').value.trim() || '(nom non renseigné)';
   const d = new Date(), date = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  const strip = (h) => h.replace(/<[^>]+>/g, '');
+  const strip = (h) => h.replace(/<[^>]+>/g, '').replace(/\\\(|\\\)/g, '').replace(/\\pm/g, '±').replace(/\\times/g, '×').replace(/\\alpha/g, 'α').replace(/[{}]/g, '');
   const L = [`BANC D'ANALYSE SPECTRALE — BTS CIRA, chapitre 4`, `Élève : ${nom}`, `Date : ${date}`, ''];
   let tot = 0, okT = 0;
   PARTS.forEach((P) => {
@@ -842,6 +849,22 @@ $('#cpRecap').addEventListener('click', () => {
   const sel = () => { const r = document.createRange(); r.selectNodeContents($('#recap')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('#cpMsg').textContent = 'Texte sélectionné : utilisez Ctrl+C.'; };
   try { navigator.clipboard.writeText(t).then(() => { $('#cpMsg').textContent = 'Copié.'; }, sel); } catch (e) { sel(); }
 });
+
+/* ---------- Équations (MathJax) ---------- */
+const mathZones = ['#qs', '#partIntro', '#presetTxt', '#mystFb', '#calc'].map((z) => $(z));
+let mjQueue = Promise.resolve(), mjPending = false;
+function typesetMath() {
+  if (mjPending) return; mjPending = true;
+  requestAnimationFrame(() => {
+    mjPending = false;
+    const els = mathZones.filter((el) => el && el.textContent.includes('\\('));
+    if (!els.length || !window.MathJax || !MathJax.typesetPromise) return;
+    mjQueue = mjQueue.then(() => MathJax.typesetPromise(els)).catch(() => {});
+  });
+}
+const mjObs = new MutationObserver(typesetMath);
+mathZones.forEach((el) => el && mjObs.observe(el, { childList: true, subtree: true, characterData: true }));
+window.addEventListener('load', () => { if (window.MathJax && MathJax.startup) MathJax.startup.promise.then(typesetMath); });
 
 /* ---------- Démarrage ---------- */
 window.__banc = { st, compute, load, PARTS, PRESETS, applySet: (pi, q) => { part = pi; applySet(q); }, get C() { return C; } };

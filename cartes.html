@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cartes de révision</title>
+<!--
+  Page unique de cartes de révision, valable pour toutes les classes :
+      cartes.html?c=et&ch=le-hacheur
+  Les cartes sont lues dans cartes/<classe>/<chapitre>.json, produit par
+  construire_site.py à partir du fichier « cartes de révision.json » du chapitre.
+  Les formules sont écrites en LaTeX entre $…$ et affichées par KaTeX.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --ink:#1F3864; --text:#18212F; --muted:#5A6577;
+  --grid:#D8E0EA; --accent:#C55A11; --accent-soft:#FBEDE3; --ok:#3F7A3A; --ok-soft:#E6F1E3;
+  --focus:#C55A11;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101826; --surface:#172234; --ink:#AFC4EA; --text:#E4EAF3; --muted:#9AA7BC;
+    --grid:#2A3850; --accent:#F08A4B; --accent-soft:#3A2618; --ok:#8CC784; --ok-soft:#1F3320;
+    --focus:#F08A4B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101826; --surface:#172234; --ink:#AFC4EA; --text:#E4EAF3; --muted:#9AA7BC;
+  --grid:#2A3850; --accent:#F08A4B; --accent-soft:#3A2618; --ok:#8CC784; --ok-soft:#1F3320;
+  --focus:#F08A4B;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 56px}
+h1,h2{font-family:"Barlow Condensed","Arial Narrow",sans-serif;color:var(--ink);line-height:1.1;margin:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+
+header{padding:20px 0 16px;border-bottom:1px solid var(--grid)}
+.retour{display:inline-block;color:var(--ink);font-size:.9rem;margin-bottom:12px;padding:4px 0}
+.classe{color:var(--accent);font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin:0}
+h1{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:700;margin-top:2px}
+.genre{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+
+.avance{display:flex;align-items:center;gap:12px;margin:18px 0 4px}
+.avance .compte{font-size:.86rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.jauge{flex:1;height:6px;background:var(--grid);border-radius:3px;overflow:hidden}
+.jauge span{display:block;height:100%;background:var(--accent);width:0;transition:width .25s ease}
+
+.carte{background:var(--surface);border:1px solid var(--grid);border-radius:12px;
+  padding:22px 20px;margin:14px 0;min-height:12rem;display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow-wrap:anywhere}
+.carte::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:0 3px 3px 0;background:var(--accent)}
+.etiquette{display:inline-block;align-self:flex-start;font-size:.75rem;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 10px;margin-bottom:10px}
+.face{font-size:1.12rem}
+.dos{margin-top:16px;padding-top:16px;border-top:1px dashed var(--grid);font-size:1.03rem}
+.dos b{color:var(--ink)}
+.source{margin-top:14px;font-size:.8rem;color:var(--muted)}
+.indice{margin-top:16px;font-size:.86rem;color:var(--muted)}
+.katex{font-size:1.08em}
+.katex-display{margin:.6em 0;overflow-x:auto;overflow-y:hidden;padding:2px 0}
+
+table{border-collapse:collapse;margin:10px 0;font-size:.94rem;display:block;overflow-x:auto;max-width:100%}
+th,td{border:1px solid var(--grid);padding:6px 10px;text-align:left}
+th{color:var(--ink)}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0}
+.bouton{font:inherit;font-weight:700;cursor:pointer;border:1.5px solid transparent;border-radius:9px;
+  padding:11px 18px;min-height:48px;background:var(--ink);color:var(--surface);flex:1 1 200px;
+  text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.bouton.second{background:var(--surface);color:var(--ink);border-color:var(--ink)}
+.bouton.su{background:var(--ok);color:var(--surface)}
+.bouton.pas{background:var(--accent);color:var(--surface)}
+.bouton:hover{filter:brightness(1.08)}
+
+.score{background:var(--surface);border:1px solid var(--grid);border-radius:12px;padding:20px;margin:18px 0}
+.score h2{font-size:1.5rem;margin-bottom:6px}
+.chiffre{font-family:"Barlow Condensed",sans-serif;font-size:3rem;font-weight:700;color:var(--ink);line-height:1;margin:6px 0}
+.chiffre small{font-family:"Atkinson Hyperlegible",sans-serif;font-size:1rem;font-weight:400;color:var(--muted)}
+.vide{color:var(--muted);font-size:.95rem;margin:6px 0 0}
+.types{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.types span{font-size:.8rem;border:1px solid var(--grid);border-radius:999px;padding:2px 10px;color:var(--muted)}
+
+.liste{list-style:none;padding:0;margin:18px 0 0}
+.liste li{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:14px 16px;margin:0 0 10px}
+.liste .q{font-weight:700}
+.liste .r{margin-top:8px;padding-top:8px;border-top:1px dashed var(--grid)}
+.liste .sue{float:right;font-size:.75rem;color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:1px 9px;margin-left:8px}
+
+footer{margin:28px 0 0;padding-top:14px;border-top:1px solid var(--grid);color:var(--muted);font-size:.82rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="retour" href="./">← Retour au site</a>
+    <p class="classe" id="classe"></p>
+    <h1 id="titre">Chargement…</h1>
+    <p class="genre">Cartes de révision</p>
+  </header>
+  <main id="zone"></main>
+  <footer>Rien n'est envoyé : ce que tu marques « à revoir » reste dans cet appareil.</footer>
+</div>
+<script>
+(function(){
+  "use strict";
+  var par = new URLSearchParams(location.search);
+  var cls = (par.get("c") || "").replace(/[^a-z0-9-]/g, "");
+  var ch  = (par.get("ch") || "").replace(/[^a-z0-9-]/g, "");
+  var zone = document.getElementById("zone");
+  var chap, cleStock, pile, pos, revoir, su, total;
+
+  function creer(b, c, h){ var e = document.createElement(b); if(c) e.className = c; if(h !== undefined) e.innerHTML = h; return e; }
+  function bouton(txt, cls2, fn){ var b = creer("button", "bouton" + (cls2 ? " " + cls2 : ""), txt); b.type = "button"; b.onclick = fn; return b; }
+  function lire(){ try{ return JSON.parse(localStorage.getItem(cleStock) || "[]"); }catch(e){ return []; } }
+  function ecrire(v){ try{ localStorage.setItem(cleStock, JSON.stringify(v)); }catch(e){} }
+  function melange(t){ var a = t.slice(); for(var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  function maths(el){
+    if(window.renderMathInElement){
+      try{ renderMathInElement(el, {delimiters:[{left:"$$", right:"$$", display:true},{left:"$", right:"$", display:false}], throwOnError:false}); }catch(e){}
+    }
+  }
+  function afficher(){ maths(zone); window.scrollTo({top:0}); }
+
+  function erreur(txt){
+    document.getElementById("titre").textContent = "Cartes indisponibles";
+    zone.innerHTML = "";
+    zone.appendChild(creer("div", "carte", '<div class="face">' + txt + "</div>"));
+  }
+  if(!cls || !ch){ erreur("L'adresse ne précise pas la classe et le chapitre."); return; }
+
+  fetch("cartes/" + cls + "/" + ch + ".json", {cache:"no-cache"})
+    .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(demarrer)
+    .catch(function(){ erreur("Ce chapitre n'a pas encore de cartes."); });
+
+  function demarrer(d){
+    chap = d;
+    cleStock = "cartes." + cls + "." + ch;
+    document.getElementById("classe").textContent = chap.classe || "";
+    document.getElementById("titre").textContent = chap.titre;
+    document.title = "Cartes — " + chap.titre;
+    if(!chap.cartes || !chap.cartes.length){ erreur("Ce chapitre n'a pas encore de cartes."); return; }
+    // KaTeX est chargé en différé : on attend qu'il soit prêt avant le premier affichage.
+    if(window.renderMathInElement || document.readyState === "complete") accueil();
+    else window.addEventListener("load", accueil, {once:true});
+  }
+
+  function accueil(){
+    var acquises = lire();
+    var reste = chap.cartes.filter(function(c, i){ return acquises.indexOf(i) < 0; });
+    zone.innerHTML = "";
+    var d = creer("div", "score");
+    d.appendChild(creer("h2", null, "Les cartes du chapitre"));
+    d.appendChild(creer("p", "chiffre", chap.cartes.length + " <small>cartes</small>"));
+    d.appendChild(creer("p", "vide", acquises.length
+      ? acquises.length + " déjà marquée" + (acquises.length > 1 ? "s" : "") + " comme sue" + (acquises.length > 1 ? "s" : "") + ", " + reste.length + " à revoir."
+      : "Une question par carte : tu réponds dans ta tête, tu retournes la carte, et tu dis honnêtement si tu savais."));
+    var compte = {};
+    chap.cartes.forEach(function(c){ compte[c.type] = (compte[c.type] || 0) + 1; });
+    var t = creer("div", "types");
+    Object.keys(compte).forEach(function(k){ t.appendChild(creer("span", null, k + " · " + compte[k])); });
+    d.appendChild(t);
+    zone.appendChild(d);
+    var act = creer("div", "actions");
+    if(reste.length && reste.length < chap.cartes.length) act.appendChild(bouton("Réviser les " + reste.length + " cartes à revoir", "", function(){ lancer(false); }));
+    act.appendChild(bouton(reste.length < chap.cartes.length ? "Tout reprendre depuis le début" : "Commencer", reste.length < chap.cartes.length ? "second" : "", function(){ lancer(true); }));
+    zone.appendChild(act);
+    var act2 = creer("div", "actions");
+    act2.appendChild(bouton("Voir toutes les cartes", "second", liste));
+    act2.appendChild(bouton("Télécharger pour Anki", "second", anki));
+    zone.appendChild(act2);
+    afficher();
+  }
+
+  function lancer(tout){
+    var acquises = tout ? [] : lire();
+    if(tout) ecrire([]);
+    pile = melange(chap.cartes.map(function(c, i){ return i; }).filter(function(i){ return acquises.indexOf(i) < 0; }));
+    pos = 0; revoir = []; su = 0; total = pile.length;
+    if(!total){ accueil(); return; }
+    face();
+  }
+  function entete(){
+    var av = creer("div", "avance");
+    av.appendChild(creer("span", "compte", "Carte " + (pos + 1) + " / " + pile.length));
+    var j = creer("div", "jauge"), b = creer("span");
+    b.style.width = Math.round(pos / pile.length * 100) + "%";
+    j.appendChild(b); av.appendChild(j);
+    return av;
+  }
+  function carte(c, avecDos){
+    var d = creer("div", "carte");
+    d.appendChild(creer("span", "etiquette", c.type));
+    d.appendChild(creer("div", "face", c.recto));
+    if(avecDos){
+      d.appendChild(creer("div", "dos", c.verso));
+      if(c.origine) d.appendChild(creer("div", "source", c.origine));
+    } else {
+      d.appendChild(creer("div", "indice", "Réponds dans ta tête, puis retourne la carte."));
+    }
+    return d;
+  }
+  function face(){
+    zone.innerHTML = "";
+    zone.appendChild(entete());
+    zone.appendChild(carte(chap.cartes[pile[pos]], false));
+    var act = creer("div", "actions");
+    var b = bouton("Retourner la carte", "", dos);
+    act.appendChild(b); zone.appendChild(act);
+    afficher(); b.focus({preventScroll:true});
+  }
+  function dos(){
+    var idx = pile[pos];
+    zone.innerHTML = "";
+    zone.appendChild(entete());
+    zone.appendChild(carte(chap.cartes[idx], true));
+    var act = creer("div", "actions");
+    var ok = bouton("Je savais", "su", function(){
+      su++; var a = lire(); if(a.indexOf(idx) < 0){ a.push(idx); ecrire(a); } suivante();
+    });
+    act.appendChild(ok);
+    act.appendChild(bouton("À revoir", "pas", function(){
+      revoir.push(idx); ecrire(lire().filter(function(x){ return x !== idx; })); suivante();
+    }));
+    zone.appendChild(act);
+    afficher(); ok.focus({preventScroll:true});
+  }
+  function suivante(){
+    pos++;
+    if(pos < pile.length){ face(); return; }
+    // Les cartes ratées repassent une fois avant la fin de la séance.
+    if(revoir.length){ pile = melange(revoir); revoir = []; pos = 0; face(); return; }
+    fin();
+  }
+  function fin(){
+    zone.innerHTML = "";
+    var d = creer("div", "score");
+    d.appendChild(creer("h2", null, "Séance terminée"));
+    d.appendChild(creer("p", "chiffre", su + " <small>sue" + (su > 1 ? "s" : "") + " du premier coup sur " + total + "</small>"));
+    var reste = chap.cartes.length - lire().length;
+    d.appendChild(creer("p", "vide", reste
+      ? "Il te reste " + reste + " carte" + (reste > 1 ? "s" : "") + " à revoir la prochaine fois."
+      : "Toutes les cartes du chapitre sont sues. Reviens dans quelques jours : c'est la mémoire à long terme qu'on entraîne."));
+    zone.appendChild(d);
+    var act = creer("div", "actions");
+    var b = bouton("Retour aux cartes du chapitre", "", accueil);
+    act.appendChild(b); zone.appendChild(act);
+    afficher(); b.focus({preventScroll:true});
+  }
+  function liste(){
+    var acquises = lire();
+    zone.innerHTML = "";
+    var act = creer("div", "actions");
+    act.appendChild(bouton("← Retour", "second", accueil));
+    zone.appendChild(act);
+    var ul = creer("ul", "liste");
+    chap.cartes.forEach(function(c, i){
+      var li = creer("li");
+      li.appendChild(creer("span", "etiquette", c.type));
+      if(acquises.indexOf(i) >= 0) li.appendChild(creer("span", "sue", "sue"));
+      li.appendChild(creer("div", "q", c.recto));
+      li.appendChild(creer("div", "r", c.verso));
+      ul.appendChild(li);
+    });
+    zone.appendChild(ul);
+    afficher();
+  }
+  // Export Anki : texte tabulé, fabriqué dans le navigateur. Les formules partent en
+  // \( … \), syntaxe qu'Anki affiche nativement avec MathJax.
+  function pourAnki(t){
+    return String(t || "")
+      .replace(/\$\$([\s\S]+?)\$\$/g, "\\[$1\\]")
+      .replace(/\$([^$]+?)\$/g, "\\($1\\)")
+      .replace(/\t/g, " ").replace(/\r?\n/g, "<br>").trim();
+  }
+  function anki(){
+    var nom = (chap.classe || "BTS") + "::" + chap.titre.replace(/[:|]/g, " ");
+    var l = ["#separator:tab", "#html:true", "#notetype:Basic", "#deck:Physique::" + nom, "#columns:Recto\tVerso"];
+    chap.cartes.forEach(function(c){ l.push(pourAnki(c.recto) + "\t" + pourAnki(c.verso)); });
+    var url = URL.createObjectURL(new Blob(["﻿" + l.join("\n") + "\n"], {type:"text/plain;charset=utf-8"}));
+    var a = document.createElement("a");
+    a.href = url; a.download = "anki-" + cls + "-" + ch + ".txt";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  }
+})();
+</script>
+</body>
+</html>

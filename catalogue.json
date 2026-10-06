@@ -42,6 +42,12 @@
        "pages": 5
       },
       {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 26,
+       "lien": "cartes.html?c=et&ch=le-hacheur"
+      },
+      {
        "titre": "animation le hacheur",
        "type": "Animation",
        "lien": "animations/et/animation-le-hacheur.html"
@@ -100,6 +106,12 @@
        "pages": 4
       },
       {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 22,
+       "lien": "cartes.html?c=et&ch=les-regimes-transitoires"
+      },
+      {
        "titre": "activité 1. Surveillance thermique moteur industriel",
        "type": "Activité",
        "fichier": "2716e95c3fb88670d2a913c3.bin",
@@ -135,16 +147,16 @@
       {
        "titre": "Cours",
        "type": "Cours",
-       "fichier": "0c64fbb16a8088b6f3dee420.bin",
-       "taille": 525059,
+       "fichier": "4365203e99dbc7864f80b9d5.bin",
+       "taille": 524037,
        "pages": 9
       },
       {
        "titre": "bilan",
        "type": "Fiche",
-       "fichier": "bf39c04a3144323d3d00c04c.bin",
-       "taille": 161771,
-       "pages": 5
+       "fichier": "5905c352c6b3d5c07e28fece.bin",
+       "taille": 187847,
+       "pages": 6
       },
       {
        "titre": "fiche animation à compléter",
@@ -156,9 +168,15 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "829afe9c7ca29326ffa5e2ed.bin",
-       "taille": 127239,
-       "pages": 4
+       "fichier": "b63c50dd16b2b364d8cd499e.bin",
+       "taille": 162723,
+       "pages": 5
+      },
+      {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 26,
+       "lien": "cartes.html?c=cira&ch=nature-des-signaux-fourier-et-thd"
       },
       {
        "titre": "animation nature des signaux",
@@ -168,15 +186,15 @@
       {
        "titre": "TP1 Analyse spectrale",
        "type": "TP",
-       "fichier": "a93837c20f03cc419489cd47.bin",
-       "taille": 401139,
+       "fichier": "daf070e00b7541db3124b000.bin",
+       "taille": 410936,
        "pages": 7
       },
       {
        "titre": "TP2 THD",
        "type": "TP",
-       "fichier": "046e0668aee3bda31bbc6bf4.bin",
-       "taille": 141839,
+       "fichier": "81ea0dbfc4b685c36585a6ac.bin",
+       "taille": 142412,
        "pages": 3
       }
      ]
@@ -206,6 +224,12 @@
        "fichier": "5865aa155e21c03cfd27cb5f.bin",
        "taille": 159901,
        "pages": 5
+      },
+      {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 32,
+       "lien": "cartes.html?c=cim&ch=les-convertisseurs-electromagnetiques"
       },
       {
        "titre": "animation moteur asynchrone",

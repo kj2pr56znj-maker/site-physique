@@ -241,7 +241,7 @@ function docRow(c, d, open){
   const li = document.createElement("li");
   if (d.lien) {
     li.innerHTML = `<span class="type">${esc(d.type)}</span>
-      <span class="title">${esc(d.titre)}<span class="meta">Animation interactive, accès libre</span></span>
+      <span class="title">${esc(d.titre)}<span class="meta">${d.type === "Cartes" ? (d.nombre ? d.nombre + " cartes, " : "") + "accès libre" : "Animation interactive, accès libre"}</span></span>
       <span class="actions"><a class="open" href="${esc(d.lien)}" target="_blank" rel="noopener">Ouvrir</a></span>`;
     return li;
   }

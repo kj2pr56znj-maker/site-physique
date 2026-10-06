@@ -1,0 +1,162 @@
+{
+ "classe": "BTS CIRA",
+ "titre": "Nature des signaux, Fourier et THD",
+ "cartes": [
+  {
+   "type": "Notion",
+   "recto": "Signal analogique : définition ? Un exemple dans la chaufferie ?",
+   "verso": "Signal <b>continu en temps et en amplitude</b>. Ex. : sortie 4–20 mA du transmetteur de pression vapeur.",
+   "origine": "Cours §1 — Nature des signaux"
+  },
+  {
+   "type": "Notion",
+   "recto": "Échantillonné, quantifié, numérique : quelle différence ?",
+   "verso": "• <b>Échantillonné</b> : défini seulement à des instants discrets $kT_e$.<br>• <b>Quantifié</b> : amplitude limitée à un nombre fini de valeurs (pas $q$).<br>• <b>Numérique</b> : à la fois échantillonné <b>et</b> quantifié (suite de mots binaires).",
+   "origine": "Cours §1 — Nature des signaux"
+  },
+  {
+   "type": "Notion",
+   "recto": "Signal modulé : définition ? Exemple ?",
+   "verso": "Une <b>porteuse</b> dont un paramètre (amplitude, fréquence…) varie avec l'information. Ex. : liaison radio d'un capteur sans fil.",
+   "origine": "Cours §1 — Nature des signaux"
+  },
+  {
+   "type": "Notion",
+   "recto": "Signal périodique / signal aléatoire : définitions ?",
+   "verso": "• <b>Périodique</b> : $s(t+T) = s(t)$ (secteur 50 Hz, PWM).<br>• <b>Aléatoire</b> : évolution imprévisible, décrite par des grandeurs <b>statistiques</b> (bruit de mesure, perturbations CEM).",
+   "origine": "Cours §1 — Nature des signaux"
+  },
+  {
+   "type": "Piège",
+   "recto": "Un signal n'a-t-il qu'une seule nature ?",
+   "verso": "Non, il peut en <b>cumuler plusieurs</b> : la commande PWM de la vanne est à la fois <b>périodique</b> et <b>analogique</b> (deux niveaux de tension).",
+   "origine": "Cours §1 — Nature des signaux"
+  },
+  {
+   "type": "Méthode",
+   "recto": "CAN 12 bits, plage 0–10 V : nombre de niveaux et quantum ?",
+   "verso": "Niveaux : $2^{12} = \\mathbf{4\\,096}$<br>Quantum : $q = \\dfrac{10}{4\\,096} \\approx \\mathbf{2{,}4\\ mV}$",
+   "origine": "Cours — Exercice 1"
+  },
+  {
+   "type": "Formule",
+   "recto": "Relations entre période, fréquence et pulsation ?",
+   "verso": "$$f = \\frac{1}{T} \\qquad \\omega = 2\\pi f$$ $T$ en s, $f$ en Hz, $\\omega$ en rad/s.",
+   "origine": "Cours §2 — Grandeurs d'un signal périodique"
+  },
+  {
+   "type": "Formule",
+   "recto": "Valeur moyenne d'un signal périodique : définition ? Que représente-t-elle ?",
+   "verso": "$$\\langle s\\rangle = \\frac{1}{T}\\int_0^T s(t)\\,dt$$ C'est la <b>composante continue</b> du signal.",
+   "origine": "Cours §2 — Grandeurs d'un signal périodique"
+  },
+  {
+   "type": "Formule",
+   "recto": "Valeur efficace d'un signal périodique : définition ?",
+   "verso": "$$S_{eff} = \\sqrt{\\frac{1}{T}\\int_0^T s^2(t)\\,dt}$$",
+   "origine": "Cours §2 — Grandeurs d'un signal périodique"
+  },
+  {
+   "type": "Formule",
+   "recto": "Signal sinusoïdal : expression et valeur efficace ?",
+   "verso": "$$s(t) = S_{max}\\sin(\\omega t + \\varphi) \\qquad S_{eff} = \\frac{S_{max}}{\\sqrt{2}}$$",
+   "origine": "Cours §2 — Grandeurs d'un signal périodique"
+  },
+  {
+   "type": "Formule",
+   "recto": "Décomposition en série de Fourier : écrire $s(t)$ et nommer chaque terme.",
+   "verso": "$$s(t) = S_0 + \\sum_{n \\ge 1} S_{n,max}\\sin(n\\omega t + \\varphi_n)$$ $S_0$ : valeur moyenne ; $n = 1$ : <b>fondamental</b> (fréquence $f$) ; $n \\ge 2$ : <b>harmonique</b> de rang $n$ (fréquence $n f$).",
+   "origine": "Cours §3 — Décomposition en série de Fourier"
+  },
+  {
+   "type": "Notion",
+   "recto": "Spectre d'un signal périodique / non périodique ?",
+   "verso": "Périodique : spectre <b>discret</b> (des raies aux fréquences $n f$).<br>Non périodique : spectre <b>continu</b>.",
+   "origine": "Cours §3 — Décomposition en série de Fourier"
+  },
+  {
+   "type": "Formule",
+   "recto": "Amplitudes des harmoniques d'un signal carré $\\pm A$ ? Comment décroissent-elles ?",
+   "verso": "$$S_{n,max} = \\frac{4A}{n\\pi}, \\quad n \\text{ impair}$$ Décroissance en $1/n$ : <b>lente</b>.",
+   "origine": "Cours §3 — Décomposition en série de Fourier"
+  },
+  {
+   "type": "Formule",
+   "recto": "Amplitudes des harmoniques d'un signal triangle $\\pm A$ ? Comment décroissent-elles ?",
+   "verso": "$$S_{n,max} = \\frac{8A}{n^2\\pi^2}, \\quad n \\text{ impair}$$ Décroissance en $1/n^2$ : <b>rapide</b> (le triangle est plus proche d'une sinusoïde).",
+   "origine": "Cours §3 — Décomposition en série de Fourier"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Carré $\\pm 10$ V à 50 Hz : amplitudes et fréquences du fondamental et des rangs 3 et 5 ?",
+   "verso": "Fondamental : $\\dfrac{4 \\times 10}{\\pi} \\approx \\mathbf{12{,}7\\ V}$ à 50 Hz<br>Rang 3 : $12{,}7/3 \\approx \\mathbf{4{,}2\\ V}$ à 150 Hz<br>Rang 5 : $12{,}7/5 \\approx \\mathbf{2{,}5\\ V}$ à 250 Hz",
+   "origine": "Cours §3 — Exercice 2"
+  },
+  {
+   "type": "Formule",
+   "recto": "Valeur efficace d'un signal à partir de sa décomposition ?",
+   "verso": "$$S_{eff}^2 = S_0^2 + S_{1,eff}^2 + S_{2,eff}^2 + \\dots \\quad\\text{avec}\\quad S_{n,eff} = \\frac{S_{n,max}}{\\sqrt{2}}$$",
+   "origine": "Cours §4 — Valeur efficace d'un signal décomposé"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Tension redressée : continu 12,0 V, raies de 4,0 V, 0,8 V et 0,35 V (amplitudes). Valeur efficace totale ?",
+   "verso": "Partie alternative : $\\sqrt{\\dfrac{4{,}0^2 + 0{,}8^2 + 0{,}35^2}{2}} \\approx 2{,}9$ V<br>Totale : $\\sqrt{12{,}0^2 + 2{,}9^2} \\approx \\mathbf{12{,}3\\ V}$",
+   "origine": "Cours — Exercice 3"
+  },
+  {
+   "type": "Piège",
+   "recto": "Tension redressée double alternance d'un réseau 50 Hz : pourquoi la première raie (hors continu) est-elle à 100 Hz ?",
+   "verso": "Le signal redressé se répète toutes les <b>10 ms</b> : sa période est la moitié de celle du réseau, son fondamental est donc à <b>100 Hz</b>.",
+   "origine": "Cours — Exercice 3"
+  },
+  {
+   "type": "Formule",
+   "recto": "Définition du taux de distorsion harmonique (THD) ?",
+   "verso": "$$THD = \\frac{\\sqrt{S_2^2 + S_3^2 + \\dots}}{S_1}$$ Harmoniques divisés par le fondamental (mêmes types de valeurs : toutes max ou toutes efficaces).",
+   "origine": "Cours §5 — Taux de distorsion harmonique"
+  },
+  {
+   "type": "Notion",
+   "recto": "THD théorique d'une sinusoïde, d'un triangle et d'un carré ?",
+   "verso": "Sinusoïde : <b>0 %</b> — Triangle : ≈ <b>12 %</b> — Carré : ≈ <b>48 %</b>",
+   "origine": "Cours §5 — Taux de distorsion harmonique"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Signal carré : calculer le THD en ne gardant que les rangs 3 et 5.",
+   "verso": "$THD = \\sqrt{\\left(\\tfrac{1}{3}\\right)^2 + \\left(\\tfrac{1}{5}\\right)^2} \\approx \\mathbf{39\\ \\%}$<br>Inférieur aux 48 % théoriques : il manque les rangs 7, 9…",
+   "origine": "Cours — Exercice 2"
+  },
+  {
+   "type": "Notion",
+   "recto": "Qu'est-ce qu'une charge non linéaire ? Exemples ?",
+   "verso": "Une charge qui absorbe un <b>courant non sinusoïdal</b> alors qu'elle est alimentée sous tension sinusoïdale. Ex. : variateurs, redresseurs, alimentations à découpage, LED.",
+   "origine": "Cours §6 — Les harmoniques sur le réseau"
+  },
+  {
+   "type": "Notion",
+   "recto": "Rangs d'harmoniques dominants d'un redresseur triphasé ? D'une alimentation à découpage monophasée ?",
+   "verso": "• Variateur, redresseur triphasé : rangs <b>5, 7, 11, 13</b><br>• Alimentation à découpage, LED (monophasé) : rangs <b>3, 5, 7</b>",
+   "origine": "Cours §6 — Les harmoniques sur le réseau"
+  },
+  {
+   "type": "Notion",
+   "recto": "Pourquoi les harmoniques de rang 3 surchargent-ils le neutre ?",
+   "verso": "Ils sont <b>en phase</b> sur les trois phases : au lieu de s'annuler, ils <b>s'additionnent</b> dans le neutre. Solution : neutre surdimensionné.",
+   "origine": "Cours §6 — Les harmoniques sur le réseau"
+  },
+  {
+   "type": "Piège",
+   "recto": "Pour mesurer un courant déformé, peut-on utiliser une pince « à lecture moyenne » ?",
+   "verso": "<b>Non</b> : elle est étalonnée pour des sinusoïdes et fausse la mesure. Il faut un appareil <b>True RMS</b> (valeur efficace vraie).",
+   "origine": "Cours §6 — Les harmoniques sur le réseau"
+  },
+  {
+   "type": "Notion",
+   "recto": "Conséquences des harmoniques sur une installation, et solutions ?",
+   "verso": "<b>Conséquences</b> : échauffement des câbles et du transformateur, courant dans le neutre, déclenchements intempestifs, perturbation des mesures (CEM).<br><b>Solutions</b> : neutre surdimensionné, filtres d'harmoniques, répartition des charges.",
+   "origine": "Cours §6 — Les harmoniques sur le réseau"
+  }
+ ]
+}
