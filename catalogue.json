@@ -11,7 +11,65 @@
    "chapitres": [
     {
      "num": "",
-     "titre": "Les régimes transitoires",
+     "titre": "Le hacheur",
+     "docs": [
+      {
+       "titre": "l'essentiel du chapitre",
+       "type": "Cours",
+       "fichier": "b8f4805ad5971e0467acadb5.bin",
+       "taille": 850815,
+       "pages": 14
+      },
+      {
+       "titre": "bilan",
+       "type": "Fiche",
+       "fichier": "4f5c99ed698a59964b828042.bin",
+       "taille": 152922,
+       "pages": 4
+      },
+      {
+       "titre": "fiche animation à compléter",
+       "type": "Fiche",
+       "fichier": "08b720c89d4ed913fcbc9a5e.bin",
+       "taille": 127960,
+       "pages": 3
+      },
+      {
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "ec0996f2d521dae8c72a4d79.bin",
+       "taille": 142926,
+       "pages": 5
+      },
+      {
+       "titre": "animation le hacheur",
+       "type": "Animation",
+       "lien": "animations/et/animation-le-hacheur.html"
+      },
+      {
+       "titre": "simulateur hacheur 4 quadrants",
+       "type": "Animation",
+       "lien": "animations/et/simulateur-hacheur-4-quadrants.html"
+      },
+      {
+       "titre": "TP1 hacheur série",
+       "type": "TP",
+       "fichier": "0b429abd53e13621d826804e.bin",
+       "taille": 600117,
+       "pages": 4
+      },
+      {
+       "titre": "TP2 hacheur 4 quadrants",
+       "type": "TP",
+       "fichier": "97b47a69e943f09dcd37e5cb.bin",
+       "taille": 56720,
+       "pages": 2
+      }
+     ]
+    },
+    {
+     "num": "",
+     "titre": "Les régimes transitoires",
      "docs": [
       {
        "titre": "l'essentiel du chapitre",
