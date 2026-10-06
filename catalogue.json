@@ -11,7 +11,7 @@
    "chapitres": [
     {
      "num": "",
-     "titre": "Les régimes transitoires",
+     "titre": "Les régimes transitoires",
      "docs": [
       {
        "titre": "l'essentiel du chapitre",
@@ -80,6 +80,32 @@
        "fichier": "0c64fbb16a8088b6f3dee420.bin",
        "taille": 525059,
        "pages": 9
+      },
+      {
+       "titre": "bilan",
+       "type": "Fiche",
+       "fichier": "bf39c04a3144323d3d00c04c.bin",
+       "taille": 171991,
+       "pages": 5
+      },
+      {
+       "titre": "fiche animation à compléter",
+       "type": "Fiche",
+       "fichier": "482c007a938911d767243f4e.bin",
+       "taille": 150723,
+       "pages": 3
+      },
+      {
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "829afe9c7ca29326ffa5e2ed.bin",
+       "taille": 141998,
+       "pages": 4
+      },
+      {
+       "titre": "animation nature des signaux",
+       "type": "Animation",
+       "lien": "animations/cira/animation-nature-des-signaux.html"
       },
       {
        "titre": "TP1 Analyse spectrale",
