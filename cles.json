@@ -10,5 +10,11 @@
   "iv": "jEPox4zKpA1XyWTl",
   "iter": 310000,
   "ct": "MDF6ewy+XIcXwHHY5U4DWvjOA4SC9R8Cg0G4m0IHMob29DfsF/mmw+gSCP5cL5Xb"
+ },
+ "cim": {
+  "salt": "bLnXvHcSFuNWYqXIbt+yLA==",
+  "iv": "dFCAers7sJdCNs4X",
+  "iter": 310000,
+  "ct": "N/shC9nX+1u/fE3mUkvfFu13HbSSbhrhjZXKJwdYgJmb8g5j+5ZKkO1nZMdQLDqy"
  }
 }

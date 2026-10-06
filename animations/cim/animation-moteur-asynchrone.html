@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Banc moteur asynchrone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Banc d'essai : enregistreur à gauche, pupitre à droite, relevés dessous. Même charte que les autres animations du site. */
+:root{
+  --bg:#f3f5f8; --panel:#ffffff; --ink:#16202e; --muted:#5b6778; --line:#d5dce6; --grid:#e7ecf2;
+  --motor:#2f6fd6; --load:#d4561c; --cur:#7a4fd0; --mark:#2f6fd6; --ok:#1f8a4c; --okbg:#e6f5ec; --bad:#b4372b; --badbg:#fbeceb;
+  --chip:#eef2f7; --accent:#d4561c; --plate:#e9edf2; --plateink:#2b3542;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --motor:#6ea2ff; --load:#ff8a4c; --cur:#b394ff; --mark:#6ea2ff; --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; --plate:#232c38; --plateink:#d7dee8; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --motor:#6ea2ff; --load:#ff8a4c; --cur:#b394ff; --mark:#6ea2ff; --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; --plate:#232c38; --plateink:#d7dee8; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2rem);margin:0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--f-display);font-size:1.05rem;margin:0;font-weight:600;letter-spacing:.02em}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hint{font-size:.82rem;color:var(--muted);max-width:56ch}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:920px){.bench{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}
+.scope{padding:12px 12px 10px;display:flex;flex-direction:column;gap:8px}
+.scope-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.readout{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.4em}
+.readout b{color:var(--ink);font-weight:500}
+svg.plot{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair;border-radius:6px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:3px;border-radius:2px;display:inline-block}
+.panel{padding:14px;display:flex;flex-direction:column;gap:14px}
+.group{display:flex;flex-direction:column;gap:8px}
+.lbl{font-size:.72rem;font-family:var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{font:inherit;font-size:.82rem;padding:6px 4px;border:0;background:transparent;color:var(--ink);cursor:pointer;line-height:1.2}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.slider label{font-size:.88rem}
+.slider output{font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
+.slider input{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+.btn{font:inherit;font-size:.88rem;font-weight:500;border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:7px;padding:7px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.stop{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn:focus-visible,.seg button:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.stat{background:var(--chip);border-radius:6px;padding:6px 8px;min-width:0}
+.stat .k{font-size:.7rem;color:var(--muted);font-family:var(--f-mono)}
+.stat .v{font-family:var(--f-mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+.plate{background:var(--plate);color:var(--plateink);border-radius:8px;padding:10px 12px;font-family:var(--f-mono);font-size:.8rem;display:grid;grid-template-columns:repeat(3,auto);gap:2px 12px;justify-content:space-between;border:1px solid var(--line)}
+.plate .t{grid-column:1/-1;font-family:var(--f-display);font-weight:600;font-size:.9rem;letter-spacing:.04em;border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:4px;display:flex;justify-content:space-between}
+.alert{border-radius:8px;padding:10px 12px;font-size:.9rem;background:var(--badbg);border-left:3px solid var(--bad)}
+.alert.info{background:var(--okbg);border-left-color:var(--ok)}
+.fieldbox{display:flex;gap:12px;align-items:center}
+.fieldbox canvas{width:120px;height:120px;flex:none}
+.small{font-size:.8rem;color:var(--muted)}
+.checks label{font-size:.85rem;display:flex;gap:6px;align-items:flex-start;cursor:pointer}
+.checks input{accent-color:var(--mark);margin-top:3px}
+.below{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:920px){.below{grid-template-columns:minmax(0,1fr)}}
+.box{padding:14px;display:flex;flex-direction:column;gap:10px}
+.tablewrap{overflow-x:auto}
+table.pts{border-collapse:collapse;font-family:var(--f-mono);font-size:.82rem;font-variant-numeric:tabular-nums;width:100%}
+table.pts th,table.pts td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right;white-space:nowrap}
+table.pts th{color:var(--muted);font-weight:500}
+table.pts td:first-child,table.pts th:first-child{text-align:left}
+.flow{display:flex;flex-direction:column;gap:6px;font-family:var(--f-mono);font-size:.82rem;font-variant-numeric:tabular-nums}
+.flow .ln{display:grid;grid-template-columns:9.5em 1fr 5.2em;gap:8px;align-items:center}
+.flow .bar{height:10px;border-radius:3px;background:var(--motor)}
+.flow .bar.loss{background:var(--load)}
+.flow .ln span:last-child{text-align:right}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">BTS CIM · Physique appliquée · Convertisseurs électromagnétiques</div>
+      <h1>Banc d'essai du moteur asynchrone triphasé</h1>
+    </div>
+    <div class="hint">Réglez l'alimentation et la charge, mettez sous tension, puis lisez les instruments. Survolez les courbes pour mesurer. « Noter le relevé » enregistre le point de fonctionnement dans le tableau.</div>
+  </header>
+
+  <section class="bench">
+    <div class="card scope">
+      <div class="scope-top">
+        <div class="seg" role="group" aria-label="Enregistrement affiché" style="min-width:300px">
+          <button type="button" data-view="meca" aria-pressed="true">Caractéristique T(n)</button>
+          <button type="button" data-view="dem" aria-pressed="false">Démarrage n(t), I(t)</button>
+        </div>
+        <div class="readout" id="readout">Curseur : survolez le graphique</div>
+      </div>
+      <svg class="plot" id="plot" viewBox="0 0 820 450" role="img" aria-label="Graphique du banc d'essai" tabindex="0"></svg>
+      <div class="legend" id="legend"></div>
+      <div id="msg" class="alert" hidden></div>
+    </div>
+
+    <aside class="card panel" aria-label="Pupitre de commande">
+      <div class="plate" aria-label="Plaque signalétique du moteur">
+        <div class="t"><span>MOTEUR ASYNCHRONE 3~</span><span>IP55</span></div>
+        <span>2,2 kW</span><span>50 Hz</span><span>1430 tr/min</span>
+        <span>230 V Δ</span><span>8,3 A</span><span>cos φ 0,79</span>
+        <span>400 V Y</span><span>4,8 A</span><span>S1</span>
+      </div>
+
+      <div class="group">
+        <span class="lbl">Alimentation : réseau 3 × 400 V</span>
+        <div class="seg" role="group" aria-label="Couplage des enroulements">
+          <button type="button" data-coup="Y" aria-pressed="true">Couplage étoile Y</button>
+          <button type="button" data-coup="D" aria-pressed="false">Couplage triangle Δ</button>
+        </div>
+        <div class="slider">
+          <label for="f">Fréquence f (source réglable, U/f constant)</label><output id="fOut" for="f"></output>
+          <input type="range" id="f" min="10" max="50" step="1" value="50">
+        </div>
+        <div class="row">
+          <button class="btn ghost" type="button" id="swap">Permuter deux phases (L1 ↔ L2)</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <span class="lbl">Charge entraînée</span>
+        <div class="seg" role="group" aria-label="Type de charge">
+          <button type="button" data-load="vide" aria-pressed="true">À vide</button>
+          <button type="button" data-load="cst" aria-pressed="false">Couple constant</button>
+          <button type="button" data-load="pompe" aria-pressed="false">Pompe (T ∝ n²)</button>
+        </div>
+        <div class="slider" id="trBox" hidden>
+          <label for="tr" id="trLbl">Couple résistant T<sub>r</sub></label><output id="trOut" for="tr"></output>
+          <input type="range" id="tr" min="0" max="45" step="0.5" value="12">
+        </div>
+        <div class="slider">
+          <label for="j">Moment d'inertie total J</label><output id="jOut" for="j"></output>
+          <input type="range" id="j" min="0.01" max="0.20" step="0.01" value="0.04">
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="btn on" type="button" id="power">Mettre sous tension</button>
+        <label class="small" for="speed">Défilement</label>
+        <select id="speed" aria-label="Vitesse de défilement" style="font:inherit;font-size:.85rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 6px">
+          <option value="1">temps réel</option>
+          <option value="0.1" selected>ralenti × 1/10</option>
+          <option value="0.02">ralenti × 1/50</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <span class="lbl">Analyseur de réseau · tachymètre · couplemètre</span>
+        <div class="stats" id="stats"></div>
+      </div>
+
+      <div class="fieldbox">
+        <canvas id="field" width="240" height="240" aria-label="Champ tournant et rotor"></canvas>
+        <div class="small" id="fieldTxt">Flèche fine : champ tournant (vitesse n<sub>S</sub>).<br>Flèche épaisse : rotor (vitesse n).<br>Vue ralentie 50 fois.</div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="below">
+    <div class="card box">
+      <div class="row" style="justify-content:space-between">
+        <h2>Relevés</h2>
+        <div class="row">
+          <button class="btn" type="button" id="note">Noter le relevé</button>
+          <button class="btn ghost" type="button" id="copy">Copier pour le tableur</button>
+          <button class="btn ghost" type="button" id="clear">Effacer</button>
+        </div>
+      </div>
+      <div class="tablewrap">
+        <table class="pts" id="tab">
+          <thead><tr><th>N°</th><th>charge</th><th>f (Hz)</th><th>U (V)</th><th>I (A)</th><th>P (W)</th><th>cos φ</th><th>n (tr/min)</th><th>T<sub>u</sub> (N·m)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="small" id="copyMsg" style="margin:0">Le tableau se colle directement dans un tableur (colonnes séparées par des tabulations).</p>
+    </div>
+    <div class="card box">
+      <div class="checks"><label><input type="checkbox" id="showFlow"> Afficher le bilan des puissances (pour vérifier vos calculs)</label></div>
+      <div class="flow" id="flow" hidden></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+"use strict";
+/* ---------- Modèle du moteur (2,2 kW, 4 pôles, 230/400 V) ----------
+   Couple : formule de Kloss corrigée (couple de démarrage réaliste), fonction de la vitesse de glissement (U/f constant).
+   Puissances : P = Pfer + Ptr + 3·R1·I² ; Q = Qm + 3·X2·I2² avec 3·R2·I2² = g·Ptr (pertes Joule rotor) ; S = 3·V·I. */
+const M = {Tmax:39.7, gm:0.24, a:0.79, R1:2.0, R2:2.0, X2:6.2, Qm:1700, Pfe:160, PM:35, V:230, NS:1500};
+const W = n => 2*Math.PI*n/60;
+function Tem(n, fr){                 // couple électromagnétique (N·m), n ≥ 0
+  const dq = (M.NS*fr - n)/M.NS;      // vitesse de glissement rapportée à 1500 tr/min
+  if (dq <= 0) return 0;
+  return 2*M.Tmax/(dq/M.gm + M.gm/dq)*(1 + M.a*dq*dq);
+}
+const Tpm = n => n > 1 ? M.PM*(n/1500)**2 / W(n) : 0;   // couple de pertes mécaniques
+const Tmot = (n, fr) => Tem(n, fr) - Tpm(n);              // couple utile sur l'arbre
+function elec(n, fr){
+  const ns = M.NS*fr, g = (ns-n)/ns, T = Tem(n, fr), Ptr = T*W(ns);
+  const Vp = M.V*fr, I2s = T*W(ns-n)/(3*M.R2);
+  const Q = M.Qm*fr + 3*M.X2*fr*I2s, Pfe = M.Pfe*Math.pow(fr,1.5), A = Pfe + Ptr;
+  const a = 9*M.R1*M.R1, b = 6*M.R1*A - 9*Vp*Vp, c = A*A + Q*Q;
+  const x = (-b - Math.sqrt(Math.max(b*b-4*a*c,0)))/(2*a), I = Math.sqrt(x);
+  const Pa = A + 3*M.R1*x, pm = M.PM*(n/1500)**2, Pu = Ptr*(1-g) - pm;
+  return {U:400*fr, I, Pa, cos:Pa/(3*Vp*I), g, ns, T, Tu:T-Tpm(n), Pjs:3*M.R1*x, Pfe, Ptr, Pjr:g*Ptr, pm, Pu};
+}
+/* ---------- État ---------- */
+const S = {coup:"Y", f:50, dir:1, load:"vide", tr:12, J:0.04, on:false, trip:"", n:0, t:0, rec:[], recOn:false, still:0, view:"meca", stallT:0, thF:0, thR:0};
+const $ = id => document.getElementById(id);
+const fr = () => S.f/50;
+function Tload(n){
+  if (S.load === "cst") return S.tr;
+  if (S.load === "pompe") return 0.4 + (S.tr-0.4)*(n/1500)**2;
+  return 0;
+}
+const fmt = (v, d=0) => v.toLocaleString("fr-FR", {minimumFractionDigits:d, maximumFractionDigits:d});
+const loadName = () => ({vide:"à vide", cst:"T constant", pompe:"pompe"})[S.load];
+/* ---------- Contrôles ---------- */
+document.querySelectorAll("[data-coup]").forEach(b => b.onclick = () => {
+  S.coup = b.dataset.coup; document.querySelectorAll("[data-coup]").forEach(x => x.setAttribute("aria-pressed", x===b));
+  if (S.on && S.coup === "D") fault();
+  refresh();
+});
+document.querySelectorAll("[data-load]").forEach(b => b.onclick = () => {
+  S.load = b.dataset.load; document.querySelectorAll("[data-load]").forEach(x => x.setAttribute("aria-pressed", x===b));
+  $("trBox").hidden = S.load === "vide";
+  $("trLbl").innerHTML = S.load === "pompe" ? "Couple de la pompe à 1500 tr/min" : "Couple résistant T<sub>r</sub> (constant)";
+  refresh();
+});
+$("f").oninput = e => { S.f = +e.target.value; refresh(); };
+$("tr").oninput = e => { S.tr = +e.target.value; refresh(); };
+$("j").oninput = e => { S.J = +e.target.value; refresh(); };
+$("swap").onclick = () => {
+  if (S.on || Math.abs(S.n) > 1){ S.trip = ""; flash("Consigne de sécurité : on permute les phases moteur arrêté et hors tension. Coupez l'alimentation, attendez l'arrêt, puis permutez."); return; }
+  S.dir = -S.dir; refresh();
+};
+let flashMsg = "", flashT = 0;
+function flash(t){ flashMsg = t; flashT = performance.now(); refresh(); }
+$("power").onclick = () => {
+  flashT = 0;
+  if (S.on) { S.on = false; } else {
+    S.trip = ""; S.stallT = 0;
+    if (S.coup === "D") { fault(); refresh(); return; }
+    S.on = true; startRec();
+  }
+  refresh();
+};
+document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => {
+  S.view = b.dataset.view; document.querySelectorAll("[data-view]").forEach(x => x.setAttribute("aria-pressed", x===b)); draw();
+});
+function fault(){
+  S.on = false;
+  S.trip = "Couplage triangle sur un réseau 400 V : chaque enroulement recevrait 400 V au lieu de 230 V. Surintensité et échauffement : le disjoncteur moteur a déclenché. Corrigez le couplage avant de remettre sous tension.";
+}
+function startRec(){ S.rec = []; S.t = 0; S.recOn = true; S.still = 0; S.view === "dem" && draw(); }
+/* ---------- Dynamique : J·dΩ/dt = Tu − Tr ---------- */
+let last = performance.now();
+function step(now){
+  const dtw = Math.min((now-last)/1000, 0.05); last = now;
+  const scale = +$("speed").value;
+  let rem = dtw*scale; const h = 2e-4;
+  while (rem > 1e-9){
+    const dt = Math.min(h, rem); rem -= dt;
+    let n = Math.abs(S.n);
+    let acc;
+    if (S.on){
+      const tm = Tmot(n, fr()), tl = Tload(n);
+      acc = (tm - tl)/S.J;
+      if (n <= 0 && tm <= tl) acc = 0;            // le moteur ne peut pas décoller : couple de démarrage insuffisant
+    } else {
+      acc = -(Tload(n) + Tpm(n) + 0.3)/S.J;       // ralentissement libre
+    }
+    n = Math.max(0, n + acc*dt*60/(2*Math.PI));
+    S.n = S.dir*n;
+    S.t += dt;
+    if (S.on && n < 1){ S.stallT += dt; if (S.stallT > 2.5){ S.on = false; S.trip = "Le rotor reste bloqué : le relais thermique a coupé l'alimentation après quelques secondes (courant de démarrage permanent)."; } }
+    else S.stallT = 0;
+    if (S.recOn){
+      if (!S.rec.length || S.t - S.rec[S.rec.length-1][0] >= 0.002){
+        const e = S.on ? elec(n, fr()) : null;
+        S.rec.push([S.t, n, e ? e.I : 0]);
+      }
+      const nsTarget = S.on ? Math.abs(acc) < 5 : n < 1;
+      S.still = nsTarget ? S.still + dt : 0;
+      if (S.still > 0.25 || S.t > 6) S.recOn = false;
+    }
+  }
+  const ns = 1500*fr();
+  S.thF = (S.thF + S.dir*2*Math.PI*(S.on ? ns : 0)/60*dtw/50) % (2*Math.PI);
+  S.thR = (S.thR + 2*Math.PI*S.n/60*dtw/50) % (2*Math.PI);
+  refresh(true);
+  requestAnimationFrame(step);
+}
+/* ---------- Affichage ---------- */
+let lastDraw = 0;
+function refresh(fromLoop){
+  $("fOut").textContent = `${S.f} Hz · U = ${fmt(400*fr())} V`;
+  $("trOut").textContent = `${fmt(S.tr,1)} N·m`;
+  $("jOut").textContent = `${fmt(S.J,2)} kg·m²`;
+  const p = $("power"); p.textContent = S.on ? "Couper l'alimentation" : "Mettre sous tension"; p.className = "btn " + (S.on ? "stop" : "on");
+  const m = $("msg");
+  const n = Math.abs(S.n), on = S.on;
+  let warn = S.trip || (performance.now() - flashT < 5000 ? flashMsg : "");
+  if (!warn && on && n < 1 && Tmot(0, fr()) <= Tload(0)) warn = "Le moteur ne démarre pas : le couple résistant à l'arrêt dépasse le couple de démarrage du moteur.";
+  if (!warn && on && S.load !== "vide" && n > 1){
+    const e = elec(n, fr());
+    if (e.I > 4.8*1.05 && !S.recOn) warn = `Surcharge : I = ${fmt(e.I,2)} A > I<sub>N</sub> = 4,8 A. En fonctionnement prolongé, le moteur s'échauffe trop.`;
+  }
+  m.hidden = !warn; m.innerHTML = warn;
+  // instruments
+  const e = on ? elec(n, fr()) : null;
+  const st = [
+    ["U entre phases", on ? `${fmt(e.U)} V` : "0 V"],
+    ["I en ligne", on ? `${fmt(e.I,2)} A` : "0,00 A"],
+    ["P absorbée", on ? `${fmt(e.Pa)} W` : "0 W"],
+    ["cos φ", on ? fmt(e.cos,2) : "—"],
+    ["f", `${S.f} Hz`],
+    ["n", `${fmt(n)} tr/min`],
+    ["T utile", on ? `${fmt(Math.max(e.Tu,0),2)} N·m` : "0,00 N·m"],
+    ["sens", n < 1 ? "arrêt" : (S.n > 0 ? "horaire ↻" : "anti-horaire ↺")],
+    ["phases", S.dir > 0 ? "L1 L2 L3" : "L2 L1 L3"],
+  ];
+  $("stats").innerHTML = st.map(([k,v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+  // bilan
+  if ($("showFlow").checked){
+    const fl = $("flow"); fl.hidden = false;
+    if (!on || n < 1){ fl.innerHTML = `<div class="small">Moteur arrêté ou rotor bloqué : pas de puissance utile.</div>`; }
+    else {
+      const rows = [["P absorbée Pa", e.Pa, 0], ["Joule stator", e.Pjs, 1], ["pertes fer", e.Pfe, 1], ["P transmise Ptr", e.Ptr, 0], ["Joule rotor g·Ptr", e.Pjr, 1], ["pertes méca.", e.pm, 1], ["P utile Pu", e.Pu, 0]];
+      fl.innerHTML = rows.map(([k,v,l]) => `<div class="ln"><span>${k}</span><div class="bar${l?" loss":""}" style="width:${Math.max(1,100*v/e.Pa)}%"></div><span>${fmt(v)} W</span></div>`).join("")
+        + `<div class="ln"><span>rendement η</span><span></span><span>${fmt(100*e.Pu/e.Pa,1)} %</span></div><div class="ln"><span>glissement g</span><span></span><span>${fmt(100*e.g,2)} %</span></div>`;
+    }
+  } else $("flow").hidden = true;
+  drawField();
+  const now = performance.now();
+  if (!fromLoop || now - lastDraw > 60){ lastDraw = now; draw(); }
+}
+$("showFlow").onchange = () => refresh();
+/* ---------- Graphiques SVG ---------- */
+const svg = $("plot"); const NSVG = "http://www.w3.org/2000/svg";
+const G = {x0:62, x1:770, y0:400, y1:26};
+let axes = null;
+function el(tag, attrs, parent=svg, txt){ const e = document.createElementNS(NSVG, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (txt != null) e.textContent = txt; parent.appendChild(e); return e; }
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function frame(xmax, ymax, xlab, ylab, xstep, ystep, y2){
+  svg.innerHTML = "";
+  const X = v => G.x0 + (G.x1-G.x0)*v/xmax, Y = v => G.y0 - (G.y0-G.y1)*v/ymax;
+  for (let v = 0; v <= xmax+1e-9; v += xstep){ el("line",{x1:X(v),x2:X(v),y1:G.y0,y2:G.y1,stroke:css("--grid")}); el("text",{x:X(v),y:G.y0+18,"text-anchor":"middle","font-size":12,fill:css("--muted"),"font-family":"IBM Plex Mono, monospace"},svg,fmt(v, xstep<1?1:0)); }
+  for (let v = 0; v <= ymax+1e-9; v += ystep){ el("line",{x1:G.x0,x2:G.x1,y1:Y(v),y2:Y(v),stroke:css("--grid")}); el("text",{x:G.x0-8,y:Y(v)+4,"text-anchor":"end","font-size":12,fill:css("--muted"),"font-family":"IBM Plex Mono, monospace"},svg,fmt(v)); }
+  el("line",{x1:G.x0,x2:G.x1,y1:G.y0,y2:G.y0,stroke:css("--muted")});
+  el("line",{x1:G.x0,x2:G.x0,y1:G.y0,y2:G.y1,stroke:css("--muted")});
+  el("text",{x:G.x1,y:G.y0+36,"text-anchor":"end","font-size":13,fill:css("--ink")},svg,xlab);
+  el("text",{x:G.x0-48,y:G.y1-10,"font-size":13,fill:css("--ink")},svg,ylab);
+  if (y2){
+    const Y2 = v => G.y0 - (G.y0-G.y1)*v/y2.max;
+    el("line",{x1:G.x1,x2:G.x1,y1:G.y0,y2:G.y1,stroke:css("--cur")});
+    for (let v = 0; v <= y2.max; v += y2.step) el("text",{x:G.x1+8,y:Y2(v)+4,"font-size":12,fill:css("--cur"),"font-family":"IBM Plex Mono, monospace"},svg,fmt(v));
+    el("text",{x:G.x1+46,y:G.y1-10,"text-anchor":"end","font-size":13,fill:css("--cur")},svg,y2.lab);
+    return {X, Y, Y2};
+  }
+  return {X, Y};
+}
+function path(pts, X, Y, color, w=2.5, dash){ el("path",{d:pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)).join(""),fill:"none",stroke:color,"stroke-width":w,"stroke-linejoin":"round","stroke-dasharray":dash||"none"}); }
+function draw(){
+  const n = Math.abs(S.n), on = S.on;
+  if (S.view === "meca"){
+    const a = frame(1600, 50, "n (tr/min)", "T (N·m)", 200, 10); axes = a;
+    const ns = 1500*fr(), pm = [], pl = [];
+    for (let v = 0; v <= ns; v += ns/300) pm.push([v, Math.max(Tmot(v, fr()), 0)]);
+    pm.push([ns, 0]);
+    el("line",{x1:a.X(ns),x2:a.X(ns),y1:G.y0,y2:G.y1,stroke:css("--muted"),"stroke-dasharray":"4 4"});
+    const tl = el("text",{x:a.X(ns)+4,y:G.y1+12,"font-size":12,fill:css("--muted"),"font-family":"IBM Plex Mono, monospace"},svg,"n");
+    el("tspan",{"baseline-shift":"sub","font-size":9},tl,"S"); el("tspan",{},tl,` = ${fmt(ns)}`);
+    path(pm, a.X, a.Y, css("--motor"), 2.6);
+    if (S.load !== "vide"){ for (let v = 0; v <= 1600; v += 8) pl.push([v, Tload(v)]); path(pl, a.X, a.Y, css("--load"), 2.4, "7 5"); }
+    if (on && n > 1){
+      const T = Tmot(n, fr());
+      el("line",{x1:a.X(n),x2:a.X(n),y1:a.Y(T),y2:G.y0,stroke:css("--ink"),"stroke-dasharray":"2 3"});
+      el("line",{x1:G.x0,x2:a.X(n),y1:a.Y(T),y2:a.Y(T),stroke:css("--ink"),"stroke-dasharray":"2 3"});
+      el("circle",{cx:a.X(n),cy:a.Y(T),r:6,fill:css("--panel"),stroke:css("--ink"),"stroke-width":2.5});
+    }
+    $("legend").innerHTML = `<span><i class="sw" style="background:var(--motor)"></i>couple utile du moteur T<sub>u</sub>(n)</span>` + (S.load!=="vide" ? `<span><i class="sw" style="background:var(--load)"></i>couple résistant de la charge T<sub>r</sub>(n)</span>` : "") + `<span>○ point de fonctionnement</span>`;
+  } else {
+    const rec = S.rec, tEnd = rec.length ? rec[rec.length-1][0] : 0;
+    const steps = [0.2,0.5,1,2,5,10], tmax = steps.find(s => s >= Math.max(tEnd, 0.15)) || 10;
+    const a = frame(tmax, 1600, "t (s)", "n (tr/min)", tmax/10, 200, {max:40, step:5, lab:"I (A)"}); axes = a;
+    if (rec.length > 1){
+      path(rec.map(r => [r[0], r[1]]), a.X, a.Y, css("--motor"), 2.6);
+      path(rec.map(r => [r[0], r[2]]), a.X, a.Y2, css("--cur"), 2);
+    } else el("text",{x:(G.x0+G.x1)/2,y:(G.y0+G.y1)/2,"text-anchor":"middle",fill:css("--muted"),"font-size":14},svg,"Mettez le moteur sous tension pour enregistrer le démarrage.");
+    $("legend").innerHTML = `<span><i class="sw" style="background:var(--motor)"></i>fréquence de rotation n(t)</span><span><i class="sw" style="background:var(--cur)"></i>courant en ligne I(t) (axe de droite)</span><span>L'enregistrement repart à chaque mise sous tension ou permutation de phases.</span>`;
+  }
+  if (cursor) drawCursor();
+}
+let cursor = null;
+function drawCursor(){
+  if (!axes || !cursor) return;
+  const old = svg.querySelector("#cur"); old && old.remove();
+  const gr = el("g",{id:"cur"});
+  const x = Math.min(Math.max(cursor, G.x0), G.x1);
+  el("line",{x1:x,x2:x,y1:G.y0,y2:G.y1,stroke:css("--ink"),"stroke-width":1,opacity:.5},gr);
+  if (S.view === "meca"){
+    const nv = 1600*(x-G.x0)/(G.x1-G.x0), tm = Math.max(Tmot(nv, fr()),0), tl = Tload(nv);
+    el("circle",{cx:x,cy:axes.Y(tm),r:4,fill:css("--motor")},gr);
+    if (S.load!=="vide") el("circle",{cx:x,cy:axes.Y(tl),r:4,fill:css("--load")},gr);
+    $("readout").innerHTML = `n = <b>${fmt(nv)}</b> tr/min · T<sub>u</sub> moteur = <b>${fmt(tm,1)}</b> N·m` + (S.load!=="vide" ? ` · T<sub>r</sub> charge = <b>${fmt(tl,1)}</b> N·m` : "");
+  } else {
+    const rec = S.rec; if (rec.length < 2){ $("readout").textContent = "Pas d'enregistrement"; return; }
+    const tEnd = rec[rec.length-1][0], steps = [0.2,0.5,1,2,5,10], tmax = steps.find(s => s >= Math.max(tEnd,0.15)) || 10;
+    const tv = tmax*(x-G.x0)/(G.x1-G.x0);
+    let r = rec[rec.length-1]; for (const q of rec){ if (q[0] >= tv){ r = q; break; } }
+    if (tv > tEnd){ $("readout").innerHTML = `t = <b>${fmt(tv,3)}</b> s · hors enregistrement`; return; }
+    el("circle",{cx:axes.X(r[0]),cy:axes.Y(r[1]),r:4,fill:css("--motor")},gr);
+    el("circle",{cx:axes.X(r[0]),cy:axes.Y2(r[2]),r:4,fill:css("--cur")},gr);
+    $("readout").innerHTML = `t = <b>${fmt(r[0],3)}</b> s · n = <b>${fmt(r[1])}</b> tr/min · I = <b>${fmt(r[2],1)}</b> A`;
+  }
+}
+function setCursor(ev){
+  const r = svg.getBoundingClientRect(); const p = ev.touches ? ev.touches[0] : ev;
+  cursor = (p.clientX - r.left)*820/r.width; drawCursor();
+}
+svg.addEventListener("pointermove", setCursor);
+svg.addEventListener("pointerdown", setCursor);
+svg.addEventListener("pointerleave", () => { cursor = null; const o = svg.querySelector("#cur"); o && o.remove(); $("readout").textContent = "Curseur : survolez le graphique"; });
+svg.addEventListener("keydown", ev => {
+  if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+  ev.preventDefault(); cursor = (cursor ?? (G.x0+G.x1)/2) + (ev.key === "ArrowRight" ? 4 : -4); drawCursor();
+});
+/* ---------- Champ tournant ---------- */
+const cv = $("field"), cx = cv.getContext("2d");
+function drawField(){
+  const w = cv.width, c = w/2, R = w*0.42;
+  cx.clearRect(0,0,w,w);
+  cx.lineWidth = 3; cx.strokeStyle = css("--line"); cx.beginPath(); cx.arc(c,c,R,0,2*Math.PI); cx.stroke();
+  cx.font = "600 20px IBM Plex Mono, monospace"; cx.textAlign = "center"; cx.textBaseline = "middle";
+  [0,1,2].forEach(k => { const a = -Math.PI/2 + k*2*Math.PI/3; cx.fillStyle = css("--chip"); cx.beginPath(); cx.arc(c+R*Math.cos(a), c+R*Math.sin(a), 16, 0, 2*Math.PI); cx.fill(); cx.fillStyle = css("--muted"); cx.fillText(String(k+1), c+R*Math.cos(a), c+R*Math.sin(a)); });
+  const arrow = (ang, len, col, wd) => { const x = c+len*Math.sin(ang), y = c-len*Math.cos(ang);
+    cx.strokeStyle = col; cx.fillStyle = col; cx.lineWidth = wd; cx.beginPath(); cx.moveTo(c,c); cx.lineTo(x,y); cx.stroke();
+    const h = 14, b = 0.45; cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x-h*Math.sin(ang-b), y+h*Math.cos(ang-b)); cx.lineTo(x-h*Math.sin(ang+b), y+h*Math.cos(ang+b)); cx.fill(); };
+  cx.fillStyle = css("--chip"); cx.beginPath(); cx.arc(c,c,R*0.55,0,2*Math.PI); cx.fill();
+  if (S.on) arrow(S.thF, R*0.95, css("--motor"), 3);
+  arrow(S.thR, R*0.5, css("--load"), 8);
+}
+/* ---------- Relevés ---------- */
+const rows = [];
+$("note").onclick = () => {
+  const n = Math.abs(S.n);
+  if (!S.on){ rows.push([loadName(), S.f, 0, 0, 0, null, n, 0]); }
+  else { const e = elec(n, fr()); rows.push([loadName(), S.f, e.U, e.I, e.Pa, e.cos, n, Math.max(e.Tu,0)]); }
+  renderTab();
+};
+$("clear").onclick = () => { rows.length = 0; renderTab(); };
+function cells(r){ return [r[0], fmt(r[1]), fmt(r[2]), fmt(r[3],2), fmt(r[4]), r[5]==null ? "—" : fmt(r[5],2), fmt(r[6]), fmt(r[7],2)]; }
+function renderTab(){ $("tab").tBodies[0].innerHTML = rows.map((r,i) => `<tr><td>${i+1}</td>${cells(r).map(c=>`<td>${c}</td>`).join("")}</tr>`).join(""); }
+$("copy").onclick = async () => {
+  const head = ["N°","charge","f (Hz)","U (V)","I (A)","P (W)","cos phi","n (tr/min)","Tu (N.m)"].join("\t");
+  const txt = [head, ...rows.map((r,i) => [i+1, ...cells(r)].join("\t"))].join("\n");
+  try { await navigator.clipboard.writeText(txt); $("copyMsg").textContent = "Tableau copié : collez-le dans le tableur."; }
+  catch { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); $("copyMsg").textContent = "Tableau copié."; } catch { $("copyMsg").textContent = "Copie impossible : sélectionnez le tableau à la souris."; } ta.remove(); }
+};
+/* ---------- Démarrage ---------- */
+document.querySelector('[data-load="vide"]').click();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => draw());
+refresh();
+requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>

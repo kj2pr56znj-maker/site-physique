@@ -188,7 +188,54 @@
    "nom": "BTS CIM",
    "court": "CIM",
    "sous": "Conception et industrialisation en microtechniques",
-   "chapitres": []
+   "chapitres": [
+    {
+     "num": "",
+     "titre": "Les convertisseurs électromagnétiques",
+     "docs": [
+      {
+       "titre": "l'essentiel du chapitre",
+       "type": "Cours",
+       "fichier": "fe022c0161bec8bedba5ecf8.bin",
+       "taille": 1116508,
+       "pages": 12
+      },
+      {
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "5865aa155e21c03cfd27cb5f.bin",
+       "taille": 159901,
+       "pages": 5
+      },
+      {
+       "titre": "animation moteur asynchrone",
+       "type": "Animation",
+       "lien": "animations/cim/animation-moteur-asynchrone.html"
+      },
+      {
+       "titre": "TP1 Moteur à courant continu",
+       "type": "TP",
+       "fichier": "a49072c2d6468c4119bc685f.bin",
+       "taille": 361757,
+       "pages": 5
+      },
+      {
+       "titre": "TP2 Moteur asynchrone (simulation)",
+       "type": "TP",
+       "fichier": "c7d3e90cbd46dfa9d4be6afc.bin",
+       "taille": 316905,
+       "pages": 5
+      },
+      {
+       "titre": "Annale BTS 2025 - moteur à courant continu",
+       "type": "Document",
+       "fichier": "f93129d2ed912ef8a6df9ceb.bin",
+       "taille": 553358,
+       "pages": 2
+      }
+     ]
+    }
+   ]
   }
  ]
 }
