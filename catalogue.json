@@ -1,0 +1,56 @@
+{
+ "titre": "Physique appliquée",
+ "auteur": "Cours, TD et TP de M. Mascrier",
+ "classes": [
+  {
+   "id": "et",
+   "nom": "BTS Électrotechnique",
+   "court": "Électrotechnique",
+   "mini": "ET",
+   "sous": "BTS ET",
+   "chapitres": []
+  },
+  {
+   "id": "cira",
+   "nom": "BTS CIRA",
+   "court": "CIRA",
+   "sous": "Contrôle industriel et régulation",
+   "chapitres": [
+    {
+     "num": "4",
+     "titre": "Nature des signaux, Fourier et THD",
+     "docs": [
+      {
+       "titre": "Cours",
+       "type": "Cours",
+       "fichier": "0c64fbb16a8088b6f3dee420.bin",
+       "taille": 525059,
+       "pages": 9
+      },
+      {
+       "titre": "TP1 Analyse spectrale",
+       "type": "TP",
+       "fichier": "a93837c20f03cc419489cd47.bin",
+       "taille": 401139,
+       "pages": 7
+      },
+      {
+       "titre": "TP2 THD",
+       "type": "TP",
+       "fichier": "046e0668aee3bda31bbc6bf4.bin",
+       "taille": 141839,
+       "pages": 3
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cim",
+   "nom": "BTS CIM",
+   "court": "CIM",
+   "sous": "Conception et industrialisation en microtechniques",
+   "chapitres": []
+  }
+ ]
+}

@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Physique appliquée — BTS</title>
+<meta name="description" content="Cours, TD et TP de physique appliquée pour les BTS Électrotechnique, CIRA et CIM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --ink:#1F3864; --text:#18212F; --muted:#5A6577;
+  --grid:#D8E0EA; --accent:#C55A11; --accent-soft:#FBEDE3; --ok:#3F7A3A; --ok-soft:#E6F1E3;
+  --focus:#C55A11; --shadow:0 1px 0 rgba(31,56,100,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101826; --surface:#172234; --ink:#AFC4EA; --text:#E4EAF3; --muted:#9AA7BC;
+    --grid:#2A3850; --accent:#F08A4B; --accent-soft:#3A2618; --ok:#8CC784; --ok-soft:#1F3320;
+    --focus:#F08A4B; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101826; --surface:#172234; --ink:#AFC4EA; --text:#E4EAF3; --muted:#9AA7BC;
+  --grid:#2A3850; --accent:#F08A4B; --accent-soft:#3A2618; --ok:#8CC784; --ok-soft:#1F3320;
+  --focus:#F08A4B; --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--ink)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;color:var(--ink);line-height:1.1;margin:0}
+
+/* En-tête */
+header{background:var(--surface);border-bottom:1px solid var(--grid)}
+.head{display:grid;grid-template-columns:1fr;gap:4px;padding:28px 16px 0;max-width:860px;margin:0 auto}
+h1{font-size:clamp(2.4rem,7vw,3.6rem);font-weight:700;letter-spacing:-.01em}
+.who{color:var(--muted);margin:0}
+.trace{display:block;width:100%;height:92px;margin-top:14px}
+.trace .axis{stroke:var(--grid);stroke-width:1}
+.trace .h{fill:none;stroke:var(--ink);stroke-opacity:.18;stroke-width:1.2}
+.trace .sum{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-linejoin:round;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 2.2s ease-out .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){.trace .sum{animation:none;stroke-dashoffset:0}}
+
+/* Choix de la classe */
+nav.classes{display:flex;gap:0;border:1px solid var(--grid);border-radius:10px;overflow:hidden;
+  background:var(--surface);margin:24px 0 8px}
+nav.classes button{flex:1 1 0;min-width:0;border:0;background:none;color:var(--text);cursor:pointer;
+  padding:12px 10px;font:inherit;text-align:left;border-right:1px solid var(--grid)}
+nav.classes button:last-child{border-right:0}
+nav.classes .n{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:1.3rem;color:var(--ink);line-height:1.15}
+nav.classes .s{display:block;font-size:.82rem;color:var(--muted)}
+nav.classes button[aria-pressed="true"]{background:var(--ink);}
+nav.classes .mini{display:none}
+nav.classes button[aria-pressed="true"] .n,nav.classes button[aria-pressed="true"] .s{color:var(--surface)}
+@media (max-width:520px){nav.classes .s,nav.classes .n:not(.mini){display:none}nav.classes .mini{display:block}nav.classes button{text-align:center}}
+
+.search{display:flex;align-items:center;gap:8px;margin:16px 0 4px}
+.search input{flex:1;font:inherit;padding:10px 12px;border:1px solid var(--grid);border-radius:8px;background:var(--surface);color:var(--text)}
+
+/* Classe */
+.classhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin:28px 0 6px}
+.classhead h2{font-size:2rem}
+.status{font-size:.9rem;color:var(--muted)}
+.status.is-open{color:var(--ok)}
+.linkbtn{background:none;border:0;padding:0;font:inherit;font-size:.9rem;color:var(--ink);text-decoration:underline;cursor:pointer}
+
+.lock{background:var(--surface);border:1px solid var(--grid);border-left:4px solid var(--accent);
+  border-radius:8px;padding:16px;margin:12px 0 8px}
+.lock p{margin:0 0 10px}
+.lock form{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.lock input[type=password]{flex:1 1 220px;font:inherit;padding:10px 12px;border:1px solid var(--grid);border-radius:8px;background:var(--bg);color:var(--text)}
+.lock label.rem{display:flex;gap:6px;align-items:center;font-size:.9rem;color:var(--muted);width:100%}
+.btn{font:inherit;font-weight:700;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;background:var(--ink);color:var(--surface)}
+.err{color:var(--accent);font-weight:700;margin:8px 0 0;min-height:1.2em}
+
+.chap{margin:26px 0 0}
+.chap h3{display:flex;gap:12px;align-items:baseline;font-size:1.45rem;font-weight:600;padding-bottom:6px;border-bottom:2px solid var(--ink)}
+.chap h3 .num{font-weight:700;color:var(--accent);min-width:1.6em}
+ul.docs{list-style:none;margin:0;padding:0}
+ul.docs li{display:grid;grid-template-columns:7.2em 1fr auto;gap:12px;align-items:center;
+  padding:11px 0;border-bottom:1px solid var(--grid)}
+.type{font-size:.8rem;font-weight:700;color:var(--ink);background:var(--bg);border:1px solid var(--grid);
+  border-radius:20px;padding:2px 10px;justify-self:start;white-space:nowrap}
+.type.tp{color:var(--accent);border-color:currentColor;background:var(--accent-soft)}
+.title{min-width:0}
+.title .meta{display:block;font-size:.82rem;color:var(--muted)}
+.actions{display:flex;gap:6px}
+.open{font:inherit;font-weight:700;font-size:.92rem;border:1px solid var(--ink);color:var(--ink);background:var(--surface);
+  border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.open[disabled]{opacity:.45;cursor:not-allowed}
+.open.dl{border-color:var(--grid);color:var(--muted)}
+@media (max-width:560px){
+  ul.docs li{grid-template-columns:1fr auto;}
+  ul.docs li .type{grid-column:1/-1}
+  .open.dl{display:none}
+}
+.empty{color:var(--muted);margin:18px 0}
+
+footer{color:var(--muted);font-size:.86rem;margin:48px 0 32px;padding-top:16px;border-top:1px solid var(--grid)}
+footer p{margin:0 0 8px;max-width:68ch}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--surface);
+  padding:10px 16px;border-radius:8px;font-size:.95rem;display:none;max-width:calc(100% - 32px)}
+noscript p{background:var(--accent-soft);padding:12px;border-radius:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <h1>Physique appliquée</h1>
+    <p class="who" id="who"></p>
+  </div>
+  <svg class="trace" viewBox="0 0 860 92" preserveAspectRatio="none" aria-hidden="true" id="trace"></svg>
+</header>
+
+<main class="wrap">
+  <noscript><p>Ce site a besoin de JavaScript pour ouvrir les documents.</p></noscript>
+  <nav class="classes" id="classes" aria-label="Choisir une classe"></nav>
+  <div class="search">
+    <input type="search" id="q" placeholder="Rechercher un document (ex. Fourier, TP 1…)" aria-label="Rechercher un document">
+  </div>
+  <section id="view" aria-live="polite"></section>
+  <footer>
+    <p>Les cours, TD et TP s'ouvrent avec le mot de passe de la classe, donné en cours. Ils sont déchiffrés directement sur votre appareil : rien n'est envoyé.</p>
+    <p>Sur un ordinateur du lycée, ne cochez pas « Se souvenir sur cet appareil ».</p>
+  </footer>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const enc = new TextEncoder();
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const tob64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+let CAT = null, KEYS = {}, current = null;
+const unlocked = {};
+
+/* Tracé d'en-tête : carré reconstruit à partir de ses harmoniques impairs */
+(function drawTrace(){
+  const svg = $("#trace"), W = 860, H = 92, mid = H/2, A = 30, periods = 3.2;
+  const pt = (f) => { let d = ""; for (let x = 0; x <= W; x += 2) {
+      const t = x / W * periods * 2 * Math.PI; d += (x ? "L" : "M") + x + " " + (mid - A * f(t)).toFixed(2); } return d; };
+  const ns = "http://www.w3.org/2000/svg";
+  const add = (cls, d) => { const p = document.createElementNS(ns, "path"); p.setAttribute("class", cls); p.setAttribute("d", d); svg.appendChild(p); return p; };
+  const ax = document.createElementNS(ns, "line");
+  ax.setAttribute("x1",0);ax.setAttribute("x2",W);ax.setAttribute("y1",mid);ax.setAttribute("y2",mid);ax.setAttribute("class","axis");svg.appendChild(ax);
+  [1,3,5].forEach(n => add("h", pt(t => 4/Math.PI * Math.sin(n*t)/n)));
+  const s = add("sum", pt(t => { let v = 0; for (let n = 1; n <= 13; n += 2) v += Math.sin(n*t)/n; return 4/Math.PI * v; }));
+  s.style.setProperty("--len", Math.ceil(s.getTotalLength ? s.getTotalLength() : 3000));
+})();
+
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = "none", 4000); }
+
+function store(){ try { return { get:(k)=>localStorage.getItem(k)||sessionStorage.getItem(k),
+  set:(k,v,rem)=>{ (rem?localStorage:sessionStorage).setItem(k,v); },
+  del:(k)=>{ localStorage.removeItem(k); sessionStorage.removeItem(k); } }; }
+  catch(e){ return { get:()=>null, set:()=>{}, del:()=>{} }; } }
+const S = store();
+
+async function importRaw(raw){ return crypto.subtle.importKey("raw", raw, "AES-GCM", true, ["decrypt"]); }
+
+async function restore(){
+  for (const c of CAT.classes) {
+    const v = S.get("cle-" + c.id);
+    if (v) { try { unlocked[c.id] = await importRaw(b64(v)); } catch(e) { S.del("cle-" + c.id); } }
+  }
+}
+
+async function unlock(id, pwd, remember){
+  const k = KEYS[id]; if (!k) throw new Error("ferme");
+  const base = await crypto.subtle.importKey("raw", enc.encode(pwd), "PBKDF2", false, ["deriveKey"]);
+  const kek = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(k.salt), iterations:k.iter, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  let raw;
+  try { raw = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(k.iv)}, kek, b64(k.ct)); }
+  catch(e){ throw new Error("mdp"); }
+  unlocked[id] = await importRaw(raw);
+  S.set("cle-" + id, tob64(raw), remember);
+}
+
+async function getPdf(cls, doc){
+  const r = await fetch("docs/" + cls + "/" + doc.fichier, {cache:"no-cache"});
+  if (!r.ok) throw new Error("introuvable");
+  const buf = new Uint8Array(await r.arrayBuffer());
+  const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, unlocked[cls], buf.slice(12));
+  return new Blob([plain], {type:"application/pdf"});
+}
+
+async function openDoc(cls, doc, download){
+  let w = null;
+  if (!download) { w = window.open("", "_blank"); if (w) { try { w.document.title = doc.titre; w.document.body.innerHTML = "<p style='font:16px sans-serif;padding:20px'>Ouverture de « " + doc.titre.replace(/</g,"&lt;") + " »…</p>"; } catch(e){} } }
+  try {
+    const blob = await getPdf(cls, doc);
+    const url = URL.createObjectURL(blob);
+    if (w && !download) { w.location.href = url; }
+    else { const a = document.createElement("a"); a.href = url; a.download = doc.titre + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
+  } catch(e) {
+    if (w) w.close();
+    toast("Impossible d'ouvrir ce document. Rechargez la page et réessayez.");
+  }
+}
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const typeClass = t => /^TP/i.test(t) ? "type tp" : "type";
+const size = n => n > 1e6 ? (n/1e6).toFixed(1).replace(".", ",") + " Mo" : Math.max(1, Math.round(n/1e3)) + " ko";
+
+function renderNav(){
+  const nav = $("#classes"); nav.innerHTML = "";
+  for (const c of CAT.classes) {
+    const b = document.createElement("button");
+    b.type = "button"; b.setAttribute("aria-pressed", String(c.id === current));
+    b.innerHTML = `<span class="n">${esc(c.court)}</span><span class="n mini">${esc(c.mini||c.court)}</span><span class="s">${esc(c.sous)}</span>`;
+    b.onclick = () => { location.hash = c.id; };
+    nav.appendChild(b);
+  }
+}
+
+function docRow(c, d, open){
+  const li = document.createElement("li");
+  li.innerHTML = `<span class="${typeClass(d.type)}">${esc(d.type)}</span>
+    <span class="title">${esc(d.titre)}<span class="meta">PDF, ${d.pages ? d.pages + " p., " : ""}${size(d.taille)}</span></span>
+    <span class="actions"><button class="open" type="button" ${open?"":"disabled"}>Ouvrir</button>
+    <button class="open dl" type="button" ${open?"":"disabled"} aria-label="Télécharger ${esc(d.titre)}">Télécharger</button></span>`;
+  const [o, dl] = li.querySelectorAll("button");
+  o.onclick = () => openDoc(c.id, d, false);
+  dl.onclick = () => openDoc(c.id, d, true);
+  return li;
+}
+
+function chapBlock(c, ch, docs, open){
+  const s = document.createElement("div"); s.className = "chap";
+  s.innerHTML = `<h3><span class="num">${esc(ch.num)}</span><span>${esc(ch.titre)}</span></h3>`;
+  const ul = document.createElement("ul"); ul.className = "docs";
+  docs.forEach(d => ul.appendChild(docRow(c, d, open)));
+  s.appendChild(ul); return s;
+}
+
+function render(){
+  renderNav();
+  const view = $("#view"); view.innerHTML = "";
+  const q = $("#q").value.trim().toLowerCase();
+  const classes = q ? CAT.classes : CAT.classes.filter(c => c.id === current);
+  let found = 0;
+  for (const c of classes) {
+    const open = !!unlocked[c.id];
+    const chaps = c.chapitres.map(ch => ({ch, docs: ch.docs.filter(d => !q || (d.titre + " " + d.type + " " + ch.titre).toLowerCase().includes(q))}))
+      .filter(x => x.docs.length);
+    if (q && !chaps.length) continue;
+    const head = document.createElement("div"); head.className = "classhead";
+    head.innerHTML = `<h2>${esc(c.nom)}</h2>`;
+    const st = document.createElement("span");
+    if (open) { st.className = "status is-open"; st.innerHTML = `Documents ouverts. <button class="linkbtn" type="button">Verrouiller</button>`;
+      st.querySelector("button").onclick = () => { delete unlocked[c.id]; S.del("cle-" + c.id); render(); }; }
+    else if (c.chapitres.length) { st.className = "status"; st.textContent = KEYS[c.id] ? "Protégé par mot de passe" : "Pas encore ouvert aux étudiants"; }
+    head.appendChild(st); view.appendChild(head);
+    if (!open && !q && KEYS[c.id] && c.chapitres.length) view.appendChild(lockBox(c));
+    if (!c.chapitres.length) { const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucun document pour l'instant."; view.appendChild(p); }
+    chaps.forEach(x => { found += x.docs.length; view.appendChild(chapBlock(c, x.ch, x.docs, open)); });
+  }
+  if (q && !found) { const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucun document ne correspond à « " + $("#q").value.trim() + " »."; view.appendChild(p); }
+}
+
+function lockBox(c){
+  const box = document.createElement("div"); box.className = "lock";
+  const fid = "pw-" + c.id;
+  box.innerHTML = `<p>Entrez le mot de passe de la classe pour ouvrir les documents.</p>
+    <form><input type="password" id="${fid}" autocomplete="current-password" aria-label="Mot de passe ${esc(c.nom)}" placeholder="Mot de passe" required>
+    <button class="btn" type="submit">Ouvrir les documents</button>
+    <label class="rem"><input type="checkbox"> Se souvenir sur cet appareil</label></form><p class="err" aria-live="assertive"></p>`;
+  box.querySelector("form").onsubmit = async (e) => {
+    e.preventDefault();
+    const err = box.querySelector(".err"); err.textContent = "";
+    const btn = box.querySelector(".btn"); btn.disabled = true; btn.textContent = "Vérification…";
+    try { await unlock(c.id, box.querySelector("input[type=password]").value, box.querySelector("input[type=checkbox]").checked); render(); }
+    catch(x){ err.textContent = x.message === "mdp" ? "Mot de passe incorrect. Vérifiez les majuscules et réessayez." : "Les documents de cette classe ne sont pas encore ouverts."; btn.disabled = false; btn.textContent = "Ouvrir les documents"; }
+  };
+  return box;
+}
+
+function route(){
+  const h = location.hash.slice(1);
+  current = CAT.classes.some(c => c.id === h) ? h : (current || CAT.classes.find(c => c.chapitres.length)?.id || CAT.classes[0].id);
+  render();
+}
+
+(async function init(){
+  try {
+    const [cat, keys] = await Promise.all([fetch("catalogue.json",{cache:"no-cache"}).then(r=>r.json()), fetch("cles.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{}).catch(()=>({}))]);
+    CAT = cat; KEYS = keys || {};
+    $("#who").textContent = CAT.auteur || "";
+    if (CAT.titre) { document.querySelector("h1").textContent = CAT.titre; }
+    await restore();
+    $("#q").addEventListener("input", render);
+    window.addEventListener("hashchange", route);
+    route();
+  } catch(e) {
+    $("#view").innerHTML = "<p class='empty'>Le site n'a pas pu se charger. Rechargez la page.</p>";
+  }
+})();
+})();
+</script>
+</body>
+</html>
