@@ -327,5 +327,25 @@
     }
    ]
   }
+ ],
+ "outils": [
+  {
+   "groupe": "Appareils",
+   "titre": "Oscilloscope RIGOL DS1104Z Plus",
+   "docs": [
+    {
+     "titre": "Fiche méthode oscilloscope DS1104Z Plus",
+     "type": "Fiche",
+     "lien": "outils/oscilloscope-rigol-ds1104z-plus/fiche-methode-oscilloscope-ds1104z-plus-7a1bf24a.pdf",
+     "taille": 323564,
+     "pages": 4
+    },
+    {
+     "titre": "Simulation oscilloscope",
+     "type": "Simulation",
+     "lien": "outils/oscilloscope-rigol-ds1104z-plus/simulation-oscilloscope.html"
+    }
+   ]
+  }
  ]
 }

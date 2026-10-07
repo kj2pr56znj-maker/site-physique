@@ -114,6 +114,10 @@ a.open{text-decoration:none;display:inline-block}
   .open.dl{display:none}
 }
 .empty{color:var(--muted);margin:18px 0}
+.intro-outils{color:var(--muted);margin:4px 0 4px}
+.groupe{font-size:1.25rem;font-weight:600;margin:24px 0 0;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.status.libre{color:var(--ok)}
+.chap .folder.outil{color:var(--ok)}
 
 footer{color:var(--muted);font-size:.86rem;margin:48px 0 32px;padding-top:16px;border-top:1px solid var(--grid)}
 footer p{margin:0 0 8px;max-width:68ch}
@@ -141,6 +145,7 @@ noscript p{background:var(--accent-soft);padding:12px;border-radius:8px}
   <footer>
     <p>Les cours, TD et TP s'ouvrent avec le mot de passe de la classe, donné en cours. Ils sont déchiffrés directement sur votre appareil : rien n'est envoyé.</p>
     <p>Sur un ordinateur du lycée, ne cochez pas « Se souvenir sur cet appareil ».</p>
+    <p>La rubrique Outils (fiches méthodes et simulations des appareils de TP) est en accès libre.</p>
   </footer>
 </main>
 <div class="toast" id="toast" role="status"></div>
@@ -235,14 +240,21 @@ function renderNav(){
     b.onclick = () => { location.hash = c.id; };
     nav.appendChild(b);
   }
+  if ((CAT.outils || []).length) {
+    const b = document.createElement("button");
+    b.type = "button"; b.setAttribute("aria-pressed", String(current === "outils"));
+    b.innerHTML = `<span class="n">Outils</span><span class="n mini">Outils</span><span class="s">Fiches méthodes et simulations</span>`;
+    b.onclick = () => { location.hash = "outils"; };
+    nav.appendChild(b);
+  }
 }
 
 function docRow(c, d, open){
   const li = document.createElement("li");
   if (d.lien) {
     li.innerHTML = `<span class="type">${esc(d.type)}</span>
-      <span class="title">${esc(d.titre)}<span class="meta">${d.type === "Cartes" ? (d.nombre ? d.nombre + " cartes, " : "") + "accès libre" : "Animation interactive, accès libre"}</span></span>
-      <span class="actions"><a class="open" href="${esc(d.lien)}" target="_blank" rel="noopener">Ouvrir</a></span>`;
+      <span class="title">${esc(d.titre)}<span class="meta">${d.type === "Cartes" ? (d.nombre ? d.nombre + " cartes, " : "") + "accès libre" : d.taille ? "PDF, " + (d.pages ? d.pages + " p., " : "") + size(d.taille) + ", accès libre" : (d.type === "Simulation" ? "Simulation interactive" : "Animation interactive") + ", accès libre"}</span></span>
+      <span class="actions"><a class="open" href="${esc(d.lien)}" target="_blank" rel="noopener">Ouvrir</a>${d.taille ? `<a class="open dl" href="${esc(d.lien)}" download="${esc(d.titre)}.pdf">Télécharger</a>` : ""}</span>`;
     return li;
   }
   li.innerHTML = `<span class="${typeClass(d.type)}">${esc(d.type)}</span>
@@ -256,12 +268,12 @@ function docRow(c, d, open){
 }
 
 const FOLDER = '<svg class="folder" viewBox="0 0 34 28" aria-hidden="true"><path d="M2 5a3 3 0 0 1 3-3h8l3 4h13a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3z" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
-function chapBlock(c, ch, docs, open, forceOpen){
+function chapBlock(c, ch, docs, open, forceOpen, outil){
   const key = c.id + "/" + ch.titre;
   const s = document.createElement("details"); s.className = "chap";
   if (forceOpen || opened.has(key)) s.open = true;
   const n = docs.length;
-  s.innerHTML = `<summary>${FOLDER}<h3><span>${esc(ch.titre)}</span><span class="count">${n} document${n > 1 ? "s" : ""}</span></h3><span class="chev" aria-hidden="true"></span></summary>`;
+  s.innerHTML = `<summary>${outil ? FOLDER.replace('class="folder"', 'class="folder outil"') : FOLDER}<h3><span>${esc(ch.titre)}</span><span class="count">${n} document${n > 1 ? "s" : ""}</span></h3><span class="chev" aria-hidden="true"></span></summary>`;
   s.addEventListener("toggle", () => { if (s.open) opened.add(key); else opened.delete(key); });
   const ul = document.createElement("ul"); ul.className = "docs";
   docs.forEach(d => ul.appendChild(docRow(c, d, open)));
@@ -274,6 +286,7 @@ function render(){
   const q = $("#q").value.trim().toLowerCase();
   const classes = q ? CAT.classes : CAT.classes.filter(c => c.id === current);
   let found = 0;
+  if (q || current === "outils") found += renderOutils(view, q);
   for (const c of classes) {
     const open = !!unlocked[c.id];
     const chaps = c.chapitres.map(ch => ({ch, docs: ch.docs.filter(d => !q || (d.titre + " " + d.type + " " + ch.titre).toLowerCase().includes(q))}))
@@ -291,6 +304,23 @@ function render(){
     chaps.forEach(x => { found += x.docs.length; view.appendChild(chapBlock(c, x.ch, x.docs, open, !!q)); });
   }
   if (q && !found) { const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucun document ne correspond à « " + $("#q").value.trim() + " »."; view.appendChild(p); }
+}
+
+function renderOutils(view, q){
+  const O = { id: "outils" };
+  const outils = (CAT.outils || []).map(o => ({ ch: o, docs: o.docs.filter(d => !q || (d.titre + " " + d.type + " " + o.titre + " " + o.groupe).toLowerCase().includes(q)) }))
+    .filter(x => x.docs.length);
+  if (q && !outils.length) return 0;
+  const head = document.createElement("div"); head.className = "classhead";
+  head.innerHTML = `<h2>Outils</h2><span class="status libre">Accès libre, sans mot de passe</span>`;
+  view.appendChild(head);
+  if (!q) { const p = document.createElement("p"); p.className = "intro-outils"; p.textContent = "Fiches méthodes des appareils et logiciels utilisés en TP, avec une simulation pour s'entraîner avant la séance."; view.appendChild(p); }
+  let grp = null, n = 0;
+  outils.forEach(x => {
+    if (x.ch.groupe !== grp) { grp = x.ch.groupe; const h = document.createElement("h3"); h.className = "groupe"; h.textContent = grp; view.appendChild(h); }
+    n += x.docs.length; view.appendChild(chapBlock(O, x.ch, x.docs, true, !!q, true));
+  });
+  return n;
 }
 
 function lockBox(c){
@@ -312,7 +342,7 @@ function lockBox(c){
 
 function route(){
   const h = location.hash.slice(1);
-  current = CAT.classes.some(c => c.id === h) ? h : (current || CAT.classes.find(c => c.chapitres.length)?.id || CAT.classes[0].id);
+  current = (CAT.classes.some(c => c.id === h) || (h === "outils" && (CAT.outils || []).length)) ? h : (current || CAT.classes.find(c => c.chapitres.length)?.id || CAT.classes[0].id);
   render();
 }
 
