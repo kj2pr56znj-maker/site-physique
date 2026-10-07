@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulation wattmètre</title>
+<style>
+:root{--bg:#f4f6f9;--carte:#fff;--txt:#1d2733;--doux:#5b6b7c;--bleu:#1f4e79;--bleuc:#e6eef7;--ok:#1d7a46;--okc:#e3f4ea;--ko:#b22222;--koc:#fbe9e9;--bord:#d5dde6;--pan:#e9e9e4;--panb:#c9c9c2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161c;--carte:#1b232c;--txt:#e3e9ef;--doux:#9aabbc;--bleu:#7fb2e5;--bleuc:#1f2d3b;--ok:#5fd08f;--okc:#173325;--ko:#ff7b7b;--koc:#3a1c1c;--bord:#2f3b47}}
+:root[data-theme="dark"]{--bg:#11161c;--carte:#1b232c;--txt:#e3e9ef;--doux:#9aabbc;--bleu:#7fb2e5;--bleuc:#1f2d3b;--ok:#5fd08f;--okc:#173325;--ko:#ff7b7b;--koc:#3a1c1c;--bord:#2f3b47}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:14px 16px 6px;max-width:1240px;margin:auto}
+h1{font-size:21px;margin:0;color:var(--bleu)}
+header p{margin:2px 0 0;color:var(--doux);font-size:14px}
+nav{display:flex;gap:6px;max-width:1240px;margin:8px auto 0;padding:0 16px;flex-wrap:wrap}
+nav button{border:1px solid var(--bord);background:var(--carte);color:var(--txt);padding:7px 14px;border-radius:8px 8px 0 0;cursor:pointer;font-size:14px}
+nav button.actif{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+main{max-width:1240px;margin:auto;padding:0 16px 30px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.carte{background:var(--carte);border:1px solid var(--bord);border-radius:10px;padding:12px}
+.carte h2{font-size:15px;margin:0 0 8px;color:var(--bleu)}
+svg{width:100%;height:auto;display:block;user-select:none}
+.clic{cursor:pointer}
+@media (max-width:700px){#faceWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}#face{min-width:780px}}
+.ligne{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.ligne label{min-width:92px;color:var(--doux);font-size:14px}
+input[type=range]{flex:1;min-width:120px}
+select,input[type=text]{font:inherit;padding:5px 8px;border:1px solid var(--bord);border-radius:6px;background:var(--carte);color:var(--txt)}
+.btn{font:inherit;border:0;border-radius:7px;padding:7px 13px;cursor:pointer;background:var(--bleu);color:#fff}
+.btn.sec{background:var(--bleuc);color:var(--txt);border:1px solid var(--bord)}
+.btn:disabled{opacity:.45;cursor:default}
+#alim{display:flex;align-items:center;gap:10px}
+#voyant{width:16px;height:16px;border-radius:50%;background:#777;border:2px solid #444}
+#voyant.on{background:#2ecc71;box-shadow:0 0 8px #2ecc71}
+.msg{padding:8px 10px;border-radius:7px;margin-top:8px;font-size:14px}
+.msg.ok{background:var(--okc);color:var(--ok)}
+.msg.ko{background:var(--koc);color:var(--ko)}
+.msg.info{background:var(--bleuc)}
+canvas{width:100%;height:190px;display:block;background:#0b1a12;border-radius:6px}
+.leg{display:flex;gap:14px;font-size:13px;flex-wrap:wrap;margin-top:6px}
+.partie{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--doux)}
+.question{font-size:15px;margin:6px 0 10px}
+.qcm label{display:block;padding:6px 8px;border:1px solid var(--bord);border-radius:6px;margin:5px 0;cursor:pointer}
+.prog{height:6px;background:var(--bord);border-radius:3px;overflow:hidden;margin:6px 0 10px}
+.prog div{height:100%;background:var(--bleu)}
+.grille{display:grid;grid-template-columns:auto 1fr auto;gap:6px 8px;align-items:center}
+.grille input{width:100%}
+.petit{font-size:13px;color:var(--doux)}
+.cache{display:none}
+table.bilan{border-collapse:collapse;width:100%;font-size:14px}
+table.bilan td{border-bottom:1px solid var(--bord);padding:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Simulation du wattmètre numérique</h1>
+  <p>Physique industrielle – Outils. Branche, règle et lis le wattmètre comme en TP, sans risque.</p>
+</header>
+<nav>
+  <button data-onglet="guide" class="actif">Entraînement guidé</button>
+  <button data-onglet="mystere">Charge mystère</button>
+  <button data-onglet="libre">Mode libre</button>
+</nav>
+<main>
+  <div>
+    <div class="carte">
+      <div id="faceWrap"><svg id="face" viewBox="0 0 940 345" aria-label="Face avant du wattmètre"></svg></div>
+      <p class="petit" style="margin:6px 0 0">Clique sur U, I, P ou sur les calibres pour tourner les sélecteurs, sur un bouton pour l'enfoncer ou le relâcher, sur une borne rouge pour y déplacer le fil (hors tension).</p>
+    </div>
+    <div class="carte" style="margin-top:12px">
+      <h2>Oscilloscope branché sur les sorties</h2>
+      <canvas id="osc" width="900" height="230"></canvas>
+      <div class="leg">
+        <label><input type="checkbox" id="vU" checked> <span style="color:#f1c40f">■</span> U(t)</label>
+        <label><input type="checkbox" id="vI" checked> <span style="color:#3dc5ff">■</span> I(t)</label>
+        <label><input type="checkbox" id="vP" checked> <span style="color:#ff6fb1">■</span> P(t) (pointillés : sa valeur moyenne)</label>
+      </div>
+      <p class="petit" style="margin:4px 0 0">Échelles relatives : chaque sortie est proportionnelle à la grandeur instantanée, avec un coefficient qui dépend du calibre.</p>
+    </div>
+  </div>
+  <div>
+    <div class="carte">
+      <h2>Montage</h2>
+      <div id="descMontage" class="petit"></div>
+      <div id="reglagesCharge">
+        <div class="ligne"><label>Source</label>
+          <select id="src"><option value="ac230">Réseau 230 V~ 50 Hz</option><option value="ac24">Transformateur 24 V~ 50 Hz</option><option value="dc24">Alimentation continue 24 V</option><option value="red24">24 V~ redressé (pont de diodes)</option></select></div>
+        <div class="ligne"><label>R</label><input type="range" id="R" min="1" max="500" step="1" value="50"><span id="Rv"></span></div>
+        <div class="ligne"><label>L (série)</label><input type="range" id="L" min="0" max="0.5" step="0.01" value="0"><span id="Lv"></span></div>
+        <div class="ligne"><label>C (parallèle)</label><input type="range" id="C" min="0" max="100" step="1" value="0"><span id="Cv"></span></div>
+      </div>
+      <div class="ligne"><label>Fils courant</label><label style="min-width:0;color:var(--txt)"><input type="checkbox" id="inv"> inversés (le courant entre par COM)</label></div>
+      <div id="alim" class="ligne"><div id="voyant"></div><button class="btn" id="btnAlim">Mettre sous tension</button><button class="btn sec cache" id="btnFus">Remplacer le fusible</button></div>
+      <div id="msgMontage"></div>
+    </div>
+    <div class="carte" style="margin-top:12px" id="zoneGuide">
+      <h2>Entraînement guidé</h2>
+      <div class="prog"><div id="barre" style="width:0"></div></div>
+      <div class="partie" id="qPartie"></div>
+      <div class="question" id="qTexte"></div>
+      <div id="qRep"></div>
+      <div class="ligne"><button class="btn" id="qValider">Valider</button><button class="btn sec" id="qSuivant" disabled>Question suivante</button></div>
+      <div id="qMsg"></div>
+    </div>
+    <div class="carte cache" style="margin-top:12px" id="zoneMystere">
+      <h2>Charge mystère</h2>
+      <p class="question">Une charge inconnue est branchée et l'appareil a été mal réglé par le groupe précédent. Règle-le, mesure, puis calcule les grandeurs demandées (à 3 % près).</p>
+      <div class="grille">
+        <span>P =</span><input type="text" id="mP" inputmode="decimal"><span>W</span>
+        <span>S =</span><input type="text" id="mS" inputmode="decimal"><span>VA</span>
+        <span>cos φ =</span><input type="text" id="mF" inputmode="decimal"><span></span>
+        <span>Q =</span><input type="text" id="mQ" inputmode="decimal"><span>var</span>
+      </div>
+      <div class="ligne"><button class="btn" id="mValider">Vérifier</button><button class="btn sec" id="mNouveau">Nouvelle charge</button></div>
+      <div id="mMsg"></div>
+    </div>
+    <div class="carte cache" style="margin-top:12px" id="zoneLibre">
+      <h2>Mode libre</h2>
+      <p class="petit">Choisis la source et la charge, puis explore : ajoute un condensateur à une bobine, compare DC, AC et AC+DC sur la tension redressée, observe P(t) à l'oscilloscope…</p>
+      <div id="libreCalc" class="petit"></div>
+    </div>
+  </div>
+</main>
+<script>
+// ================= Modèle =================
+const W50 = 2 * Math.PI * 50;
+const S = { aff: 'U', b3: false, b4: false, b5: false, b6: false, b7: false, calI: 20, calU: 600, borne: 20, inv: false, on: false, fusible: { 0.5: true, 5: true, 20: true } };
+const C = { src: 'ac230', R: 50, L: 0, C: 0 };
+let mode = 'guide', masquer = false;
+
+function modele(c) {
+  const n = 400, u = [], i = [];
+  if (c.src === 'ac230' || c.src === 'ac24') {
+    const U = c.src === 'ac230' ? 230 : 24;
+    const zr = c.R, zi = W50 * c.L, d = zr * zr + zi * zi;
+    const yr = zr / d, yi = -zi / d + W50 * c.C * 1e-6;          // admittance totale
+    const Im = U * Math.hypot(yr, yi), ph = Math.atan2(yi, yr);
+    for (let k = 0; k < n; k++) { const t = 2 * Math.PI * k / n; u.push(U * Math.SQRT2 * Math.sin(t)); i.push(Im * Math.SQRT2 * Math.sin(t + ph)); }
+  } else if (c.src === 'dc24') {
+    for (let k = 0; k < n; k++) { u.push(24); i.push(24 / c.R); }
+  } else {
+    for (let k = 0; k < n; k++) { const v = Math.abs(24 * Math.SQRT2 * Math.sin(2 * Math.PI * k / n)); u.push(v); i.push(v / c.R); }
+  }
+  return { u, i };
+}
+const moy = a => a.reduce((s, x) => s + x, 0) / a.length;
+const eff = a => Math.sqrt(moy(a.map(x => x * x)));
+const effAC = a => { const m = moy(a); return Math.sqrt(Math.max(0, moy(a.map(x => (x - m) ** 2)))); };
+function grandeurs(c) {
+  const { u, i } = modele(c);
+  const P = moy(u.map((x, k) => x * i[k])), U = eff(u), I = eff(i);
+  const Sa = U * I, F = Sa ? P / Sa : 1, Q = Math.sqrt(Math.max(0, Sa * Sa - P * P));
+  return { u, i, P, U, I, S: Sa, F, Q, Umoy: moy(u), Uac: effAC(u), Imoy: moy(i), Iac: effAC(i) };
+}
+
+// Ce que voit réellement l'appareil
+function mesure() {
+  const g = grandeurs(C);
+  let u = g.u, i = g.i;
+  const circuitOuvert = !S.fusible[S.borne];
+  if (!S.on) { u = u.map(() => 0); i = i.map(() => 0); }
+  else if (circuitOuvert) i = i.map(() => 0);
+  let im = i.map(x => (S.inv ? -x : x));
+  if (S.b6) im = im.map(() => 0);                       // mode pince, pas de pince
+  const k = S.calI / S.borne;                            // shunt de la borne interprété avec le calibre choisi
+  const iLu = im.map(x => x * k);
+  let P = moy(u.map((x, j) => x * iLu[j]));
+  if (S.b5) P *= 3;
+  const val = a => (!S.b3 ? moy(a) : (S.b4 ? eff(a) : effAC(a)));
+  return { u, iLu, P, U: val(u), I: val(iLu), g };
+}
+
+// ================= Affichage =================
+function chiffres(v, gamme) {
+  const ent = Math.max(1, Math.floor(Math.log10(gamme)) + 1), dec = Math.max(0, 4 - ent);
+  return v.toFixed(dec);
+}
+function lecture() {
+  const m = mesure();
+  let v, gamme, unite;
+  if (S.aff === 'U') { v = m.U; gamme = S.calU; unite = 'V'; }
+  else if (S.aff === 'I') { v = m.I; gamme = S.calI; unite = 'A'; if (S.calI === 0.5) { v *= 1000; gamme = 500; unite = 'mA'; } }
+  else { v = m.P; gamme = S.calU * S.calI; unite = 'W'; }
+  const txt = Math.abs(v) > gamme * 1.05 ? (v < 0 ? '-OL' : 'OL') : chiffres(v, gamme);
+  return { txt, unite, v, m };
+}
+
+const svg = document.getElementById('face');
+const ns = 'http://www.w3.org/2000/svg';
+function el(tag, at, parent = svg, txt) { const e = document.createElementNS(ns, tag); for (const a in at) e.setAttribute(a, at[a]); if (txt !== undefined) e.textContent = txt; parent.appendChild(e); return e; }
+
+function dessiner() {
+  svg.innerHTML = '';
+  el('rect', { x: 4, y: 4, width: 932, height: 300, rx: 18, fill: '#e8e8e2', stroke: '#bdbdb5', 'stroke-width': 3 });
+  el('text', { x: 30, y: 36, 'font-size': 19, 'font-weight': 700, fill: '#333' }, svg, 'WATTMÈTRE NUMÉRIQUE');
+  el('rect', { x: 278, y: 20, width: 56, height: 22, rx: 11, fill: 'none', stroke: '#333' });
+  el('text', { x: 306, y: 36, 'font-size': 13, 'text-anchor': 'middle', fill: '#333' }, svg, 'TRMS');
+  // afficheur
+  const l = lecture();
+  el('rect', { x: 26, y: 50, width: 300, height: 92, rx: 6, fill: '#3a0b0b', stroke: '#222', 'stroke-width': 2 });
+  el('text', { x: 255, y: 116, 'font-size': 50, 'font-family': 'ui-monospace,Menlo,Consolas,monospace', 'text-anchor': 'end', fill: S.on ? '#ff3b2f' : '#5a1a14' }, svg, S.on ? l.txt : '8.8.8.8');
+  el('text', { x: 295, y: 112, 'font-size': 20, 'text-anchor': 'middle', fill: S.on ? '#ff6b5f' : '#5a1a14', 'font-weight': 700 }, svg, l.unite);
+  // sélecteur affichage
+  bouton_rot(400, 108, ['U', 'I', 'P'], ['U', 'I', 'P'], S.aff, v => { S.aff = v; }, 'AFFICHAGE', '2');
+  // boutons poussoirs
+  const bp = [['b3', 'AC', 'DC'], ['b4', 'AC+DC', 'AC'], ['b5', '3Φ', '1Φ'], ['b6', 'pince', 'bornes'], ['b7', '×10', '×1']];
+  el('text', { x: 517, y: 30, 'font-size': 12, 'text-anchor': 'middle', fill: '#333' }, svg, '┌──── U & I ────┐');
+  bp.forEach(([cle, haut, bas], k) => {
+    const x = 452 + k * 58, enf = S[cle];
+    el('text', { x: x + 18, y: 50, 'font-size': 13, 'text-anchor': 'middle', fill: '#222', 'font-weight': enf ? 700 : 400 }, svg, haut);
+    const g = el('g', { class: 'clic' });
+    el('rect', { x, y: enf ? 66 : 58, width: 36, height: enf ? 46 : 56, rx: 4, fill: enf ? '#d9d6c8' : '#fbfaf3', stroke: '#888', 'stroke-width': 1.5 }, g);
+    el('text', { x: x + 18, y: 135, 'font-size': 13, 'text-anchor': 'middle', fill: '#222', 'font-weight': enf ? 400 : 700 }, svg, bas);
+    el('text', { x: x + 18, y: 152, 'font-size': 11, 'text-anchor': 'middle', fill: '#c0392b', 'font-weight': 700 }, svg, String(k + 3));
+    g.addEventListener('click', () => { S[cle] = !S[cle]; maj(); });
+  });
+  el('text', { x: 585, y: 175, 'font-size': 11, 'text-anchor': 'middle', fill: '#555' }, svg, 'enfoncé = inscription du haut  •  relâché = inscription du bas');
+  el('text', { x: 585, y: 192, 'font-size': 11, 'text-anchor': 'middle', fill: '#555' }, svg, '600 V≈ CAT III  ≤ 1 kHz');
+  bouton_rot(775, 108, ['500mA', '5A', '20A'], [0.5, 5, 20], S.calI, v => { S.calI = v; }, 'COURANT', '8');
+  bouton_rot(878, 108, ['50V', '600V'], [50, 600], S.calU, v => { S.calU = v; }, 'TENSION', '9', true);
+  // bornes
+  el('line', { x1: 410, y1: 210, x2: 410, y2: 296, stroke: '#aaa' }); el('line', { x1: 660, y1: 210, x2: 660, y2: 296, stroke: '#aaa' });
+  const bornes = [
+    { x: 46, l: 'U(t)', c: '#222', bnc: 1 }, { x: 106, l: 'I(t)', c: '#222', bnc: 1 }, { x: 166, l: 'P(t)', c: '#222', bnc: 1 }, { x: 250, l: 'pince 500 mV', c: '#222', bnc: 1 },
+    { x: 340, l: 'COM', c: '#1b1b1b' }, { x: 440, l: '20A', c: '#c0392b', v: 20 }, { x: 520, l: '5A', c: '#c0392b', v: 5 }, { x: 600, l: '500mA', c: '#c0392b', v: 0.5 },
+    { x: 720, l: 'L3', c: '#2e6fc1' }, { x: 800, l: 'L2 (P) +', c: '#2e6fc1' }, { x: 880, l: 'L1 (N) −', c: '#2e6fc1' }];
+  for (const b of bornes) {
+    el('text', { x: b.x, y: 228, 'font-size': 13, 'text-anchor': 'middle', fill: '#222' }, svg, b.l);
+    const g = el('g', b.v ? { class: 'clic' } : {});
+    el('circle', { cx: b.x, cy: 262, r: b.bnc ? 19 : 22, fill: b.c, stroke: '#555', 'stroke-width': 2 }, g);
+    el('circle', { cx: b.x, cy: 262, r: b.bnc ? 5 : 9, fill: b.bnc ? '#ddd' : '#111' }, g);
+    if (b.v && !S.fusible[b.v]) el('text', { x: b.x, y: 243, 'font-size': 11, 'text-anchor': 'middle', fill: '#c0392b', 'font-weight': 700 }, svg, 'fusible HS');
+    if (b.v) g.addEventListener('click', () => deplacerFil(b.v));
+  }
+  el('text', { x: 205, y: 205, 'font-size': 12, 'text-anchor': 'middle', fill: '#555' }, svg, 'Sorties (10)        Pince (11)');
+  el('text', { x: 470, y: 205, 'font-size': 12, 'text-anchor': 'middle', fill: '#555' }, svg, 'COURANT (12)');
+  el('text', { x: 800, y: 205, 'font-size': 12, 'text-anchor': 'middle', fill: '#555' }, svg, 'TENSION (13)');
+  // fils
+  const fil = (x, c) => { el('path', { d: `M${x} 262 C ${x} 300, ${x} 315, ${x} 345`, stroke: c, 'stroke-width': 7, fill: 'none', 'stroke-linecap': 'round' }); el('circle', { cx: x, cy: 262, r: 8, fill: c }); };
+  const xb = { 20: 440, 5: 520, 0.5: 600 }[S.borne];
+  fil(S.inv ? 340 : xb, '#d63a2f'); fil(S.inv ? xb : 340, '#1d1d1d');
+  fil(800, '#d63a2f'); fil(880, '#2a59a8');
+  [46, 106, 166].forEach(x => fil(x, '#6b6b6b'));
+  el('text', { x: 196, y: 330, 'font-size': 11, fill: '#888' }, svg, '← vers l\'oscilloscope');
+  el('text', { x: S.inv ? 345 : 345, y: 332, 'font-size': 11, fill: '#888' }, svg, '');
+}
+
+function bouton_rot(cx, cy, labels, valeurs, actuel, set, titre, num, deux) {
+  el('text', { x: cx, y: 32, 'font-size': 13, 'text-anchor': 'middle', 'font-weight': 700, fill: '#222' }, svg, titre);
+  const n = labels.length, ang = deux ? [-25, 25] : [-45, 0, 45];
+  labels.forEach((t, k) => {
+    const a = ang[k] * Math.PI / 180, x = cx + 46 * Math.sin(a), y = cy - 46 * Math.cos(a);
+    const g = el('g', { class: 'clic' });
+    el('rect', { x: x - 24, y: y - 16, width: 48, height: 22, fill: 'transparent' }, g);
+    el('text', { x, y, 'font-size': 13, 'text-anchor': 'middle', fill: valeurs[k] === actuel ? '#c0392b' : '#222', 'font-weight': valeurs[k] === actuel ? 700 : 400 }, g, t);
+    g.addEventListener('click', () => { set(valeurs[k]); maj(); });
+  });
+  el('circle', { cx, cy: cy + 8, r: 26, fill: '#f6f6f0', stroke: '#999', 'stroke-width': 2 });
+  const k = valeurs.indexOf(actuel), a = ang[k] * Math.PI / 180;
+  el('line', { x1: cx, y1: cy + 8, x2: cx + 24 * Math.sin(a), y2: cy + 8 - 24 * Math.cos(a), stroke: '#222', 'stroke-width': 4, 'stroke-linecap': 'round' });
+  el('text', { x: cx, y: cy + 54, 'font-size': 11, 'text-anchor': 'middle', fill: '#c0392b', 'font-weight': 700 }, svg, num);
+}
+
+function deplacerFil(v) {
+  if (S.on) { info('Coupe d\'abord l\'alimentation avant de déplacer un fil.', 'ko'); return; }
+  S.borne = v; info('', ''); maj();
+}
+function info(t, cls) { document.getElementById('msgMontage').innerHTML = t ? `<div class="msg ${cls}">${t}</div>` : ''; }
+
+function verifFusible() {
+  if (!S.on) return;
+  const I = grandeurs(C).I;
+  if (S.fusible[S.borne] && I > S.borne * 1.15) {
+    S.fusible[S.borne] = false;
+    info(`Le fusible de la borne ${S.borne === 0.5 ? '500 mA' : S.borne + ' A'} a grillé : le courant (environ ${I.toFixed(2)} A) dépasse ce que la borne supporte. La charge n'est plus alimentée.`, 'ko');
+  }
+}
+
+// ================= Oscilloscope =================
+const cv = document.getElementById('osc'), cx2 = cv.getContext('2d');
+function oscillo() {
+  const Wd = cv.width, H = cv.height, m = mesure();
+  cx2.fillStyle = '#0b1a12'; cx2.fillRect(0, 0, Wd, H);
+  cx2.strokeStyle = '#1f3a2a'; cx2.lineWidth = 1;
+  for (let k = 1; k < 10; k++) { cx2.beginPath(); cx2.moveTo(k * Wd / 10, 0); cx2.lineTo(k * Wd / 10, H); cx2.stroke(); }
+  for (let k = 1; k < 8; k++) { cx2.beginPath(); cx2.moveTo(0, k * H / 8); cx2.lineTo(Wd, k * H / 8); cx2.stroke(); }
+  cx2.strokeStyle = '#3c6b52'; cx2.beginPath(); cx2.moveTo(0, H / 2); cx2.lineTo(Wd, H / 2); cx2.stroke();
+  const trace = (arr, coef, couleur, moyenne) => {
+    cx2.strokeStyle = couleur; cx2.lineWidth = 2.2; cx2.beginPath();
+    for (let x = 0; x < Wd; x++) {
+      const k = Math.floor((x / Wd) * 2 * arr.length) % arr.length;
+      let y = H / 2 - Math.max(-1.05, Math.min(1.05, arr[k] * coef)) * H * 0.42;
+      x ? cx2.lineTo(x, y) : cx2.moveTo(x, y);
+    }
+    cx2.stroke();
+    if (moyenne) { const y = H / 2 - Math.max(-1.05, Math.min(1.05, moy(arr) * coef)) * H * 0.42; cx2.setLineDash([6, 5]); cx2.beginPath(); cx2.moveTo(0, y); cx2.lineTo(Wd, y); cx2.stroke(); cx2.setLineDash([]); }
+  };
+  const gU = 1 / (S.calU * 1.45), gI = 1 / (S.calI * 1.45);
+  if (vU.checked) trace(m.u, gU, '#f1c40f');
+  if (vI.checked) trace(m.iLu, gI, '#3dc5ff');
+  if (vP.checked) { const p = m.u.map((x, j) => x * m.iLu[j] * (S.b5 ? 3 : 1)); trace(p, (S.b7 ? 10 : 1) / (S.calU * S.calI * 2.1), '#ff6fb1', true); }
+  cx2.fillStyle = '#8fb8a0'; cx2.font = '13px system-ui'; cx2.fillText('2 périodes du réseau (40 ms) – 4 ms/div', 8, 16);
+}
+
+// ================= Mise à jour =================
+const $ = id => document.getElementById(id);
+function majCharge() {
+  $('Rv').textContent = C.R + ' Ω'; $('Lv').textContent = C.L.toFixed(2) + ' H'; $('Cv').textContent = C.C + ' µF';
+  const lc = C.src === 'ac230' || C.src === 'ac24';
+  $('L').disabled = !lc || mode !== 'libre'; $('C').disabled = !lc || mode !== 'libre';
+  const nomSrc = $('src').selectedOptions[0].textContent;
+  let d = `<b>Source :</b> ${nomSrc}<br><b>Charge :</b> `;
+  if (masquer) d += 'inconnue';
+  else { d += `R = ${C.R} Ω`; if (lc && C.L) d += ` en série avec L = ${C.L.toFixed(2)} H`; if (lc && C.C) d += `, condensateur C = ${C.C} µF en parallèle`; if (!lc) d += ' (L et C sans effet ici)'; }
+  $('descMontage').innerHTML = d;
+}
+function maj() {
+  verifFusible();
+  dessiner(); oscillo(); majCharge();
+  $('voyant').className = S.on ? 'on' : ''; $('btnAlim').textContent = S.on ? 'Couper l\'alimentation' : 'Mettre sous tension';
+  $('btnFus').classList.toggle('cache', S.fusible[0.5] && S.fusible[5] && S.fusible[20]);
+  if (mode === 'libre') libreCalc();
+}
+$('btnAlim').onclick = () => { S.on = !S.on; if (!S.on) info('', ''); maj(); };
+$('btnFus').onclick = () => { if (S.on) { info('Coupe d\'abord l\'alimentation pour changer le fusible.', 'ko'); return; } S.fusible = { 0.5: true, 5: true, 20: true }; info('Le professeur a remplacé le fusible.', 'info'); maj(); };
+$('inv').onchange = e => { if (S.on) { e.target.checked = S.inv; info('Coupe d\'abord l\'alimentation avant de modifier le câblage.', 'ko'); return; } S.inv = e.target.checked; maj(); };
+['vU', 'vI', 'vP'].forEach(id => $(id).onchange = oscillo);
+function lireCharge() { C.src = $('src').value; C.R = +$('R').value; C.L = +$('L').value; C.C = +$('C').value; }
+['src', 'R', 'L', 'C'].forEach(id => $(id).oninput = () => {
+  if (id === 'src' && S.on) { $('src').value = C.src; info('Coupe d\'abord l\'alimentation avant de changer de source.', 'ko'); return; }
+  lireCharge(); maj();
+});
+function poserCharge(c) { Object.assign(C, { L: 0, C: 0 }, c); $('src').value = C.src; $('R').value = C.R; $('L').value = C.L; $('C').value = C.C; }
+function libreCalc() {
+  const g = grandeurs(C), f = x => x.toLocaleString('fr-FR', { maximumSignificantDigits: 4 });
+  $('libreCalc').innerHTML = `<b>Valeurs théoriques du montage</b> (pour vérifier tes lectures) :<br>U = ${f(g.U)} V, I = ${f(g.I)} A, P = ${f(g.P)} W, S = ${f(g.S)} VA, cos φ = ${f(g.F)}, Q = ${f(g.Q)} var`
+    + (C.src !== 'dc24' && C.src !== 'ac230' && C.src !== 'ac24' ? `<br>Umoy = ${f(g.Umoy)} V, U<sub>AC</sub> = ${f(g.Uac)} V` : '');
+}
+
+// ================= Entraînement guidé =================
+const nb = s => parseFloat(String(s).replace(',', '.').replace(/\s/g, ''));
+const RAD = { src: 'ac230', R: 52.9 }, BOB = { src: 'ac230', R: 20, L: 0.1 }, COMP = { src: 'ac230', R: 20, L: 0.1, C: 60 }, PET = { src: 'ac24', R: 47, L: 0.15 }, DC = { src: 'dc24', R: 10 }, RED = { src: 'red24', R: 20 };
+const g = c => grandeurs(Object.assign({ L: 0, C: 0 }, c));
+const okReglageBase = () => !S.b5 && !S.b6 && S.on && S.fusible[S.borne] && !S.inv;
+const Q = [
+  { p: 'Prise en main – radiateur sur le réseau', c: RAD, t: 'Le radiateur est alimenté par le réseau 230 V et consomme environ 4 A. Branche le fil rouge sur la borne <b>5 A</b>, règle le calibre courant sur <b>5 A</b> et le calibre tension sur <b>600 V</b>. Choisis la valeur efficace vraie (boutons 3 et 4 enfoncés), le monophasé et la mesure par les bornes. Mets enfin sous tension.',
+    type: 'reglage', test: () => {
+      if (S.borne !== 5) return 'Le fil rouge doit être sur la borne 5 A (couper avant de le déplacer).';
+      if (S.calI !== 5) return 'Le calibre COURANT doit être identique à la borne : 5 A.';
+      if (S.calU !== 600) return 'Sur le réseau 230 V, il faut le calibre 600 V.';
+      if (!S.b3 || !S.b4) return 'Pour la valeur efficace vraie, enfonce les boutons 3 (AC) et 4 (AC+DC).';
+      if (S.b5) return 'Relâche le bouton 5 : on est en monophasé (1Φ).';
+      if (S.b6) return 'Relâche le bouton 6 : le courant passe par les bornes, pas par une pince.';
+      if (!S.on) return 'Tout est bien réglé : il reste à mettre sous tension.';
+      return ''; } },
+  { p: 'Prise en main – radiateur sur le réseau', c: RAD, t: 'Place le sélecteur AFFICHAGE sur P et relève la puissance active.', type: 'num', u: 'W', r: () => g(RAD).P },
+  { p: 'Prise en main – radiateur sur le réseau', c: RAD, t: 'Relève maintenant la valeur efficace I du courant.', type: 'num', u: 'A', r: () => g(RAD).I },
+  { p: 'Prise en main – radiateur sur le réseau', c: RAD, t: 'Relève U, calcule S = U × I puis le facteur de puissance cos φ = P / S.', type: 'num', u: '', r: () => g(RAD).F, abs: 0.02 },
+  { p: 'Bobine sur le réseau', c: BOB, t: 'On remplace le radiateur par une bobine (montage modifié hors tension). Son courant dépasse 5 A : passe le fil rouge sur la borne <b>20 A</b> et le calibre COURANT sur <b>20 A</b>, remets sous tension et relève P.', type: 'num', u: 'W', r: () => g(BOB).P },
+  { p: 'Bobine sur le réseau', c: BOB, t: 'Relève U et I, puis calcule la puissance apparente S = U × I.', type: 'num', u: 'VA', r: () => g(BOB).S },
+  { p: 'Bobine sur le réseau', c: BOB, t: 'Calcule le facteur de puissance cos φ = P / S.', type: 'num', u: '', r: () => g(BOB).F, abs: 0.02 },
+  { p: 'Bobine sur le réseau', c: BOB, t: 'Calcule la puissance réactive Q = √(S² − P²).', type: 'num', u: 'var', r: () => g(BOB).Q },
+  { p: 'Compensation', c: COMP, t: 'On ajoute un condensateur de 60 µF en parallèle sur la bobine. Remets sous tension et compare P et I aux mesures précédentes.', type: 'qcm',
+    o: ['P et I augmentent', 'P ne change pas, I diminue', 'P diminue, I ne change pas', 'P et I diminuent'], r: 1, e: 'Le condensateur ne consomme pas de puissance active : P reste la même. Il fournit une partie de la puissance réactive de la bobine, donc S et I diminuent.' },
+  { p: 'Compensation', c: COMP, t: 'Calcule le nouveau facteur de puissance cos φ = P / (U × I).', type: 'num', u: '', r: () => g(COMP).F, abs: 0.02 },
+  { p: 'Petit calibre – transformateur 24 V', c: PET, t: 'La charge est maintenant alimentée en 24 V~ et le courant est d\'environ 0,4 A. Pour plus de précision, branche le fil rouge sur la borne <b>500 mA</b> avec le calibre <b>500 mA</b>, et prends le calibre <b>50 V</b>. Mets sous tension.',
+    type: 'reglage', test: () => {
+      if (S.borne !== 0.5) return 'Le fil rouge doit être sur la borne 500 mA (couper avant de le déplacer).';
+      if (S.calI !== 0.5) return 'Le calibre COURANT doit être 500 mA, comme la borne.';
+      if (S.calU !== 50) return 'La tension est inférieure à 50 V : prends le calibre 50 V.';
+      if (!S.b3 || !S.b4 || S.b5 || S.b6) return 'Vérifie les boutons : 3 et 4 enfoncés, 5 et 6 relâchés.';
+      if (!S.on) return 'Il reste à mettre sous tension.';
+      return ''; } },
+  { p: 'Petit calibre – transformateur 24 V', c: PET, t: 'Relève la puissance active P.', type: 'num', u: 'W', r: () => g(PET).P },
+  { p: 'Continu et redressé', c: DC, t: 'Une résistance de 10 Ω est alimentée en continu (24 V, environ 2,4 A). Remets le fil rouge sur la borne 5 A avec le calibre 5 A. Relâche le bouton 3 (DC) et relève la valeur moyenne du courant I.', type: 'num', u: 'A', r: () => g(DC).I },
+  { p: 'Continu et redressé', c: DC, t: 'Toujours en continu, enfonce le bouton 3 (AC) et relâche le bouton 4 (AC). Qu\'affiche l\'appareil pour U ?', type: 'qcm',
+    o: ['24 V', '0 V', '33,9 V', 'Un dépassement'], r: 1, e: 'Dans cette position, l\'appareil n\'affiche que la valeur efficace de la partie alternative. En continu, elle est nulle.' },
+  { p: 'Continu et redressé', c: RED, t: 'La résistance (20 Ω) est maintenant alimentée par une tension redressée double alternance. Relève la valeur moyenne de U (bouton 3 relâché).', type: 'num', u: 'V', r: () => g(RED).Umoy },
+  { p: 'Continu et redressé', c: RED, t: 'Relève la valeur efficace vraie de U (boutons 3 et 4 enfoncés).', type: 'num', u: 'V', r: () => g(RED).U },
+  { p: 'Continu et redressé', c: RED, t: 'Relève la valeur efficace de la seule partie alternative de U (bouton 3 enfoncé, bouton 4 relâché). Vérifie ensuite que U² = Umoy² + U<sub>AC</sub>².', type: 'num', u: 'V', r: () => g(RED).Uac },
+  { p: 'Continu et redressé', c: RED, t: 'Relève la puissance active P reçue par la résistance.', type: 'num', u: 'W', r: () => g(RED).P },
+  { p: 'Les pièges', c: RAD, t: 'Retour au radiateur. Coupe, coche « fils inversés », remets sous tension et lis P. Que constates-tu ?', type: 'qcm',
+    o: ['P ne change pas', 'P devient négative', 'L\'afficheur indique un dépassement', 'Le fusible grille'], r: 1, e: 'Le courant entre par COM : l\'appareil le compte en sens inverse, et le produit u × i devient négatif. Il faut inverser les deux fils du circuit courant.' },
+  { p: 'Les pièges', c: RAD, t: 'Que se passe-t-il si on branche le radiateur (environ 4,3 A) sur la borne 500 mA ? Tu peux l\'essayer.', type: 'qcm',
+    o: ['L\'appareil affiche un dépassement, sans conséquence', 'Le fusible de la borne grille et la charge n\'est plus alimentée', 'Le courant est lu 10 fois trop grand', 'Rien, l\'appareil s\'adapte'], r: 1, e: 'Le courant dépasse largement 500 mA : le fusible de cette borne fond et ouvre le circuit. D\'où la règle : en cas de doute, commencer par la borne 20 A.' },
+  { p: 'Les pièges', c: RAD, t: 'Peut-on relier en même temps les sorties U(t) et I(t) aux voies 1 et 2 d\'un oscilloscope dont les masses sont reliées à la terre ?', type: 'qcm',
+    o: ['Non, cela court-circuite le montage par la terre', 'Oui, les sorties sont isolées du montage par des optocoupleurs', 'Seulement en continu', 'Seulement avec une sonde ×10'], r: 1, e: 'Le schéma interne de l\'appareil montre des optocoupleurs entre les circuits de mesure et les sorties : les sorties sont isolées du montage, on peut les observer ensemble sans risque.' },
+];
+let qi = 0, score = [], tente = false;
+function afficherQ() {
+  const q = Q[qi];
+  if (JSON.stringify(q.c) !== JSON.stringify(Q[qi - 1]?.c) || qi === 0) {
+    if (qi > 0 && S.on) { S.on = false; info('Le montage a été modifié : il est hors tension.', 'info'); }
+    poserCharge(q.c);
+  }
+  $('barre').style.width = (100 * qi / Q.length) + '%';
+  $('qPartie').textContent = `Question ${qi + 1} / ${Q.length} – ${q.p}`;
+  $('qTexte').innerHTML = q.t; $('qMsg').innerHTML = ''; $('qSuivant').disabled = true; $('qValider').disabled = false; tente = false;
+  if (q.type === 'num') $('qRep').innerHTML = `<div class="ligne"><input type="text" id="rep" inputmode="decimal" style="width:130px"> <span>${q.u}</span></div>`;
+  else if (q.type === 'qcm') $('qRep').innerHTML = '<div class="qcm">' + q.o.map((o, k) => `<label><input type="radio" name="qcm" value="${k}"> ${o}</label>`).join('') + '</div>';
+  else $('qRep').innerHTML = '<p class="petit">Fais les réglages sur l\'appareil, puis clique sur Valider.</p>';
+  maj();
+}
+function valider() {
+  const q = Q[qi]; let ok, txt;
+  if (q.type === 'reglage') { const e = q.test(); ok = !e; txt = ok ? 'Bien réglé !' : e; }
+  else if (q.type === 'num') {
+    const v = nb($('rep').value), r = q.r();
+    if (isNaN(v)) { $('qMsg').innerHTML = '<div class="msg ko">Écris une valeur numérique.</div>'; return; }
+    ok = q.abs ? Math.abs(v - r) <= q.abs : Math.abs(v - r) <= 0.02 * Math.abs(r) + 1e-9;
+    const rf = r.toLocaleString('fr-FR', { maximumSignificantDigits: 3 });
+    txt = ok ? `Exact (valeur attendue : ${rf} ${q.u}).` : (tente ? `La valeur attendue était ${rf} ${q.u}. Vérifie les réglages de l'appareil et ton calcul.` : 'Ce n\'est pas la bonne valeur. Vérifie les réglages (borne, calibre, boutons) et réessaie.');
+  } else {
+    const c = document.querySelector('input[name=qcm]:checked');
+    if (!c) { $('qMsg').innerHTML = '<div class="msg ko">Choisis une réponse.</div>'; return; }
+    ok = +c.value === q.r; txt = (ok ? 'Exact. ' : 'Non. ') + q.e;
+  }
+  if (score[qi] === undefined && (ok || tente || q.type === 'qcm')) score[qi] = ok;
+  $('qMsg').innerHTML = `<div class="msg ${ok ? 'ok' : 'ko'}">${txt}</div>`;
+  if (ok || tente || q.type === 'qcm') { $('qSuivant').disabled = false; if (q.type === 'qcm') $('qValider').disabled = true; }
+  tente = true;
+}
+function bilan() {
+  $('barre').style.width = '100%';
+  const parts = [...new Set(Q.map(q => q.p))];
+  $('qPartie').textContent = 'Bilan'; $('qTexte').innerHTML = `Tu as réussi <b>${score.filter(Boolean).length} / ${Q.length}</b> questions du premier coup.`;
+  $('qRep').innerHTML = '<table class="bilan">' + parts.map(p => { const idx = Q.map((q, k) => q.p === p ? k : -1).filter(k => k >= 0); return `<tr><td>${p}</td><td>${idx.filter(k => score[k]).length} / ${idx.length}</td></tr>`; }).join('') + '</table>';
+  $('qMsg').innerHTML = ''; $('qValider').disabled = true; $('qSuivant').disabled = false; $('qSuivant').textContent = 'Recommencer';
+}
+$('qValider').onclick = valider;
+$('qSuivant').onclick = () => {
+  if (qi >= Q.length - 1 && $('qSuivant').textContent !== 'Recommencer') { qi = Q.length; bilan(); return; }
+  if ($('qSuivant').textContent === 'Recommencer') { $('qSuivant').textContent = 'Question suivante'; qi = 0; score = []; reinitAppareil(); afficherQ(); return; }
+  qi++; afficherQ();
+};
+
+// ================= Charge mystère =================
+let mys;
+function nouvelleMystere() {
+  const reseau = Math.random() < 0.7;
+  const c = reseau ? { src: 'ac230', R: Math.round(20 + Math.random() * 130), L: Math.round(Math.random() * 30) / 100, C: Math.random() < 0.3 ? Math.round(10 + Math.random() * 30) : 0 }
+    : { src: 'ac24', R: Math.round(30 + Math.random() * 60), L: Math.round(Math.random() * 25) / 100, C: 0 };
+  poserCharge(c); mys = grandeurs(C);
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  Object.assign(S, { on: false, borne: 20, calI: pick([0.5, 5, 20]), calU: pick([50, 600]), aff: pick(['U', 'I', 'P']), b3: Math.random() < 0.5, b4: Math.random() < 0.5, b5: Math.random() < 0.3, b6: Math.random() < 0.3, b7: false, inv: Math.random() < 0.25, fusible: { 0.5: true, 5: true, 20: true } });
+  $('inv').checked = S.inv;
+  ['mP', 'mS', 'mF', 'mQ'].forEach(id => $(id).value = ''); $('mMsg').innerHTML = ''; info('', '');
+  maj();
+}
+$('mNouveau').onclick = nouvelleMystere;
+$('mValider').onclick = () => {
+  const champs = [['mP', 'P', 'P'], ['mS', 'S', 'S'], ['mF', 'F', 'cos φ'], ['mQ', 'Q', 'Q']];
+  const res = champs.map(([id, k, nom]) => { const v = nb($(id).value), r = mys[k]; const ok = !isNaN(v) && (k === 'F' ? Math.abs(v - r) <= 0.03 : Math.abs(v - r) <= 0.03 * r + 0.5); return { nom, ok, v }; });
+  const n = res.filter(x => x.ok).length;
+  const f = x => x.toLocaleString('fr-FR', { maximumSignificantDigits: 3 });
+  $('mMsg').innerHTML = `<div class="msg ${n === 4 ? 'ok' : 'ko'}">${res.map(x => `${x.nom} : ${x.ok ? '✔' : '✘'}`).join('   ')}${n === 4 ? '<br>Bravo, tout est juste !' : '<br>Vérifie le réglage de l\'appareil (borne, calibre, boutons, sens des fils) et tes calculs.'}</div>`
+    + (n < 4 ? `<button class="btn sec" id="mSol" style="margin-top:6px">Voir la solution</button>` : '');
+  const b = $('mSol'); if (b) b.onclick = () => { $('mMsg').innerHTML += `<div class="msg info">P = ${f(mys.P)} W, U = ${f(mys.U)} V, I = ${f(mys.I)} A, S = ${f(mys.S)} VA, cos φ = ${f(mys.F)}, Q = ${f(mys.Q)} var.</div>`; b.remove(); };
+};
+
+// ================= Onglets =================
+function reinitAppareil() { Object.assign(S, { aff: 'U', b3: false, b4: false, b5: false, b6: false, b7: false, calI: 20, calU: 600, borne: 20, inv: false, on: false, fusible: { 0.5: true, 5: true, 20: true } }); $('inv').checked = false; info('', ''); }
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('actif', x === b));
+  mode = b.dataset.onglet; masquer = mode === 'mystere';
+  $('zoneGuide').classList.toggle('cache', mode !== 'guide'); $('zoneMystere').classList.toggle('cache', mode !== 'mystere'); $('zoneLibre').classList.toggle('cache', mode !== 'libre');
+  $('reglagesCharge').classList.toggle('cache', mode !== 'libre');
+  reinitAppareil();
+  if (mode === 'guide') afficherQ(); else if (mode === 'mystere') nouvelleMystere(); else { poserCharge({ src: 'ac230', R: 50, L: 0.1, C: 0 }); maj(); }
+});
+$('reglagesCharge').classList.add('cache');
+afficherQ();
+</script>
+</body>
+</html>

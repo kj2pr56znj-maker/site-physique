@@ -364,6 +364,24 @@
      "lien": "outils/oscilloscope-rigol-ds1104z-plus/simulation-oscilloscope.html"
     }
    ]
+  },
+  {
+   "groupe": "Appareils",
+   "titre": "Wattmètre numérique FIWATT",
+   "docs": [
+    {
+     "titre": "Fiche méthode wattmètre FIWATT",
+     "type": "Fiche",
+     "lien": "outils/wattmetre-numerique-fiwatt/fiche-methode-wattmetre-fiwatt-fcc4da01.pdf",
+     "taille": 346922,
+     "pages": 3
+    },
+    {
+     "titre": "Simulation wattmètre",
+     "type": "Simulation",
+     "lien": "outils/wattmetre-numerique-fiwatt/simulation-wattmetre.html"
+    }
+   ]
   }
  ]
 }
