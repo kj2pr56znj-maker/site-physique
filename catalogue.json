@@ -331,6 +331,24 @@
  "outils": [
   {
    "groupe": "Appareils",
+   "titre": "Analyseur de réseau C.A 8331",
+   "docs": [
+    {
+     "titre": "Fiche méthode analyseur de réseau C.A 8331",
+     "type": "Fiche",
+     "lien": "outils/analyseur-de-reseau-c-a-8331/fiche-methode-analyseur-de-reseau-c-a-8331-2ed44997.pdf",
+     "taille": 392619,
+     "pages": 4
+    },
+    {
+     "titre": "Simulation analyseur de réseau",
+     "type": "Simulation",
+     "lien": "outils/analyseur-de-reseau-c-a-8331/simulation-analyseur-de-reseau.html"
+    }
+   ]
+  },
+  {
+   "groupe": "Appareils",
    "titre": "Oscilloscope RIGOL DS1104Z Plus",
    "docs": [
     {
