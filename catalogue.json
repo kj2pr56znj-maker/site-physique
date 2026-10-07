@@ -195,20 +195,6 @@
        "titre": "animation transferts thermiques",
        "type": "Animation",
        "lien": "animations/et/animation-transferts-thermiques.html"
-      },
-      {
-       "titre": "exercices",
-       "type": "Exercices",
-       "fichier": "d389890feb54a3fcb087639e.bin",
-       "taille": 441912,
-       "pages": 4
-      },
-      {
-       "titre": "QCM transferts thermiques",
-       "type": "Document",
-       "fichier": "b56cd9474f557007e6cb8f36.bin",
-       "taille": 66472,
-       "pages": 2
       }
      ]
     }
