@@ -5,9 +5,9 @@
   {
    "id": "et",
    "nom": "BTS Électrotechnique",
-   "court": "Électrotechnique",
+   "court": "ET",
    "mini": "ET",
-   "sous": "BTS ET",
+   "sous": "électrotechnique",
    "chapitres": [
     {
      "num": "",
@@ -204,7 +204,7 @@
    "id": "cira",
    "nom": "BTS CIRA",
    "court": "CIRA",
-   "sous": "Contrôle industriel et régulation",
+   "sous": "Contrôle industriel et régulation automatique",
    "chapitres": [
     {
      "num": "4",
