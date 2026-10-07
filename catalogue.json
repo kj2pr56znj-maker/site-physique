@@ -1,5 +1,5 @@
 {
- "titre": "Physique appliquée",
+ "titre": "Physique industrielle",
  "auteur": "Cours, TD et TP de M. Mascrier",
  "classes": [
   {
@@ -37,8 +37,8 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "224019102a3c1b548786c9e9.bin",
-       "taille": 160816,
+       "fichier": "a8094de16a96669a5f10d765.bin",
+       "taille": 167546,
        "pages": 5
       },
       {
@@ -101,8 +101,8 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "ed176390ee9f8610f11ff834.bin",
-       "taille": 143656,
+       "fichier": "2bc88a88de4199a318d4b990.bin",
+       "taille": 152219,
        "pages": 4
       },
       {
@@ -160,8 +160,8 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "531c0d1c4e915c32cef88b4f.bin",
-       "taille": 132481,
+       "fichier": "28bb6cec2175fe7405450c90.bin",
+       "taille": 141453,
        "pages": 4
       },
       {
@@ -234,8 +234,8 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "b63c50dd16b2b364d8cd499e.bin",
-       "taille": 162723,
+       "fichier": "8c80357169b4e222bdf97240.bin",
+       "taille": 177263,
        "pages": 5
       },
       {
@@ -275,7 +275,7 @@
    "chapitres": [
     {
      "num": "",
-     "titre": "Les convertisseurs électromagnétiques",
+     "titre": "Les convertisseurs électromécaniques",
      "docs": [
       {
        "titre": "l'essentiel du chapitre",
@@ -287,15 +287,15 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "5865aa155e21c03cfd27cb5f.bin",
-       "taille": 159901,
+       "fichier": "4a1e6709fed91e82f9b7792f.bin",
+       "taille": 159556,
        "pages": 5
       },
       {
        "titre": "cartes de révision",
        "type": "Cartes",
        "nombre": 32,
-       "lien": "cartes.html?c=cim&ch=les-convertisseurs-electromagnetiques"
+       "lien": "cartes.html?c=cim&ch=les-convertisseurs-electromecaniques"
       },
       {
        "titre": "animation moteur asynchrone",
@@ -312,8 +312,8 @@
       {
        "titre": "TP2 Moteur asynchrone (simulation)",
        "type": "TP",
-       "fichier": "c7d3e90cbd46dfa9d4be6afc.bin",
-       "taille": 316905,
+       "fichier": "bc053b2c73bc80bfc36ab4f1.bin",
+       "taille": 316906,
        "pages": 5
       },
       {
