@@ -249,13 +249,17 @@ function acquire(){
   const clampOK = st.cIn==='L1';
   const mono = st.branch<=1;
   const cyc=2*N, v=[], ic=[];
+  // erreur de la pince (calibre 5 A) : quelques dizaines de mA qui changent à chaque mesure,
+  // gênante pour un petit courant, négligeable quand on fait plusieurs tours
+  const R=Math.random, e1=0.03+0.06*R(), p1=2*Math.PI*R(), e3=0.04*R(), p3=2*Math.PI*R(), e5=0.03*R(), p5=2*Math.PI*R(), e0=0.02*gauss();
   for(let k=0;k<cyc;k++){
     const th=2*Math.PI*k/N;
     v.push(vOK ? vInst(th)+gauss()*0.6 : gauss()*0.05);
     const real = st.alim ? iInst(st.load,th) : 0;
     let clamp = real*turns*st.cDir;
     if(st.cPos==='both') clamp = real*0.002;          // résidu : aller et retour se compensent
-    clamp += gauss()*0.03 + (Math.random()-.5)*0.01;   // bruit de la pince (calibre 5 A)
+    if(st.cIn==='L1' || st.cPos!=='none') clamp += e0 + e1*Math.cos(th+p1) + e3*Math.cos(3*th+p3) + e5*Math.cos(5*th+p5);
+    clamp += gauss()*0.05;   // bruit de la pince
     ic.push(clamp/st.ratio);
   }
   const A=analyse(ic.slice(0,N)), V=analyse(v.slice(0,N));
@@ -513,11 +517,11 @@ const M=[
     {p:'Facteur de crête du courant :', exp:()=>T.rad.cf, tol:0.05},
     {p:'Le courant est-il sinusoïdal ? Justifie avec deux valeurs.', open:'Oui : le THD est presque nul (≈ 2 %, comme la tension du réseau) et le facteur de crête vaut environ 1,41 = √2, valeur d\'une sinusoïde.'}]},
   {t:'Mission 3 — Le piège de la pince', intro:'Toujours le radiateur. Place la pince autour des fils de phase ET de neutre.', q:[
-    {p:'Intensité affichée (en A) :', exp:()=>0, abs:0.06},
+    {p:'Intensité affichée (en A) :', exp:()=>0, abs:0.12},
     {p:'Pourquoi ?', open:'Le courant qui va vers la charge par la phase revient par le neutre : la somme des deux est nulle, la pince ne « voit » rien. Il faut entourer un seul conducteur.'},
     {p:'Remets la pince sur la phase, mais flèche vers la paillasse. Branche les cordons de tension (alimentation coupée !) et va en mode W : quel est le signe de P ?', choix:['positif','négatif'], ok:1, why:'P est négative : la pince est à l\'envers, l\'appareil croit que l\'énergie va vers la paillasse.'}]},
   {t:'Mission 4 — Le chargeur de PC : un petit courant déformé', intro:'Charge : chargeur de PC. Pince sur la phase (1 tour), flèche vers la charge, mode Formes d\'onde.', q:[
-    {p:'Avec 1 tour, les valeurs affichées sont-elles stables ? Pourquoi ?', open:'Non : le courant (≈ 0,5 A) est très faible pour la pince, le bruit de mesure se voit sur la courbe et les valeurs fluctuent.'},
+    {p:'Avec 1 tour, les valeurs affichées sont-elles stables ? Pourquoi ?', open:'Non : le courant (≈ 0,5 A) est très faible pour une pince de calibre 5 A. Son erreur (quelques dizaines de mA) n\'est plus négligeable : la courbe est bruitée et I, le THD et le facteur de crête changent à chaque rafraîchissement.'},
     {p:'Enroule 10 tours de fil dans la pince, sans changer le ratio. Valeur efficace lue (en A) :', exp:()=>10*T.chargeur.I, tol:0.06},
     {p:'Règle le ratio à 1:10 (🔧 → Capteurs et ratios). Vraie valeur efficace I (en A) :', exp:()=>T.chargeur.I, tol:0.06},
     {p:'THD du courant (en %f) :', exp:()=>T.chargeur.thd, tol:0.06},
