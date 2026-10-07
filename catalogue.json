@@ -75,6 +75,65 @@
     },
     {
      "num": "",
+     "titre": "Les chaînes de mesure",
+     "docs": [
+      {
+       "titre": "l'essentiel du chapitre",
+       "type": "Cours",
+       "fichier": "fcc07549c1af4a2ce5e32604.bin",
+       "taille": 844624,
+       "pages": 13
+      },
+      {
+       "titre": "bilan",
+       "type": "Fiche",
+       "fichier": "4bd97d8b2dd90dc8ded45eb8.bin",
+       "taille": 148739,
+       "pages": 4
+      },
+      {
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "8fdfd748cc249057cf90b256.bin",
+       "taille": 135313,
+       "pages": 4
+      },
+      {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 28,
+       "lien": "cartes.html?c=et&ch=les-chaines-de-mesure"
+      },
+      {
+       "titre": "activité 1. boucle 4-20 mA du pressuriseur",
+       "type": "Activité",
+       "fichier": "1ef16c0b31f46687dbc01688.bin",
+       "taille": 221019,
+       "pages": 5
+      },
+      {
+       "titre": "activité 2. numérisation d'une mesure de température",
+       "type": "Activité",
+       "fichier": "f6c6597e9d7751e3b2d42222.bin",
+       "taille": 223711,
+       "pages": 5
+      },
+      {
+       "titre": "activité 3. temps de réponse d'une sonde Pt100",
+       "type": "Activité",
+       "fichier": "6575ecbfa676d0fd90a9eb7c.bin",
+       "taille": 126016,
+       "pages": 5
+      },
+      {
+       "titre": "simulation chaîne de mesure",
+       "type": "Animation",
+       "lien": "animations/et/simulation-chaine-de-mesure.html"
+      }
+     ]
+    },
+    {
+     "num": "",
      "titre": "Les régimes transitoires",
      "docs": [
       {

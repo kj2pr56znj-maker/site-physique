@@ -1,0 +1,174 @@
+{
+ "classe": "BTS Électrotechnique",
+ "titre": "Les chaînes de mesure",
+ "cartes": [
+  {
+   "type": "Notion",
+   "recto": "Quels sont les deux premiers éléments d'une chaîne de mesure et leur rôle ?",
+   "verso": "Le <b>capteur</b> convertit la grandeur physique en grandeur électrique (résistance, petite tension…). Le <b>transmetteur</b> convertit cette grandeur électrique en <b>signal normalisé</b> transmissible à distance.",
+   "origine": "Cours §1.1 — Architecture d'une chaîne de mesure"
+  },
+  {
+   "type": "Notion",
+   "recto": "Une sonde Pt100 est-elle un capteur ou un transmetteur ? Que délivre-t-elle ?",
+   "verso": "Un <b>capteur</b> : sa <b>résistance</b> varie avec la température (100 Ω à 0 °C).",
+   "origine": "Cours §1.2 — Exemples de capteurs"
+  },
+  {
+   "type": "Formule",
+   "recto": "Résistance d'une sonde Pt100 en fonction de la température ?",
+   "verso": "$$R = R_0\\,(1+\\alpha\\,\\theta)$$ $R_0 = 100$ Ω, $\\alpha = 3{,}85\\times10^{-3}$ °C⁻¹, $\\theta$ en °C.",
+   "origine": "Cours §1.2 — La sonde Pt100"
+  },
+  {
+   "type": "Notion",
+   "recto": "Quels sont les signaux normalisés les plus courants ?",
+   "verso": "Courant <b>4-20 mA</b> ; tensions <b>0-10 V</b>, <b>−10/+10 V</b> et <b>1-5 V</b>.",
+   "origine": "Cours §2.1 — Signaux normalisés"
+  },
+  {
+   "type": "Notion",
+   "recto": "Qu'est-ce que l'étendue de mesure d'un transmetteur ?",
+   "verso": "L'intervalle des valeurs mesurables : $\\text{EM} = X_{\\max} - X_{\\min}$. $X_{\\min}$ correspond à 4 mA, $X_{\\max}$ à 20 mA.",
+   "origine": "Cours §2.2 — Étendue de mesure"
+  },
+  {
+   "type": "Formule",
+   "recto": "Courant délivré par un transmetteur 4-20 mA pour une grandeur $X$ ?",
+   "verso": "$$I = 4 + 16\\,\\frac{X - X_{\\min}}{X_{\\max} - X_{\\min}}$$ $I$ en mA. Le signal est une fonction <b>affine</b> de $X$.",
+   "origine": "Cours §2.2 — Mise à l'échelle"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Retrouver la grandeur mesurée à partir du courant 4-20 mA ?",
+   "verso": "$$X = X_{\\min} + \\text{EM}\\times\\frac{I-4}{16}$$ Exemple : 100 → 180 bar, 12 mA ↔ 140 bar.",
+   "origine": "Cours §2.2 — Mise à l'échelle"
+  },
+  {
+   "type": "Notion",
+   "recto": "Pourquoi le 4-20 mA est-il insensible à la longueur des câbles ?",
+   "verso": "La boucle est un <b>circuit série</b> : le courant est <b>le même en tout point</b>, quelle que soit la résistance de la ligne. En tension, une chute de tension dans la ligne fausse la mesure.",
+   "origine": "Cours §2.3 — Avantages du 4-20 mA"
+  },
+  {
+   "type": "Notion",
+   "recto": "Qu'appelle-t-on le « zéro vivant » du 4-20 mA ?",
+   "verso": "Le minimum de l'étendue de mesure correspond à <b>4 mA</b> et non à 0 mA. Un courant inférieur à 3,6 mA ne peut pas être une mesure : il signale un <b>défaut</b> (câble coupé, transmetteur hors service).",
+   "origine": "Cours §2.3 — Avantages du 4-20 mA"
+  },
+  {
+   "type": "Piège",
+   "recto": "L'automate reçoit 4 mA d'un transmetteur de niveau 0-10 m. Le transmetteur est-il en panne ?",
+   "verso": "Non : 4 mA correspond au <b>minimum</b> de l'étendue de mesure, ici un niveau de 0 m. C'est <b>0 mA</b> (ou moins de 3,6 mA) qui signale une panne.",
+   "origine": "Cours §2.3 — Piège classique"
+  },
+  {
+   "type": "Formule",
+   "recto": "Quelle tension obtient-on aux bornes d'une résistance de 250 Ω parcourue par un courant 4-20 mA ?",
+   "verso": "$$U = R\\,I$$ De 1 V (4 mA) à 5 V (20 mA) : c'est le signal <b>1-5 V</b>.",
+   "origine": "Cours §2.3 — Conversion courant-tension"
+  },
+  {
+   "type": "Notion",
+   "recto": "Différence entre un signal analogique et un signal numérique ?",
+   "verso": "Analogique : <b>continu</b>, infinité de valeurs. Numérique : <b>échantillonné</b> (connu à intervalles réguliers $T_e$) et <b>quantifié</b> (nombre fini de valeurs codées en binaire).",
+   "origine": "Cours §3.1 — Définitions"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Comment reconnaître un signal numérique sur une représentation temporelle ?",
+   "verso": "Il est formé de <b>paliers</b> (ou de points) : il ne change qu'aux instants d'échantillonnage et ne prend que certaines valeurs (niveaux de quantification).",
+   "origine": "Cours §3.2 — Représentation temporelle"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Comment reconnaître un signal numérique sur un spectre ? Que peut-on y lire ?",
+   "verso": "Son spectre se <b>répète périodiquement</b> : raies à $k\\,f_e \\pm f_0$. La période du motif est la <b>fréquence d'échantillonnage</b> $f_e$.",
+   "origine": "Cours §3.3 — Représentation fréquentielle"
+  },
+  {
+   "type": "Notion",
+   "recto": "Quelles sont les trois caractéristiques utiles d'un CAN ?",
+   "verso": "Le <b>nombre de bits</b> $n$, le <b>quantum</b> $q$ et la <b>fréquence d'échantillonnage</b> $f_e$.",
+   "origine": "Cours §4 — Numérisation"
+  },
+  {
+   "type": "Formule",
+   "recto": "Fréquence d'échantillonnage en fonction de la période d'échantillonnage ?",
+   "verso": "$$f_e = \\frac{1}{T_e}$$ $f_e$ en Hz, $T_e$ en s.",
+   "origine": "Cours §4.1 — Échantillonnage"
+  },
+  {
+   "type": "Formule",
+   "recto": "Énoncer la condition de Shannon.",
+   "verso": "$$f_e > 2\\,f_{\\max}$$ où $f_{\\max}$ est la plus grande fréquence contenue dans le signal.",
+   "origine": "Cours §4.1 — Échantillonnage"
+  },
+  {
+   "type": "Notion",
+   "recto": "Que se passe-t-il si la condition de Shannon n'est pas respectée ?",
+   "verso": "Il y a <b>repliement de spectre</b> : l'automate voit une fréquence apparente qui n'existe pas. Exemple : 25 Hz échantillonné à 30 Hz apparaît à 5 Hz.",
+   "origine": "Cours §4.1 — Repliement"
+  },
+  {
+   "type": "Formule",
+   "recto": "Nombre de valeurs et quantum d'un CAN de $n$ bits ?",
+   "verso": "$2^n$ valeurs (codes de 0 à $2^n-1$). $$q = \\frac{\\text{PE}}{2^n}$$ PE : pleine échelle du CAN (16 mA pour une entrée 4-20 mA).",
+   "origine": "Cours §4.2 — Quantification"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Choisir le nombre de bits d'un CAN pour une résolution donnée ?",
+   "verso": "1. Nombre de points : $N \\geq \\dfrac{\\text{EM}}{\\text{résolution}}$. 2. Plus petit $n$ tel que $2^n \\geq N$. Exemple : 0,1 °C sur 100 °C → 1 000 points → 10 bits.",
+   "origine": "Cours §4.3 — Choisir le nombre de bits"
+  },
+  {
+   "type": "Notion",
+   "recto": "Quel modèle décrit la réponse d'une sonde de température à un échelon ?",
+   "verso": "Le <b>premier ordre</b> : réponse sans retard ni dépassement, pente maximale au départ. $$\\theta(t) = \\theta_f + (\\theta_i-\\theta_f)\\,e^{-t/\\tau}$$",
+   "origine": "Cours §5.1 — Modèle du premier ordre"
+  },
+  {
+   "type": "Formule",
+   "recto": "Constante de temps et temps de réponse à 5 % d'un capteur du premier ordre ?",
+   "verso": "$\\tau$ : durée pour parcourir <b>63 %</b> de la variation. $$t_{5\\%} = 3\\,\\tau$$ (95 % de la variation).",
+   "origine": "Cours §5.1 — Modèle du premier ordre"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Mesurer le temps de réponse d'une sonde lors d'un essai indiciel ?",
+   "verso": "Calculer $\\Delta\\theta = \\theta_f - \\theta_i$, puis lire la date où la mesure vaut $\\theta_i + 0{,}63\\,\\Delta\\theta$ (c'est $\\tau$) et $\\theta_i + 0{,}95\\,\\Delta\\theta$ (c'est $t_{5\\%}$).",
+   "origine": "Cours §5.2 — Mesurer le temps de réponse"
+  },
+  {
+   "type": "Notion",
+   "recto": "Pourquoi un doigt de gant sans pâte conductrice ralentit-il la sonde ?",
+   "verso": "La chaleur doit traverser la paroi du doigt de gant puis une <b>lame d'air</b>, très isolante : le temps de réponse augmente fortement. La pâte conductrice améliore le contact thermique.",
+   "origine": "Cours §5.3 — Influence du montage"
+  },
+  {
+   "type": "Piège",
+   "recto": "Résolution et précision, est-ce la même chose ?",
+   "verso": "Non. La <b>résolution</b> est la plus petite variation détectable ; la <b>précision</b> est l'écart maximal garanti entre la valeur indiquée et la valeur vraie.",
+   "origine": "Cours §6.1 — Ne pas confondre"
+  },
+  {
+   "type": "Formule",
+   "recto": "Tolérance d'une sonde Pt100 de classe A et de classe B ?",
+   "verso": "Classe A : $\\pm(0{,}15 + 0{,}002\\,|\\theta|)$ °C. Classe B : $\\pm(0{,}30 + 0{,}005\\,|\\theta|)$ °C. À 329 °C : ± 0,81 °C (A) et ± 1,95 °C (B).",
+   "origine": "Cours §6.1 — Classes de tolérance"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Calculer l'erreur maximale d'une chaîne de mesure ?",
+   "verso": "Convertir chaque précision dans l'unité de la grandeur (% de l'EM × EM…), puis <b>additionner</b> les erreurs maximales de tous les éléments (cas le plus défavorable).",
+   "origine": "Cours §6.2 — Erreur maximale d'une chaîne"
+  },
+  {
+   "type": "Piège",
+   "recto": "Calcul de la résistance d'une ligne de 300 m : faut-il compter 300 m de fil ?",
+   "verso": "Non : la ligne comporte <b>deux conducteurs</b> (aller et retour), soit 600 m de fil. $$R = 2\\,\\rho\\,\\frac{L}{S}$$",
+   "origine": "Activité 1 — Partie C"
+  }
+ ]
+}
