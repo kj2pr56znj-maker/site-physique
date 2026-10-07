@@ -131,6 +131,86 @@
        "lien": "animations/et/animation-regimes-transitoires.html"
       }
      ]
+    },
+    {
+     "num": "",
+     "titre": "Les transferts thermiques",
+     "docs": [
+      {
+       "titre": "l'essentiel du chapitre",
+       "type": "Cours",
+       "fichier": "900eb893ce46c7d5a374991a.bin",
+       "taille": 1919265,
+       "pages": 15
+      },
+      {
+       "titre": "bilan",
+       "type": "Fiche",
+       "fichier": "3e4b00f35678f0f0489b51ce.bin",
+       "taille": 131280,
+       "pages": 3
+      },
+      {
+       "titre": "fiche animation à compléter",
+       "type": "Fiche",
+       "fichier": "99a85f7fa6bf054931adb4c2.bin",
+       "taille": 119399,
+       "pages": 3
+      },
+      {
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "531c0d1c4e915c32cef88b4f.bin",
+       "taille": 132481,
+       "pages": 4
+      },
+      {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 28,
+       "lien": "cartes.html?c=et&ch=les-transferts-thermiques"
+      },
+      {
+       "titre": "activité 1. énergie thermique",
+       "type": "Activité",
+       "fichier": "ddeb601a7f9f163edd130fc4.bin",
+       "taille": 431887,
+       "pages": 3
+      },
+      {
+       "titre": "activité 2. dimensionnement d'une armoire électrique",
+       "type": "Activité",
+       "fichier": "0e7ee432ff6ffc89c1eaef87.bin",
+       "taille": 323653,
+       "pages": 2
+      },
+      {
+       "titre": "activité 3. thermographie infrarouge d'un TGBT",
+       "type": "Activité",
+       "fichier": "6c2d1fa006b4fc1191102fcb.bin",
+       "taille": 215556,
+       "pages": 5
+      },
+      {
+       "titre": "animation transferts thermiques",
+       "type": "Animation",
+       "lien": "animations/et/animation-transferts-thermiques.html"
+      },
+      {
+       "titre": "exercices",
+       "type": "Exercices",
+       "fichier": "d389890feb54a3fcb087639e.bin",
+       "taille": 441912,
+       "pages": 4
+      },
+      {
+       "titre": "QCM transferts thermiques",
+       "type": "Document",
+       "fichier": "b56cd9474f557007e6cb8f36.bin",
+       "taille": 66472,
+       "pages": 2
+      }
+     ]
     }
    ]
   },
@@ -154,8 +234,8 @@
       {
        "titre": "bilan",
        "type": "Fiche",
-       "fichier": "5905c352c6b3d5c07e28fece.bin",
-       "taille": 187847,
+       "fichier": "096176589bb6a76643b6b1c5.bin",
+       "taille": 187770,
        "pages": 6
       },
       {
@@ -187,7 +267,7 @@
        "titre": "TP1 Analyse spectrale",
        "type": "TP",
        "fichier": "daf070e00b7541db3124b000.bin",
-       "taille": 410936,
+       "taille": 410939,
        "pages": 7
       },
       {

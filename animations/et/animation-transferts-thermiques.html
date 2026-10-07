@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banc transferts thermiques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : un « banc de mesure » — enregistreur à gauche, pupitre de réglage à droite, cahier de questions dessous. */
+:root{
+  --bg:#f3f5f8; --panel:#ffffff; --ink:#16202e; --muted:#5b6778; --line:#d5dce6; --grid:#e7ecf2;
+  --trace:#d4561c; --input:#2f6fd6; --mark:#2f6fd6; --band:rgba(47,111,214,.10); --ok:#1f8a4c; --okbg:#e6f5ec; --bad:#b4372b; --badbg:#fbeceb;
+  --chip:#eef2f7; --accent:#d4561c;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --trace:#ff8a4c; --input:#6ea2ff; --mark:#6ea2ff; --band:rgba(110,162,255,.13); --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --trace:#ff8a4c; --input:#6ea2ff; --mark:#6ea2ff; --band:rgba(110,162,255,.13); --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2rem);margin:0;letter-spacing:.01em;text-wrap:balance}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+@media (max-width:900px){.bench{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.scope{padding:12px 12px 8px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.scope-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.readout{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.readout b{color:var(--ink);font-weight:500}
+svg#plot{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair;border-radius:6px}
+svg#plot:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.pins{display:flex;flex-wrap:wrap;gap:6px}
+.pin{font-family:var(--f-mono);font-size:.78rem;background:var(--chip);border-radius:999px;padding:3px 6px 3px 10px;display:inline-flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+.pin button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:0 4px;line-height:1}
+.hint{font-size:.82rem;color:var(--muted)}
+.panel{padding:14px;display:flex;flex-direction:column;gap:14px;position:relative}
+.panel h2,.notebook h2{font-family:var(--f-display);font-size:1.05rem;margin:0;font-weight:600;letter-spacing:.02em}
+.group{display:flex;flex-direction:column;gap:8px}
+.lbl{font-size:.72rem;font-family:var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+input[type=text]{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{font:inherit;font-size:.82rem;padding:6px 4px;border:0;background:transparent;color:var(--ink);cursor:pointer;line-height:1.2}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.slider label{font-size:.88rem}
+.slider output{font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
+.slider input{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.checks label{font-size:.85rem;display:flex;gap:6px;align-items:flex-start;cursor:pointer}
+.checks input{accent-color:var(--mark);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:var(--chip);border-radius:6px;padding:6px 8px}
+.stat .k{font-size:.7rem;color:var(--muted);font-family:var(--f-mono)}
+.stat .v{font-family:var(--f-mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-size:.88rem;font-weight:500;border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:7px;padding:7px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:focus-visible,.seg button:focus-visible,.tab:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.locked{position:absolute;inset:0;background:var(--panel);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:.95rem}
+.notebook{padding:0;overflow:hidden}
+.tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tab{font:inherit;font-family:var(--f-display);font-weight:600;font-size:.98rem;padding:12px 16px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabpanel{padding:16px}
+.parts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.85rem;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.score{font-family:var(--f-mono);font-size:.85rem}
+.situ{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--chip);border-radius:8px;padding:10px 12px;margin-block:12px}
+.situ p{margin:0;max-width:75ch}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.q{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.q .qt{display:flex;gap:10px}
+.q .n{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);min-width:2.2em;padding-top:2px}
+.q .ans{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-left:calc(2.2em + 10px)}
+.q .ans input[type=text]{width:9em}
+.q .unit{font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:4px;width:100%}
+.opts label{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;cursor:pointer}
+.fb{margin-left:calc(2.2em + 10px);border-radius:6px;padding:8px 10px;font-size:.9rem}
+.fb.ok{background:var(--okbg);color:var(--ink);border-left:3px solid var(--ok)}
+.fb.bad{background:var(--badbg);color:var(--ink);border-left:3px solid var(--bad)}
+.q.done{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.linkbtn{font:inherit;font-size:.82rem;border:0;background:none;color:var(--mark);cursor:pointer;padding:0;text-decoration:underline}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+table.pts{border-collapse:collapse;font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums;width:100%}
+table.pts th,table.pts td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right}
+table.pts th{color:var(--muted);font-weight:500}
+.tablewrap{overflow-x:auto}
+.recap{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+#recap{margin:0;background:var(--chip);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.85rem;white-space:pre-wrap;overflow-x:auto;font-variant-numeric:tabular-nums}
+.form{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;max-width:460px}
+.form label{font-size:.9rem}
+.small{font-size:.82rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body style="margin:0">
+<style>
+/* compléments propres au banc des transferts thermiques */
+:root{--hot:#d4561c;--cold:#2f6fd6;--vis:rgba(140,90,220,.13);--cam:rgba(212,86,28,.10)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--vis:rgba(180,140,255,.15);--cam:rgba(255,138,76,.13)}}
+:root[data-theme="dark"]{--vis:rgba(180,140,255,.15);--cam:rgba(255,138,76,.13)}
+.modes{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.modes button{font:inherit;font-size:.8rem;padding:7px 4px;border:0;background:transparent;color:var(--ink);cursor:pointer;line-height:1.2}
+.modes button+button{border-left:1px solid var(--line)}
+.modes button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+#cam{width:100%;height:auto;display:block;border-radius:6px;cursor:crosshair;touch-action:none;background:#000}
+svg text{font-family:var(--f-mono);font-size:12px;fill:var(--muted)}
+svg .axis{stroke:var(--ink);stroke-width:1}
+svg .gridl{stroke:var(--grid);stroke-width:1}
+svg .lbl2{fill:var(--ink);font-size:13px}
+.chk{display:flex;gap:6px;align-items:center;font-size:.85rem;cursor:pointer}
+.chk input{accent-color:var(--mark)}
+.mystq{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;max-width:520px}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">BTS Électrotechnique · Physique-chimie · Les transferts thermiques</div>
+      <h1>Banc d'étude des transferts thermiques</h1>
+    </div>
+    <div class="hint">Choisissez un module sur le pupitre. Survolez l'affichage pour mesurer, cliquez pour noter un relevé. Chaque partie des questions charge sa situation.</div>
+  </header>
+
+  <section class="bench">
+    <div class="card scope">
+      <div class="scope-top">
+        <div class="readout" id="readout">Curseur : survolez l'affichage</div>
+        <div class="row"><button class="btn ghost" id="clearPins" type="button">Effacer les relevés</button></div>
+      </div>
+      <svg id="plot" viewBox="0 0 820 480" role="img" aria-label="Affichage du banc" tabindex="0"></svg>
+      <canvas id="cam" width="820" height="480" hidden aria-label="Image de la caméra thermique"></canvas>
+      <div class="pins" id="pins"></div>
+    </div>
+
+    <aside class="card panel" id="panel">
+      <div class="group">
+        <span class="lbl">Module</span>
+        <div class="modes" role="group" aria-label="Module du banc">
+          <button type="button" data-mode="u">Énergie interne</button>
+          <button type="button" data-mode="w">Paroi</button>
+          <button type="button" data-mode="r">Rayonnement</button>
+          <button type="button" data-mode="c">Caméra</button>
+        </div>
+        <p class="small" id="modeTxt" style="margin:0"></p>
+      </div>
+      <div class="group" id="ctrl"></div>
+      <div class="stats" id="stats"></div>
+      <div class="locked" id="locked" hidden><div><strong>Tournée en cours</strong><br>Mesurez au curseur sur l'image de la caméra.</div></div>
+    </aside>
+  </section>
+
+  <section class="card notebook">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-q" aria-selected="true" aria-controls="pane-q">Questions guidées</button>
+      <button class="tab" role="tab" id="tab-m" aria-selected="false" aria-controls="pane-m">Tournée thermographique</button>
+    </div>
+
+    <div class="tabpanel" id="pane-q" role="tabpanel">
+      <div class="parts">
+        <div class="chips" id="partChips"></div>
+        <div class="score" id="score"></div>
+      </div>
+      <div class="situ"><p id="partIntro"></p><div class="row"><span class="small" id="loaded" hidden>Situation chargée sur le banc</span><button class="btn" id="loadPart" type="button">Recharger la situation</button></div></div>
+      <ol class="qs" id="qs"></ol>
+      <div class="recap">
+        <h2>Mon récapitulatif</h2>
+        <p class="small">À la fin de la séance, indiquez votre nom puis générez le récapitulatif de toutes les parties. Copiez-le pour le déposer à l'endroit indiqué par votre professeur (ENT, messagerie) ou faites une capture d'écran.</p>
+        <div class="row">
+          <input type="text" id="nom" placeholder="Nom Prénom" aria-label="Nom et prénom" style="max-width:260px;font-family:var(--f-body)">
+          <button class="btn" id="mkRecap" type="button">Générer le récapitulatif</button>
+          <button class="btn ghost" id="cpRecap" type="button" hidden>Copier</button>
+          <span class="small" id="cpMsg"></span>
+        </div>
+        <pre id="recap" hidden></pre>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="pane-m" role="tabpanel" hidden>
+      <div class="grid2">
+        <div>
+          <p style="margin-top:0">Vous réalisez la tournée annuelle de thermographie. Pour chaque départ, la caméra (réglée sur ε = 0,95, rubans adhésifs posés sur les cosses) affiche l'image des trois connexions. Mesurez au curseur, calculez l'écart avec la phase saine la plus chaude puis classez le défaut avec la grille de l'entreprise.</p>
+          <div class="row"><button class="btn" id="newMyst" type="button">Départ suivant</button><button class="btn ghost" id="solMyst" type="button">Afficher la solution</button></div>
+          <p class="small" id="mystInfo"></p>
+          <div class="tablewrap"><table class="pts"><tr><th style="text-align:left">Écart Δθ</th><th style="text-align:left">Classement</th><th style="text-align:left">Action</th></tr>
+            <tr><td style="text-align:left">Δθ &lt; 10 °C</td><td style="text-align:left">mineur</td><td style="text-align:left">surveiller</td></tr>
+            <tr><td style="text-align:left">10 ≤ Δθ &lt; 30 °C</td><td style="text-align:left">important</td><td style="text-align:left">intervention planifiée</td></tr>
+            <tr><td style="text-align:left">Δθ ≥ 30 °C</td><td style="text-align:left">critique</td><td style="text-align:left">intervention urgente</td></tr></table></div>
+        </div>
+        <form class="mystq" id="mystForm" autocomplete="off">
+          <label for="mPh">Phase en défaut</label>
+          <select id="mPh"><option value="">— choisir —</option><option value="0">L1</option><option value="1">L2</option><option value="2">L3</option><option value="-1">aucune (Δθ &lt; 2 °C)</option></select><span></span>
+          <label for="mDt">Écart Δθ</label><input type="text" id="mDt" inputmode="decimal"><span class="unit">°C</span>
+          <label for="mCl">Classement</label>
+          <select id="mCl"><option value="">— choisir —</option><option value="0">mineur</option><option value="1">important</option><option value="2">critique</option></select><span></span>
+          <label for="mP">Puissance dissipée au contact</label><input type="text" id="mP" inputmode="decimal"><span class="unit">W</span>
+          <span></span><button class="btn" type="submit">Vérifier</button><span></span>
+        </form>
+      </div>
+      <div id="mystFb" style="margin-top:12px"></div>
+      <p class="small">Départs vérifiés : <b id="mystCount">0</b> · réussis : <b id="mystOk">0</b></p>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s) => document.querySelector(s);
+const fmt = (v, d = 2) => {
+  if (!isFinite(v)) return '—';
+  const r = Math.round(v * 10 ** d) / 10 ** d;
+  return r.toLocaleString('fr-FR', { maximumFractionDigits: d });
+};
+const sig = (v, n = 3) => {
+  if (!isFinite(v) || v === 0) return fmt(v, 0);
+  const d = Math.max(0, n - 1 - Math.floor(Math.log10(Math.abs(v))));
+  return fmt(v, Math.min(d, 4));
+};
+const parseNum = (s) => { const v = parseFloat(String(s).replace(/\s/g, '').replace(',', '.')); return isFinite(v) ? v : NaN; };
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SIG = 5.67e-8, K0 = 273;
+const store = { get(k, d) { try { const v = localStorage.getItem('tt-' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('tt-' + k, JSON.stringify(v)); } catch (e) {} } };
+
+/* ---------- données ---------- */
+const SUBST = {
+  eau: { n: 'Eau', c: 4185, boil: 100, L: 2257e3, cv: 2010 },
+  huile: { n: 'Huile thermique', c: 2000 },
+  alu: { n: 'Aluminium', c: 897 },
+  acier: { n: 'Acier', c: 460 },
+  cuivre: { n: 'Cuivre', c: 385 },
+};
+const MAT = {
+  none: { n: '— aucune —', l: 0 },
+  acier: { n: 'Acier', l: 50 }, beton: { n: 'Béton', l: 1.75 }, brique: { n: 'Brique', l: 0.84 }, verre: { n: 'Verre', l: 1.0 },
+  bois: { n: 'Bois', l: 0.15 }, laine: { n: 'Laine de roche', l: 0.04 }, pse: { n: 'Polystyrène', l: 0.035 }, pu: { n: 'Polyuréthane', l: 0.025 },
+};
+const MODES = {
+  u: 'Une résistance chauffante de puissance P apporte de l\'énergie à une masse m. On néglige les pertes : toute l\'énergie est stockée sous forme d\'énergie interne.',
+  w: 'Flux thermique par conduction à travers une paroi plane (une ou deux couches) en régime permanent.',
+  r: 'Rayonnement émis par une surface : spectre (loi de Planck, non exigible, tracée par le banc), maximum (loi de Wien) et puissance (loi de Stefan-Boltzmann). La caméra calcule la température avec l\'émissivité qu\'on lui indique.',
+  c: 'Image d\'une caméra thermique réglée sur ε = 0,95 : trois cosses de raccordement d\'un départ, ruban adhésif posé sur chacune.',
+};
+
+const DEF = {
+  u: { sub: 'eau', m: 500, P: 36, ti: 15, tf: 75, boil: false },
+  w: { m1: 'pu', e1: 10, m2: 'none', e2: 5, S: 60, th1: 25, th2: 2 },
+  r: { th: 92, eps: 0.95, epsc: 0.95, tr: 25 },
+  c: { T: [41.0, 44.5, 63.8], I: 160, R: 120 },
+};
+const st = { mode: 'u', u: { ...DEF.u }, w: { ...DEF.w }, r: { ...DEF.r }, c: { ...DEF.c, T: [...DEF.c.T] }, pins: [], cursor: null, myst: null };
+
+/* ---------- pupitre ---------- */
+const slider = (k, lab, unit, min, max, step, obj) => `
+  <div class="slider"><label for="s-${k}">${lab}</label><output id="o-${k}">${fmt(obj[k], 3)} ${unit}</output>
+  <input type="range" id="s-${k}" data-k="${k}" data-u="${unit}" min="${min}" max="${max}" step="${step}" value="${obj[k]}"></div>`;
+const select = (k, lab, opts, obj) => `<label class="small" for="s-${k}" style="margin:0">${lab}</label><select id="s-${k}" data-k="${k}">${Object.entries(opts).map(([v, o]) => `<option value="${v}" ${v === obj[k] ? 'selected' : ''}>${o.n}${o.c ? ` (c = ${fmt(o.c, 0)} J·kg⁻¹·K⁻¹)` : ''}${o.l ? ` (λ = ${fmt(o.l, 3)} W·m⁻¹·K⁻¹)` : ''}</option>`).join('')}</select>`;
+
+function buildCtrl() {
+  const m = st.mode, o = st[m]; let h = '';
+  if (m === 'u') {
+    h = select('sub', 'Substance', SUBST, o) + slider('m', 'Masse m', 'kg', 1, 1000, 1, o) + slider('P', 'Puissance de chauffe P', 'kW', 1, 60, 0.5, o) +
+      slider('ti', 'Température initiale θᵢ', '°C', 0, 40, 1, o) + slider('tf', 'Consigne du thermostat θ_f', '°C', 20, 95, 1, o) +
+      `<label class="chk"><input type="checkbox" id="s-boil" ${o.boil ? 'checked' : ''} ${o.sub !== 'eau' ? 'disabled' : ''}> Thermostat débranché : chauffer jusqu'à ébullition (eau)</label>`;
+  } else if (m === 'w') {
+    h = select('m1', 'Couche 1 (côté θ₁)', Object.fromEntries(Object.entries(MAT).filter(([k]) => k !== 'none')), o) + slider('e1', 'Épaisseur e₁', 'cm', 0.2, 30, 0.1, o) +
+      select('m2', 'Couche 2 (côté θ₂)', MAT, o) + slider('e2', 'Épaisseur e₂', 'cm', 0.2, 30, 0.1, o) +
+      slider('S', 'Surface S', 'm²', 1, 200, 0.5, o) + slider('th1', 'Température θ₁ (gauche)', '°C', -20, 60, 1, o) + slider('th2', 'Température θ₂ (droite)', '°C', -20, 60, 1, o);
+  } else if (m === 'r') {
+    h = slider('th', 'Température de la surface θ', '°C', -20, 1500, 1, o) + slider('eps', 'Émissivité réelle de la surface ε', '', 0.05, 1, 0.01, o) +
+      slider('epsc', 'Émissivité réglée sur la caméra ε_cam', '', 0.05, 1, 0.01, o) +
+      `<p class="small" style="margin:0">Température réfléchie (objets voisins) : ${o.tr} °C.</p>`;
+  } else {
+    h = `<p class="small" style="margin:0">Courant dans chaque phase : <b>${fmt(o.I, 0)} A</b>. Survolez les cosses pour lire la température ; cliquez pour noter un relevé.</p>`;
+  }
+  $('#ctrl').innerHTML = h;
+  $('#ctrl').querySelectorAll('input[type=range]').forEach((el) => el.addEventListener('input', () => {
+    o[el.dataset.k] = parseFloat(el.value); $('#o-' + el.dataset.k).textContent = fmt(o[el.dataset.k], 3) + ' ' + el.dataset.u; st.pins = []; draw();
+  }));
+  $('#ctrl').querySelectorAll('select').forEach((el) => el.addEventListener('change', () => {
+    o[el.dataset.k] = el.value; if (m === 'u' && el.value !== 'eau') o.boil = false; st.pins = []; buildCtrl(); draw();
+  }));
+  const b = $('#s-boil'); if (b) b.addEventListener('change', () => { o.boil = b.checked; st.pins = []; draw(); });
+}
+function setMode(m, keep) {
+  st.mode = m; st.pins = []; st.cursor = null;
+  document.querySelectorAll('.modes button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.mode === m));
+  $('#modeTxt').textContent = MODES[m];
+  svg.toggleAttribute('hidden', m === 'c'); $('#cam').hidden = m !== 'c';
+  $('#locked').hidden = !(m === 'c' && st.myst && !st.myst.shown && st.view === 'm');
+  if (!keep) buildCtrl(); else buildCtrl();
+  draw();
+}
+document.querySelectorAll('.modes button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+
+/* ---------- modèles ---------- */
+function heatCurve(o) {
+  // renvoie {pts:[[t_min, θ]], tEnd, Q, tChauffe, phase}
+  const s = SUBST[o.sub], P = o.P * 1e3, m = o.m, pts = [];
+  if (o.boil && o.sub === 'eau') {
+    const t1 = m * s.c * (s.boil - o.ti) / P, t2 = m * s.L / P, tEnd = (t1 + t2) * 1.18;
+    for (let i = 0; i <= 400; i++) {
+      const t = tEnd * i / 400; let th;
+      if (t <= t1) th = o.ti + P * t / (m * s.c); else if (t <= t1 + t2) th = s.boil; else th = s.boil + P * (t - t1 - t2) / (m * s.cv);
+      pts.push([t / 60, th]);
+    }
+    return { pts, tEnd: tEnd / 60, t1: t1 / 60, t2: t2 / 60, Q1: m * s.c * (s.boil - o.ti), Q2: m * s.L, boil: true };
+  }
+  const tf = Math.max(o.tf, o.ti), Q = m * s.c * (tf - o.ti), t1 = Q / P, tEnd = Math.max(t1 * 1.3, 60);
+  for (let i = 0; i <= 300; i++) { const t = tEnd * i / 300; pts.push([t / 60, t <= t1 ? o.ti + P * t / (m * s.c) : tf]); }
+  return { pts, tEnd: tEnd / 60, t1: t1 / 60, Q, boil: false };
+}
+function wallCalc(o) {
+  const L = [{ m: o.m1, e: o.e1 / 100 }]; if (o.m2 !== 'none') L.push({ m: o.m2, e: o.e2 / 100 });
+  L.forEach((l) => { l.l = MAT[l.m].l; l.R = l.e / (l.l * o.S); });
+  const R = L.reduce((a, l) => a + l.R, 0), phi = (o.th1 - o.th2) / R;
+  let th = o.th1; L.forEach((l) => { l.ta = th; th -= phi * l.R; l.tb = th; });
+  return { L, R, phi, E: Math.abs(phi) * 24 / 1000 };
+}
+const planck = (lum, T) => { // W·m⁻²·µm⁻¹ (exitance)
+  const l = lum * 1e-6, h = 6.626e-34, c = 2.998e8, k = 1.381e-23;
+  return Math.PI * 2 * h * c * c / (l ** 5) / (Math.exp(h * c / (l * k * T)) - 1) * 1e-6;
+};
+function camT(o) {
+  const T = o.th + K0, Tr = o.tr + K0, rec = o.eps * SIG * T ** 4 + (1 - o.eps) * SIG * Tr ** 4;
+  const x = (rec - (1 - o.epsc) * SIG * Tr ** 4) / (o.epsc * SIG);
+  return Math.pow(Math.max(x, 1), 0.25) - K0;
+}
+
+/* ---------- tracé SVG ---------- */
+const svg = $('#plot'), Wv = 820, Hv = 480, PAD = { l: 86, r: 20, t: 20, b: 50 };
+let geo = null; // fonctions de conversion du mode courant
+const el = (n, a, t) => `<${n} ${Object.entries(a).map(([k, v]) => `${k}="${v}"`).join(' ')}>${t ?? ''}</${n}>`;
+function niceTicks(lo, hi, n = 6) {
+  const span = hi - lo, step0 = span / n, mag = 10 ** Math.floor(Math.log10(step0)), r = step0 / mag;
+  const step = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * mag, out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+function axes(x0, x1, y0, y1, xl, yl, logx) {
+  const X = (v) => PAD.l + (logx ? (Math.log10(v) - Math.log10(x0)) / (Math.log10(x1) - Math.log10(x0)) : (v - x0) / (x1 - x0)) * (Wv - PAD.l - PAD.r);
+  const Y = (v) => Hv - PAD.b - (v - y0) / (y1 - y0) * (Hv - PAD.t - PAD.b);
+  let g = '';
+  const xt = logx ? [0.3, 0.5, 1, 2, 3, 5, 8, 10, 14, 20, 30].filter((v) => v >= x0 && v <= x1) : niceTicks(x0, x1, 8);
+  xt.forEach((v) => { g += el('line', { class: 'gridl', x1: X(v), x2: X(v), y1: PAD.t, y2: Hv - PAD.b }) + el('text', { x: X(v), y: Hv - PAD.b + 18, 'text-anchor': 'middle' }, fmt(v, 2)); });
+  niceTicks(y0, y1, 6).forEach((v) => { g += el('line', { class: 'gridl', x1: PAD.l, x2: Wv - PAD.r, y1: Y(v), y2: Y(v) }) + el('text', { x: PAD.l - 8, y: Y(v) + 4, 'text-anchor': 'end' }, sig(v, 4)); });
+  g += el('line', { class: 'axis', x1: PAD.l, x2: Wv - PAD.r, y1: Hv - PAD.b, y2: Hv - PAD.b }) + el('line', { class: 'axis', x1: PAD.l, x2: PAD.l, y1: PAD.t, y2: Hv - PAD.b });
+  g += el('text', { x: (PAD.l + Wv - PAD.r) / 2, y: Hv - 10, 'text-anchor': 'middle', class: 'lbl2' }, xl);
+  g += el('text', { x: 16, y: (PAD.t + Hv - PAD.b) / 2, 'text-anchor': 'middle', class: 'lbl2', transform: `rotate(-90 16 ${(PAD.t + Hv - PAD.b) / 2})` }, yl);
+  const inv = (px) => logx ? 10 ** (Math.log10(x0) + (px - PAD.l) / (Wv - PAD.l - PAD.r) * (Math.log10(x1) - Math.log10(x0))) : x0 + (px - PAD.l) / (Wv - PAD.l - PAD.r) * (x1 - x0);
+  return { X, Y, g, inv, x0, x1, y0, y1 };
+}
+const path = (pts, X, Y) => pts.map(([a, b], i) => `${i ? 'L' : 'M'}${X(a).toFixed(1)},${Y(b).toFixed(1)}`).join('');
+const stat = (k, v) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+
+function draw() {
+  const m = st.mode; let g = '', stats = '';
+  if (m === 'u') {
+    const o = st.u, c = heatCurve(o), ymax = Math.max(...c.pts.map((p) => p[1])) * 1.1 + 5;
+    const A = axes(0, c.tEnd, 0, Math.ceil(ymax / 10) * 10, 'temps t (min)', 'température θ (°C)');
+    g += A.g + el('path', { d: path(c.pts, A.X, A.Y), fill: 'none', stroke: css('--trace'), 'stroke-width': 2.5 });
+    if (c.boil) g += el('line', { x1: A.X(c.t1), x2: A.X(c.t1 + c.t2), y1: A.Y(100) - 14, y2: A.Y(100) - 14, stroke: css('--input'), 'stroke-dasharray': '4 3' }) +
+      el('text', { x: A.X(c.t1 + c.t2 / 2), y: A.Y(100) - 20, 'text-anchor': 'middle', fill: css('--input') }, 'palier : changement d\'état');
+    geo = { ...A, f: (t) => { const p = c.pts; for (let i = 1; i < p.length; i++) if (p[i][0] >= t) { const [a, b] = p[i - 1], [cc, d] = p[i]; return b + (d - b) * (t - a) / (cc - a || 1); } return p[p.length - 1][1]; }, xu: 'min', yu: '°C', xn: 't', yn: 'θ' };
+    const s = SUBST[o.sub];
+    if (c.boil) stats = stat('Q chauffe → 100 °C', sig(c.Q1 / 1e6, 4) + ' MJ') + stat('Q vaporisation', sig(c.Q2 / 1e6, 4) + ' MJ') + stat('durée du palier', fmt(c.t2, 1) + ' min');
+    else stats = stat('Δθ', fmt(Math.max(o.tf, o.ti) - o.ti, 1) + ' °C') + stat('c', fmt(s.c, 0) + ' J·kg⁻¹·K⁻¹') + stat('Q = m·c·Δθ', '<span id="hidQ">masqué</span>');
+  } else if (m === 'w') {
+    const o = st.w, c = wallCalc(o), tot = c.L.reduce((a, l) => a + l.e, 0);
+    const lo = Math.min(o.th1, o.th2) - 5, hi = Math.max(o.th1, o.th2) + 5;
+    const xA = 220, xB = 600, X = (x) => xA + x / tot * (xB - xA), Y = (v) => Hv - PAD.b - (v - lo) / (hi - lo) * (Hv - PAD.t - PAD.b);
+    niceTicks(lo, hi, 6).forEach((v) => { g += el('line', { class: 'gridl', x1: 70, x2: Wv - 20, y1: Y(v), y2: Y(v) }) + el('text', { x: 62, y: Y(v) + 4, 'text-anchor': 'end' }, fmt(v, 1)); });
+    let x = 0; const fills = ['#c9d3e3', '#e9d9b8'];
+    c.L.forEach((l, i) => { g += el('rect', { x: X(x), y: PAD.t, width: X(x + l.e) - X(x), height: Hv - PAD.t - PAD.b, fill: fills[i], opacity: .55, stroke: css('--line') }) +
+      el('text', { x: (X(x) + X(x + l.e)) / 2, y: PAD.t + 18, 'text-anchor': 'middle', class: 'lbl2' }, MAT[l.m].n) +
+      el('text', { x: (X(x) + X(x + l.e)) / 2, y: PAD.t + 34, 'text-anchor': 'middle' }, `e = ${fmt(l.e * 100, 1)} cm`); x += l.e; });
+    const prof = [[0, o.th1]]; x = 0; c.L.forEach((l) => { x += l.e; prof.push([x, l.tb]); });
+    g += el('path', { d: `M70,${Y(o.th1)}L${xA},${Y(o.th1)}` + prof.map(([a, b]) => `L${X(a)},${Y(b)}`).join('') + `L${Wv - 20},${Y(o.th2)}`, fill: 'none', stroke: css('--trace'), 'stroke-width': 2.5 });
+    if (c.L.length > 1) g += el('circle', { cx: X(c.L[0].e), cy: Y(c.L[0].tb), r: 4, fill: css('--trace') }) + el('text', { x: X(c.L[0].e) + 8, y: Y(c.L[0].tb) - 8, fill: css('--ink') }, `θ interface = ${fmt(c.L[0].tb, 1)} °C`);
+    g += el('text', { x: 140, y: Y(o.th1) - 10, 'text-anchor': 'middle', class: 'lbl2' }, `θ₁ = ${fmt(o.th1, 0)} °C`) + el('text', { x: 710, y: Y(o.th2) - 10, 'text-anchor': 'middle', class: 'lbl2' }, `θ₂ = ${fmt(o.th2, 0)} °C`);
+    const dir = Math.sign(c.phi), w = Math.min(22, 3 + Math.abs(c.phi) / 40), ya = Hv - PAD.b - 30;
+    if (dir) { const a = dir > 0 ? 90 : 730, b = dir > 0 ? 730 : 90; g += el('line', { x1: a, x2: b - dir * 18, y1: ya, y2: ya, stroke: css('--hot'), 'stroke-width': w, opacity: .55 }) +
+      el('path', { d: `M${b},${ya}L${b - dir * 22},${ya - w / 2 - 8}L${b - dir * 22},${ya + w / 2 + 8}Z`, fill: css('--hot'), opacity: .7 }) +
+      el('text', { x: 410, y: ya + 4, 'text-anchor': 'middle', class: 'lbl2' }, 'flux thermique Φ'); }
+    g += el('text', { x: 410, y: Hv - 10, 'text-anchor': 'middle', class: 'lbl2' }, 'position dans la paroi');
+    geo = null;
+    stats = c.L.map((l, i) => stat(`R${'₁₂'[i]} = e/(λS)`, sig(l.R, 3) + ' K/W')).join('') + stat('R totale', sig(c.R, 3) + ' K/W') + stat('flux Φ', '<span id="hidPhi">masqué</span>') + stat('énergie / 24 h', '<span id="hidE">masquée</span>');
+  } else if (m === 'r') {
+    const o = st.r, T = o.th + K0, lmax = 2898 / T, x0 = 0.3, x1 = 30;
+    const pts = []; for (let i = 0; i <= 300; i++) { const l = 10 ** (Math.log10(x0) + i / 300 * (Math.log10(x1) - Math.log10(x0))); pts.push([l, planck(l, T)]); }
+    const ymax = Math.max(...pts.map((p) => p[1])) * 1.15;
+    const A = axes(x0, x1, 0, ymax, 'longueur d\'onde λ (µm, échelle logarithmique)', 'M_λ (W·m⁻²·µm⁻¹)', true);
+    g += el('rect', { x: A.X(0.4), y: PAD.t, width: A.X(0.8) - A.X(0.4), height: Hv - PAD.t - PAD.b, fill: css('--vis') });
+    g += el('rect', { x: A.X(8), y: PAD.t, width: A.X(14) - A.X(8), height: Hv - PAD.t - PAD.b, fill: css('--cam') });
+    g += A.g + el('text', { x: A.X(0.57), y: PAD.t + 14, 'text-anchor': 'middle' }, 'visible') + el('text', { x: A.X(10.6), y: PAD.t + 14, 'text-anchor': 'middle' }, 'caméra 8–14 µm');
+    g += el('path', { d: path(pts, A.X, A.Y), fill: 'none', stroke: css('--muted'), 'stroke-width': 1.5, 'stroke-dasharray': '5 4' });
+    g += el('path', { d: path(pts.map(([a, b]) => [a, b * o.eps]), A.X, A.Y), fill: 'none', stroke: css('--trace'), 'stroke-width': 2.5 });
+    g += el('line', { x1: A.X(lmax), x2: A.X(lmax), y1: PAD.t + 20, y2: Hv - PAD.b, stroke: css('--input'), 'stroke-dasharray': '4 3' }) + el('text', { x: A.X(lmax) + 6, y: PAD.t + 96, fill: css('--input') }, 'λmax');
+    g += el('text', { x: Wv - 30, y: PAD.t + 40, 'text-anchor': 'end', dy: 0 }, '— — corps noir (ε = 1)') + el('text', { x: Wv - 30, y: PAD.t + 56, 'text-anchor': 'end', fill: css('--trace') }, '—— surface étudiée (ε)');
+    geo = { ...A, f: (l) => planck(l, T) * o.eps, xu: 'µm', yu: 'W·m⁻²·µm⁻¹', xn: 'λ', yn: 'M_λ' };
+    stats = stat('T absolue', fmt(T, 1) + ' K') + stat('λmax (Wien)', '<span id="hidL">lire sur la courbe</span>') + stat('M = εσT⁴', sig(o.eps * SIG * T ** 4, 4) + ' W·m⁻²') +
+      stat('M corps noir', sig(SIG * T ** 4, 4) + ' W·m⁻²') + stat('θ affichée caméra', `<b>${fmt(camT(o), 1)} °C</b>`) + stat('erreur caméra', fmt(camT(o) - o.th, 1) + ' °C');
+  } else { drawCam(); return; }
+  // relevés
+  if (geo) st.pins.forEach((p, i) => { g += el('circle', { cx: geo.X(p[0]), cy: geo.Y(p[1]), r: 5, fill: 'none', stroke: css('--mark'), 'stroke-width': 2 }) + el('text', { x: geo.X(p[0]) + 7, y: geo.Y(p[1]) - 7, fill: css('--mark') }, String(i + 1)); });
+  if (geo && st.cursor != null) { const v = geo.f(st.cursor); g += el('line', { x1: geo.X(st.cursor), x2: geo.X(st.cursor), y1: PAD.t, y2: Hv - PAD.b, stroke: css('--mark'), 'stroke-width': 1, 'stroke-dasharray': '3 3' }) + el('circle', { cx: geo.X(st.cursor), cy: geo.Y(v), r: 4, fill: css('--mark') }); }
+  svg.innerHTML = g; $('#stats').innerHTML = stats;
+  ['hidQ', 'hidPhi', 'hidE'].forEach((id) => { const e = document.getElementById(id); if (e) { e.style.cursor = 'pointer'; e.title = 'Cliquer pour afficher (après avoir fait le calcul)'; e.onclick = () => reveal(id); } });
+  pinsList();
+}
+function reveal(id) {
+  if (id === 'hidQ') { const o = st.u, Q = o.m * SUBST[o.sub].c * (Math.max(o.tf, o.ti) - o.ti); $('#hidQ').textContent = sig(Q / 1e6, 4) + ' MJ'; }
+  if (id === 'hidPhi') $('#hidPhi').textContent = sig(Math.abs(wallCalc(st.w).phi), 4) + ' W';
+  if (id === 'hidE') $('#hidE').textContent = sig(wallCalc(st.w).E, 4) + ' kWh';
+}
+function pinsList() {
+  if (!geo) { $('#pins').innerHTML = ''; return; }
+  $('#pins').innerHTML = st.pins.map((p, i) => `<span class="pin">${i + 1} : ${geo.xn} = ${sig(p[0], 4)} ${geo.xu} ; ${geo.yn} = ${sig(p[1], 4)} ${geo.yu}<button type="button" data-i="${i}" aria-label="Supprimer">×</button></span>`).join('');
+  $('#pins').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { st.pins.splice(+b.dataset.i, 1); draw(); }));
+}
+function svgX(e) { const r = svg.getBoundingClientRect(); return (e.clientX - r.left) / r.width * Wv; }
+svg.addEventListener('pointermove', (e) => {
+  if (!geo) { $('#readout').textContent = st.mode === 'w' ? 'Paroi : lisez les valeurs sur le pupitre' : ''; return; }
+  const px = Math.min(Math.max(svgX(e), PAD.l), Wv - PAD.r); st.cursor = geo.inv(px);
+  const v = geo.f(st.cursor); $('#readout').innerHTML = `Curseur : <b>${geo.xn} = ${sig(st.cursor, 4)} ${geo.xu}</b> ; <b>${geo.yn} = ${sig(v, 4)} ${geo.yu}</b>`; draw();
+});
+svg.addEventListener('pointerleave', () => { st.cursor = null; if (geo) draw(); });
+svg.addEventListener('click', () => { if (geo && st.cursor != null) { st.pins.push([st.cursor, geo.f(st.cursor)]); draw(); } });
+svg.addEventListener('keydown', (e) => {
+  if (!geo) return; const span = geo.x1 - geo.x0;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); st.cursor = Math.min(Math.max((st.cursor ?? geo.x0) + (e.key === 'ArrowRight' ? 1 : -1) * span / 200, geo.x0), geo.x1); const v = geo.f(st.cursor); $('#readout').innerHTML = `Curseur : <b>${geo.xn} = ${sig(st.cursor, 4)} ${geo.xu}</b> ; <b>${geo.yn} = ${sig(v, 4)} ${geo.yu}</b>`; draw(); }
+  if (e.key === 'Enter' && st.cursor != null) { st.pins.push([st.cursor, geo.f(st.cursor)]); draw(); }
+});
+$('#clearPins').addEventListener('click', () => { st.pins = []; st.camPins = []; draw(); });
+
+/* ---------- caméra ---------- */
+const cam = $('#cam'), ctx = cam.getContext('2d');
+const XS = [270, 410, 550];
+function camField(x, y, T) {
+  let t = 26 + 0.6 * Math.sin(x / 50) + 0.4 * Math.cos(y / 37);
+  if (x > 180 && x < 640 && y > 50 && y < 220) t = 30;
+  XS.forEach((xc, i) => {
+    if (Math.abs(x - xc) < 26 && y >= 220) t = Math.max(t, 26 + (T[i] - 26) * Math.exp(-(y - 250) / 150));
+    t = Math.max(t, 26 + (T[i] - 26) * Math.exp(-(((x - xc) / 32) ** 2 + ((y - 250) / 26) ** 2)));
+    t = Math.max(t, 26 + (T[i] - 26) * 0.45 * Math.exp(-(((x - xc) / 80) ** 2 + ((y - 200) / 70) ** 2)));
+  });
+  return t;
+}
+const PAL = [[0, 0, 4], [40, 11, 84], [101, 21, 110], [159, 42, 99], [212, 72, 66], [245, 125, 21], [250, 193, 39], [252, 255, 164]];
+const pal = (u) => { u = Math.min(Math.max(u, 0), 1) * (PAL.length - 1); const i = Math.floor(u), f = u - i, a = PAL[i], b = PAL[Math.min(i + 1, PAL.length - 1)]; return a.map((v, k) => v + (b[k] - v) * f); };
+let camImg = null;
+function camData() { return st.myst && st.view === 'm' ? st.myst : st.c; }
+function drawCam() {
+  const o = camData(), T = o.T, lo = 24, hi = Math.max(50, Math.ceil(Math.max(...T) / 10) * 10 + 10);
+  const img = ctx.createImageData(820, 480);
+  for (let y = 0; y < 480; y++) for (let x = 0; x < 760; x++) {
+    const c = pal((camField(x, y, T) - lo) / (hi - lo)), k = (y * 820 + x) * 4; img.data[k] = c[0]; img.data[k + 1] = c[1]; img.data[k + 2] = c[2]; img.data[k + 3] = 255;
+  }
+  for (let y = 40; y < 440; y++) { const c = pal(1 - (y - 40) / 400); for (let x = 772; x < 792; x++) { const k = (y * 820 + x) * 4; img.data[k] = c[0]; img.data[k + 1] = c[1]; img.data[k + 2] = c[2]; img.data[k + 3] = 255; } }
+  ctx.putImageData(img, 0, 0);
+  ctx.fillStyle = '#fff'; ctx.font = '13px IBM Plex Mono, monospace'; ctx.textAlign = 'left';
+  ctx.fillText(hi + ' °C', 760, 32); ctx.fillText(lo + ' °C', 760, 462);
+  ctx.fillText('ε = 0,95   T refl. = 25 °C', 14, 24);
+  ctx.textAlign = 'center'; ctx.fillText('Disjoncteur ' + (o.name || 'Q7'), 410, 140);
+  ['L1', 'L2', 'L3'].forEach((l, i) => ctx.fillText(l, XS[i], 462));
+  (st.camPins || []).forEach((p, i) => { ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.moveTo(p[0] - 9, p[1]); ctx.lineTo(p[0] + 9, p[1]); ctx.moveTo(p[0], p[1] - 9); ctx.lineTo(p[0], p[1] + 9); ctx.stroke();
+    ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(p[0] + 8, p[1] - 26, 92, 20); ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText(`Sp${i + 1} ${fmt(p[2], 1)} °C`, p[0] + 12, p[1] - 11); ctx.textAlign = 'center'; });
+  camImg = ctx.getImageData(0, 0, 820, 480);
+  $('#stats').innerHTML = stat('Courant par phase', fmt(o.I, 0) + ' A') + stat('Émissivité réglée', '0,95') + stat('Ambiance', '25 °C');
+  $('#pins').innerHTML = (st.camPins || []).map((p, i) => `<span class="pin">Sp${i + 1} : ${fmt(p[2], 1)} °C</span>`).join('');
+  geo = null;
+}
+const camXY = (e) => { const r = cam.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 820, (e.clientY - r.top) / r.height * 480]; };
+cam.addEventListener('pointermove', (e) => {
+  const [x, y] = camXY(e); if (x > 760) return; const t = camField(x, y, camData().T);
+  $('#readout').innerHTML = `Température au curseur : <b>${fmt(t, 1)} °C</b>`;
+  if (camImg) { ctx.putImageData(camImg, 0, 0); ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.stroke(); }
+});
+cam.addEventListener('click', (e) => { const [x, y] = camXY(e); if (x > 760) return; st.camPins = st.camPins || []; st.camPins.push([x, y, camField(x, y, camData().T)]); drawCam(); });
+
+/* ---------- questions guidées ---------- */
+const PARTS = [
+  { title: 'A · Énergie interne', mode: 'u', set: { ...DEF.u },
+    intro: 'Cuve de nettoyage en place (NEP) de la laiterie : 500 L d\'eau (500 kg) sont chauffés de 15 °C à 75 °C par des résistances de 36 kW. On néglige les pertes.',
+    qs: [
+      { q: 'Calculer la variation de température Δθ de l\'eau.', u: '°C', a: 60, tol: 0.1, ex: 'Δθ = 75 − 15 = 60 °C (soit aussi 60 K).' },
+      { q: 'Calculer l\'énergie Q à fournir à l\'eau.', u: 'MJ', a: 125.55, tol: 0.6, hint: 'Q = m·c·Δθ avec c = 4 185 J·kg⁻¹·K⁻¹', ex: 'Q = 500 × 4 185 × 60 = 125 550 000 J ≈ 125,6 MJ.' },
+      { q: 'Convertir cette énergie en kilowattheures.', u: 'kWh', a: 34.875, tol: 0.3, hint: '1 kWh = 3,6 × 10⁶ J', ex: 'Q = 125,55 × 10⁶ / 3,6 × 10⁶ ≈ 34,9 kWh.' },
+      { q: 'Calculer la durée de chauffe, puis la vérifier au curseur sur la courbe.', u: 'min', a: 58.1, tol: 1, hint: 'Δt = Q / P', ex: 'Δt = 125,55 × 10⁶ / 36 × 10³ ≈ 3 490 s ≈ 58 min : la courbe atteint 75 °C à t ≈ 58 min.' },
+      { q: 'Cochez « Thermostat débranché ». Que montre la courbe quand l\'eau atteint 100 °C ?', set: { boil: true }, opts: ['La température continue d\'augmenter à la même vitesse.', 'La température reste constante pendant le changement d\'état : l\'énergie reçue sert à vaporiser l\'eau.', 'La température diminue car l\'eau s\'évapore.'], a: 1, ex: 'Palier à 100 °C : à pression constante, un corps pur change d\'état à température constante. L\'énergie reçue sert au changement d\'état.' },
+      { q: 'Calculer l\'énergie nécessaire pour vaporiser entièrement les 500 kg d\'eau à 100 °C (L_v = 2 257 kJ·kg⁻¹).', u: 'MJ', a: 1128.5, tol: 3, hint: 'Q = m·L', ex: 'Q = 500 × 2 257 × 10³ ≈ 1 128 MJ : près de 4 fois plus que pour chauffer l\'eau de 15 °C à 100 °C. Le banc l\'affiche dans « Q vaporisation ».' },
+    ] },
+  { title: 'B · Conduction', mode: 'w', set: { ...DEF.w },
+    intro: 'Chambre froide de stockage des yaourts : parois en panneaux de polyuréthane (λ = 0,025 W·m⁻¹·K⁻¹, e = 10 cm), surface totale S = 60 m². Air extérieur à 25 °C, intérieur à 2 °C.',
+    qs: [
+      { q: 'Dans quel sens s\'effectue le transfert thermique à travers les parois ?', opts: ['De l\'intérieur (2 °C) vers l\'extérieur (25 °C).', 'De l\'extérieur (25 °C) vers l\'intérieur (2 °C).', 'Il n\'y a pas de transfert : la paroi est isolante.'], a: 1, ex: 'Le transfert thermique se fait spontanément du chaud vers le froid : de l\'extérieur vers l\'intérieur. Le groupe frigorifique doit évacuer cette énergie.' },
+      { q: 'Calculer la résistance thermique des parois.', u: 'K/W', a: 0.06667, tol: 0.002, hint: 'R_th = e / (λ·S), e en mètres', ex: 'R_th = 0,10 / (0,025 × 60) ≈ 0,0667 K/W (lisible sur le pupitre).' },
+      { q: 'Calculer le flux thermique Φ qui traverse les parois.', u: 'W', a: 345, tol: 5, hint: 'Φ = (θ₁ − θ₂) / R_th', ex: 'Φ = (25 − 2) / 0,0667 ≈ 345 W.' },
+      { q: 'Quelle énergie traverse les parois en 24 h ?', u: 'kWh', a: 8.28, tol: 0.15, hint: 'E = Φ × Δt', ex: 'E = 345 W × 24 h ≈ 8 280 Wh ≈ 8,3 kWh par jour, à évacuer par le groupe froid.' },
+      { q: 'On double l\'épaisseur d\'isolant (e = 20 cm). Régler le banc puis indiquer le nouveau flux.', u: 'W', a: 172.5, tol: 3, ex: 'R_th double (0,133 K/W) donc Φ est divisé par 2 : Φ ≈ 172 W.' },
+      { q: 'Quel matériau du pupitre est le meilleur isolant thermique ?', opts: ['L\'acier', 'Le béton', 'Le polyuréthane', 'Le verre'], a: 2, ex: 'Le polyuréthane a la conductivité thermique λ la plus faible (0,025 W·m⁻¹·K⁻¹) : c\'est le meilleur isolant.' },
+    ] },
+  { title: 'C · Rayonnement', mode: 'r', set: { ...DEF.r },
+    intro: 'Une cosse de raccordement d\'un départ moteur est à 92 °C. Le banc trace le spectre du rayonnement qu\'elle émet et calcule la température affichée par une caméra thermique.',
+    qs: [
+      { q: 'Relever au curseur la longueur d\'onde du maximum d\'émission λmax, puis vérifier avec la loi de Wien λmax × T = 2 898 µm·K.', u: 'µm', a: 7.94, tol: 0.25, ex: 'λmax = 2 898 / 365 ≈ 7,9 µm.' },
+      { q: 'Dans quel domaine se trouve ce rayonnement ?', opts: ['Ultraviolet', 'Visible', 'Infrarouge', 'Ondes radio'], a: 2, ex: '7,9 µm > 0,8 µm : infrarouge. Il est invisible à l\'œil mais situé dans la bande 8–14 µm de la caméra.' },
+      { q: 'Régler θ = 25 °C puis θ = 125 °C et relever M corps noir. Calculer le rapport M(125 °C) / M(25 °C).', u: '', a: 3.18, tol: 0.05, ex: 'M passe de 447 W·m⁻² à 1 423 W·m⁻² : rapport ≈ 3,2.' },
+      { q: 'Entre 25 °C et 125 °C, T passe de 298 K à 398 K (× 1,34). Que peut-on conclure ?', opts: ['M est proportionnelle à T.', 'M n\'est pas proportionnelle à T : elle augmente beaucoup plus vite (comme T⁴).', 'M ne dépend pas de la température.'], a: 1, ex: '1,34⁴ ≈ 3,2 : M est proportionnelle à T⁴ (loi de Stefan-Boltzmann), ce n\'est pas une fonction affine de la température.' },
+      { q: 'Cosse en cuivre oxydé : θ = 70 °C, ε réelle = 0,60, caméra réglée sur ε_cam = 0,95. Quelle température la caméra affiche-t-elle ?', set: { th: 70, eps: 0.6, epsc: 0.95 }, u: '°C', a: 55.4, tol: 1, ex: 'La caméra affiche environ 55 °C au lieu de 70 °C : elle sous-estime l\'échauffement de 15 °C car la surface émet moins que ce que la caméra suppose.' },
+      { q: 'Comment obtenir une mesure juste sur cette cosse ?', opts: ['Se rapprocher de la cosse.', 'Régler ε_cam sur l\'émissivité réelle ou coller un ruban adhésif d\'émissivité connue (0,95).', 'Augmenter la température de la pièce.'], a: 1, ex: 'Avec ε_cam = ε réelle, la caméra affiche 70 °C. En pratique, on colle un ruban d\'émissivité 0,95 égale au réglage de la caméra.' },
+    ] },
+  { title: 'D · Caméra et diagnostic', mode: 'c', set: null,
+    intro: 'Tournée thermographique du TGBT : départ Q7 (pompe de process), 160 A par phase. Rubans adhésifs posés, caméra réglée sur ε = 0,95.',
+    qs: [
+      { q: 'Mesurer au curseur la température de la cosse de chaque phase. Quelle phase présente un point chaud ?', opts: ['L1', 'L2', 'L3', 'Aucune'], a: 2, ex: 'La cosse L3 est à environ 64 °C contre 41 °C et 44,5 °C pour L1 et L2.' },
+      { q: 'Calculer l\'écart Δθ entre le point chaud et la phase saine la plus chaude.', u: '°C', a: 19.3, tol: 0.6, ex: 'Δθ = 63,8 − 44,5 ≈ 19,3 °C.' },
+      { q: 'Classer le défaut avec la grille (onglet « Tournée thermographique »).', opts: ['Défaut mineur : surveiller', 'Défaut important : intervention planifiée dans le mois', 'Défaut critique : intervention urgente'], a: 1, ex: '10 °C ≤ 19,3 °C < 30 °C : défaut important, intervention planifiée.' },
+      { q: 'La résistance de contact de la connexion L3 est estimée à 120 µΩ. Calculer la puissance dissipée par effet Joule.', u: 'W', a: 3.072, tol: 0.06, hint: 'P = R·I², R en ohms', ex: 'P = 120 × 10⁻⁶ × 160² ≈ 3,1 W, concentrés dans la connexion.' },
+      { q: 'Pourquoi le contrôle doit-il se faire installation en charge ?', opts: ['Pour que la caméra soit alimentée.', 'Sans courant, pas d\'effet Joule : le défaut de connexion ne chauffe pas et reste invisible.', 'Parce que le rayonnement n\'existe qu\'en présence de courant.'], a: 1, ex: 'P = R·I² = 0 si I = 0 : la connexion défectueuse serait à la température des autres.' },
+    ] },
+];
+let part = 0; const answers = store.get('ans', {});
+function loadPart() {
+  const P = PARTS[part]; st.view = 'q';
+  if (P.mode === 'c') st.c = { ...DEF.c, T: [...DEF.c.T], I: 160, name: 'Q7' }; else st[P.mode] = { ...P.set };
+  st.camPins = []; setMode(P.mode); $('#loaded').hidden = false;
+}
+function renderPart() {
+  $('#partChips').innerHTML = PARTS.map((p, i) => `<button class="chip" type="button" aria-pressed="${i === part}" data-i="${i}">${p.title}</button>`).join('');
+  $('#partChips').querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => { part = +b.dataset.i; renderPart(); loadPart(); }));
+  const P = PARTS[part]; $('#partIntro').textContent = P.intro;
+  $('#qs').innerHTML = P.qs.map((q, i) => {
+    const id = `${part}-${i}`, a = answers[id] || {};
+    const inp = q.opts ? `<div class="opts">${q.opts.map((o, k) => `<label><input type="radio" name="r${id}" value="${k}" ${a.v == k ? 'checked' : ''}> ${o}</label>`).join('')}</div>`
+      : `<input type="text" inputmode="decimal" id="i${id}" value="${a.v ?? ''}" aria-label="Réponse"> <span class="unit">${q.u}</span>`;
+    return `<li class="q ${a.ok ? 'done' : ''}" data-id="${id}"><div class="qt"><span class="n">${'ABCD'[part]}${i + 1}</span><div>${q.q}${q.set ? ' <button class="linkbtn" type="button" data-set="1">régler le banc</button>' : ''}</div></div>
+      <div class="ans">${inp}<button class="btn ghost" type="button" data-chk="1">Vérifier</button>${q.hint ? `<button class="linkbtn" type="button" data-hint="1">Coup de pouce</button>` : ''}</div>
+      <div class="fb-slot">${a.fb || ''}</div></li>`;
+  }).join('');
+  $('#qs').querySelectorAll('.q').forEach((li) => {
+    const [pi, qi] = li.dataset.id.split('-').map(Number), q = PARTS[pi].qs[qi];
+    li.querySelector('[data-chk]').addEventListener('click', () => check(li, q));
+    const h = li.querySelector('[data-hint]'); if (h) h.addEventListener('click', () => { li.querySelector('.fb-slot').innerHTML = `<div class="fb">${q.hint}</div>`; });
+    const s = li.querySelector('[data-set]'); if (s) s.addEventListener('click', () => { Object.assign(st[PARTS[pi].mode], q.set); setMode(PARTS[pi].mode); });
+    const t = li.querySelector('input[type=text]'); if (t) t.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(li, q); });
+  });
+  score();
+}
+function check(li, q) {
+  const id = li.dataset.id; let v, ok;
+  if (q.opts) { const r = li.querySelector('input[type=radio]:checked'); if (!r) return; v = +r.value; ok = v === q.a; }
+  else { v = li.querySelector('input[type=text]').value; const n = parseNum(v); if (isNaN(n)) { li.querySelector('.fb-slot').innerHTML = '<div class="fb bad">Entrez une valeur numérique (virgule acceptée).</div>'; return; } ok = Math.abs(n - q.a) <= q.tol; }
+  const prev = answers[id] || {}, tries = (prev.tries || 0) + 1;
+  const fb = ok ? `<div class="fb ok"><b>Correct.</b> ${q.ex}</div>` : `<div class="fb bad"><b>À revoir.</b> ${tries >= 2 ? q.ex : (q.hint ? 'Utilisez le coup de pouce, vérifiez les unités puis réessayez.' : 'Relisez la situation et réessayez.')}</div>`;
+  answers[id] = { v, ok: ok || prev.ok, tries, fb, first: prev.first ?? ok }; store.set('ans', answers);
+  li.querySelector('.fb-slot').innerHTML = fb; li.classList.toggle('done', !!answers[id].ok); score();
+}
+function score() {
+  const tot = PARTS.reduce((n, p) => n + p.qs.length, 0), ok = Object.values(answers).filter((a) => a.ok).length;
+  $('#score').textContent = `${ok} / ${tot} réponses validées`;
+}
+$('#loadPart').addEventListener('click', loadPart);
+function buildRecap() {
+  const nom = $('#nom').value.trim() || '(nom non renseigné)', d = new Date();
+  let t = `Banc d'étude des transferts thermiques — ${nom}\n${d.toLocaleDateString('fr-FR')} ${d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}\n`;
+  PARTS.forEach((P, pi) => {
+    t += `\n${P.title}\n`;
+    P.qs.forEach((q, qi) => { const a = answers[`${pi}-${qi}`];
+      const rep = !a ? 'non traitée' : q.opts ? q.opts[a.v] : `${a.v} ${q.u}`;
+      t += `  ${'ABCD'[pi]}${qi + 1}  ${a ? (a.ok ? (a.first ? '✔' : '✔ (après correction)') : '✘') : '·'}  ${rep}\n`; });
+  });
+  const tot = PARTS.reduce((n, p) => n + p.qs.length, 0), ok = Object.values(answers).filter((a) => a.ok).length, first = Object.values(answers).filter((a) => a.first).length;
+  t += `\nRéponses validées : ${ok} / ${tot} (dont ${first} du premier coup)\nTournée thermographique : ${mystStats.ok} départ(s) réussi(s) sur ${mystStats.n}\n`;
+  return t;
+}
+$('#mkRecap').addEventListener('click', () => { $('#recap').textContent = buildRecap(); $('#recap').hidden = false; $('#cpRecap').hidden = false; $('#cpMsg').textContent = ''; });
+$('#cpRecap').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#recap').textContent); $('#cpMsg').textContent = 'Copié.'; } catch (e) { $('#cpMsg').textContent = 'Sélectionnez le texte puis copiez-le.'; } });
+$('#nom').value = store.get('nom', ''); $('#nom').addEventListener('input', () => store.set('nom', $('#nom').value));
+
+/* ---------- tournée thermographique ---------- */
+const mystStats = store.get('myst', { n: 0, ok: 0 });
+const DEPARTS = ['Q2 (éclairage atelier)', 'Q4 (compresseur d\'air)', 'Q5 (pompe NEP)', 'Q9 (groupe froid)', 'Q11 (convoyeur)', 'Q14 (centrale de traitement d\'air)', 'Q16 (chaudière vapeur)'];
+function newMyst() {
+  const r = (a, b) => a + Math.random() * (b - a), base = r(30, 45), I = Math.round(r(60, 400) / 10) * 10;
+  const T = [base + r(-1.5, 1.5), base + r(-1.5, 1.5), base + r(-1.5, 1.5)].map((v) => Math.round(v * 10) / 10);
+  const kind = Math.random(), ph = Math.floor(Math.random() * 3);
+  let hot = -1;
+  if (kind > 0.12) { hot = ph; const dt = kind < 0.4 ? r(3, 9.5) : kind < 0.72 ? r(11, 28.5) : r(32, 70); T[ph] = Math.round((Math.max(...T.filter((_, i) => i !== ph)) + dt) * 10) / 10; }
+  const others = T.filter((_, i) => i !== hot), dT = hot < 0 ? Math.max(...T) - Math.min(...T) : T[hot] - Math.max(...others);
+  const R = hot < 0 ? 20 : Math.round(r(60, 220) / 5) * 5;
+  st.myst = { T, I, hot, dT, cl: hot < 0 || dT < 10 ? 0 : dT < 30 ? 1 : 2, R, P: R * 1e-6 * I * I, name: DEPARTS[Math.floor(Math.random() * DEPARTS.length)], shown: false };
+  st.camPins = []; st.view = 'm'; setMode('c');
+  $('#mystInfo').innerHTML = `Départ <b>${st.myst.name}</b> · courant ${I} A par phase · résistance de contact estimée de la connexion la plus chaude : ${R} µΩ.`;
+  $('#mystFb').innerHTML = ''; ['#mPh', '#mDt', '#mCl', '#mP'].forEach((s) => { $(s).value = ''; });
+}
+$('#newMyst').addEventListener('click', newMyst);
+$('#solMyst').addEventListener('click', () => { if (!st.myst) return; const m = st.myst; m.shown = true; $('#locked').hidden = true;
+  $('#mystFb').innerHTML = `<div class="fb ok" style="margin:0">Températures : L1 ${fmt(m.T[0], 1)} °C · L2 ${fmt(m.T[1], 1)} °C · L3 ${fmt(m.T[2], 1)} °C. ${m.hot < 0 ? 'Pas de point chaud.' : `Point chaud sur L${m.hot + 1} : Δθ = ${fmt(m.dT, 1)} °C → défaut ${['mineur', 'important', 'critique'][m.cl]}.`} P = R·I² = ${m.R} × 10⁻⁶ × ${m.I}² ≈ ${sig(m.P, 3)} W.</div>`; });
+$('#mystForm').addEventListener('submit', (e) => {
+  e.preventDefault(); if (!st.myst) { newMyst(); return; } const m = st.myst, rows = [];
+  const line = (lbl, ok) => { rows.push(`<div class="fb ${ok ? 'ok' : 'bad'}" style="margin:0 0 6px">${lbl} : ${ok ? 'correct' : 'à revoir'}</div>`); return ok; };
+  let all = line('Phase en défaut', +$('#mPh').value === m.hot && $('#mPh').value !== '');
+  const dt = parseNum($('#mDt').value); all = line('Écart Δθ', !isNaN(dt) && Math.abs(dt - m.dT) <= Math.max(1.2, 0.05 * m.dT)) && all;
+  all = line('Classement', $('#mCl').value !== '' && +$('#mCl').value === m.cl) && all;
+  const p = parseNum($('#mP').value); all = line('Puissance dissipée', !isNaN(p) && Math.abs(p - m.P) <= 0.05 * m.P + 0.01) && all;
+  mystStats.n++; if (all) mystStats.ok++; store.set('myst', mystStats);
+  $('#mystCount').textContent = mystStats.n; $('#mystOk').textContent = mystStats.ok; $('#mystFb').innerHTML = rows.join('');
+});
+$('#mystCount').textContent = mystStats.n; $('#mystOk').textContent = mystStats.ok;
+
+/* ---------- onglets ---------- */
+document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach((x) => x.setAttribute('aria-selected', x === t));
+  $('#pane-q').hidden = t.id !== 'tab-q'; $('#pane-m').hidden = t.id !== 'tab-m';
+  if (t.id === 'tab-m') { if (!st.myst) newMyst(); else { st.view = 'm'; setMode('c'); } } else { st.view = 'q'; loadPart(); }
+}));
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => draw());
+
+renderPart(); loadPart();
+})();
+</script>
+
+</body>
+</html>

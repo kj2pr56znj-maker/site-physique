@@ -1,0 +1,174 @@
+{
+ "classe": "BTS Électrotechnique",
+ "titre": "Les transferts thermiques",
+ "cartes": [
+  {
+   "type": "Notion",
+   "recto": "Que traduit la température d'un corps à l'échelle microscopique ?",
+   "verso": "L'<b>agitation</b> de ses atomes et molécules : plus elle est grande, plus la température est élevée. Elle cesse au zéro absolu (0 K = −273 °C).",
+   "origine": "Cours §II.1 — Nature de l'énergie thermique"
+  },
+  {
+   "type": "Notion",
+   "recto": "Qu'est-ce que l'énergie interne $U$ d'un corps ?",
+   "verso": "La somme des énergies cinétiques et potentielles <b>microscopiques</b> de ses constituants. Un corps qui reçoit de l'énergie la stocke sous forme d'énergie interne : il s'échauffe ou change d'état.",
+   "origine": "Cours §II.1 — Énergie interne"
+  },
+  {
+   "type": "Formule",
+   "recto": "Relation entre température en kelvins et en degrés Celsius ?",
+   "verso": "$$T = \\theta + 273$$ Une <b>variation</b> a la même valeur en °C et en K.",
+   "origine": "Cours §II — Températures"
+  },
+  {
+   "type": "Formule",
+   "recto": "Énergie reçue par une masse $m$ qui s'échauffe de $\\theta_i$ à $\\theta_f$ (sans changement d'état) ?",
+   "verso": "$$Q = m\\,c\\,(\\theta_f - \\theta_i)$$ $Q$ en J, $m$ en kg, $c$ en J·kg⁻¹·K⁻¹.",
+   "origine": "Cours §II.2 — Variation d'énergie interne"
+  },
+  {
+   "type": "Notion",
+   "recto": "Que représente la capacité thermique massique $c$ ? Valeur pour l'eau ?",
+   "verso": "L'énergie à fournir à <b>1 kg</b> d'une substance pour élever sa température de <b>1 °C</b>.<br>Eau : $c \\approx 4\\,185$ J·kg⁻¹·K⁻¹ (valeur élevée : l'eau stocke beaucoup d'énergie).",
+   "origine": "Cours §II.2 — Remarque"
+  },
+  {
+   "type": "Formule",
+   "recto": "Énergie échangée lors d'un changement d'état ?",
+   "verso": "$$Q = m\\,L$$ $L$ : énergie massique de changement d'état (J·kg⁻¹). Ex. : $L_v = 2\\,257$ kJ·kg⁻¹ pour l'eau.",
+   "origine": "Cours §II.3 — Changement d'état"
+  },
+  {
+   "type": "Piège",
+   "recto": "On chauffe de l'eau qui bout à pression constante. Sa température augmente-t-elle ?",
+   "verso": "<b>Non</b> : pendant le changement d'état, la température reste constante (palier). L'énergie reçue sert à vaporiser l'eau.",
+   "origine": "Animation — Partie A"
+  },
+  {
+   "type": "Notion",
+   "recto": "Dans quel sens s'effectue spontanément un transfert thermique ?",
+   "verso": "Toujours du corps <b>chaud</b> vers le corps <b>froid</b>.",
+   "origine": "Cours §III"
+  },
+  {
+   "type": "Notion",
+   "recto": "Conduction thermique : définition et exemple ?",
+   "verso": "Transfert de proche en proche à l'intérieur d'un <b>solide</b>, <b>sans déplacement de matière</b>.<br>Ex. : chaleur traversant la tôle d'une armoire, l'isolant d'une chambre froide.",
+   "origine": "Cours §III — Les trois modes"
+  },
+  {
+   "type": "Notion",
+   "recto": "Convection naturelle et convection forcée : différence ?",
+   "verso": "Les deux impliquent un <b>fluide en mouvement</b>.<br>• Naturelle : le mouvement vient de l'écart de température.<br>• Forcée : il est imposé par un appareil (ventilateur, pompe). Ex. : ventilateur d'armoire électrique.",
+   "origine": "Cours §III — Les trois modes"
+  },
+  {
+   "type": "Notion",
+   "recto": "Rayonnement thermique : définition ?",
+   "verso": "Émission d'<b>ondes électromagnétiques</b> (infrarouge) par tout corps ; il se propage <b>sans support matériel</b>, même dans le vide.",
+   "origine": "Cours §III — Les trois modes"
+  },
+  {
+   "type": "Formule",
+   "recto": "Qu'est-ce que le flux thermique $\\Phi$ ? Unité ?",
+   "verso": "$$\\Phi = \\frac{Q}{\\Delta t}$$ C'est une <b>puissance</b> : il s'exprime en <b>watts</b>.",
+   "origine": "Cours §III.1 — Le flux thermique"
+  },
+  {
+   "type": "Notion",
+   "recto": "Que caractérise la conductivité thermique $\\lambda$ ? Un bon isolant a-t-il un λ grand ou petit ?",
+   "verso": "L'aptitude d'un matériau à conduire la chaleur (W·m⁻¹·K⁻¹). Un bon isolant a un λ <b>petit</b> (polyuréthane 0,025) ; un métal a un λ grand (cuivre ≈ 390).",
+   "origine": "Cours §III.2 — Conductivité"
+  },
+  {
+   "type": "Formule",
+   "recto": "Résistance thermique d'une paroi plane ?",
+   "verso": "$$R_{th} = \\frac{e}{\\lambda\\,S}$$ $e$ en m, $S$ en m², $R_{th}$ en K·W⁻¹.",
+   "origine": "Cours §III.2 — Résistance thermique"
+  },
+  {
+   "type": "Formule",
+   "recto": "Relation entre flux, écart de température et résistance thermique ?",
+   "verso": "$$\\Phi = \\frac{\\theta_{chaud} - \\theta_{froid}}{R_{th}}$$ Analogue de la loi d'Ohm : $\\Delta\\theta \\leftrightarrow U$, $\\Phi \\leftrightarrow I$.",
+   "origine": "Cours §III.2"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Paroi formée de deux couches superposées : comment calculer le flux ?",
+   "verso": "1. $R_1 = \\dfrac{e_1}{\\lambda_1 S}$ et $R_2 = \\dfrac{e_2}{\\lambda_2 S}$.<br>2. En série : $R_{th} = R_1 + R_2$.<br>3. $\\Phi = \\dfrac{\\theta_1 - \\theta_2}{R_{th}}$.",
+   "origine": "Cours — Exercice four industriel"
+  },
+  {
+   "type": "Piège",
+   "recto": "Épaisseur e = 5 cm dans $R_{th} = \\dfrac{e}{\\lambda S}$ : quelle valeur écrire ?",
+   "verso": "$e = 0{,}05$ m. Avec « 5 », le résultat est <b>100 fois trop grand</b>.",
+   "origine": "Bilan — Erreurs fréquentes"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Faut-il ventiler une armoire électrique ? Démarche ?",
+   "verso": "1. Surface d'échange (6 faces) puis $R_{th}$.<br>2. $\\theta_{int} = \\theta_{ext} + P\\,R_{th}$.<br>3. Si $\\theta_{int} > \\theta_{max}$ : $P_{max} = \\dfrac{\\theta_{max} - \\theta_{ext}}{R_{th}}$.<br>4. La ventilation évacue $P - P_{max}$.",
+   "origine": "Activité 2 — Armoire électrique"
+  },
+  {
+   "type": "Formule",
+   "recto": "Puissance rayonnée par une surface (loi de Stefan-Boltzmann, fournie) ?",
+   "verso": "$$P = \\varepsilon\\,\\sigma\\,S\\,T^4$$ $\\sigma = 5{,}67\\times10^{-8}$ W·m⁻²·K⁻⁴ ; $T$ en <b>kelvins</b> ; $\\varepsilon$ : émissivité (0 à 1).",
+   "origine": "Cours §III.3 — Corps noir"
+  },
+  {
+   "type": "Notion",
+   "recto": "La puissance rayonnée est-elle proportionnelle à la température ?",
+   "verso": "<b>Non</b> : elle varie comme $T^4$. Si $T$ est multipliée par 1,17, $P$ est multipliée par $1{,}17^4 \\approx 1{,}9$. Ce n'est pas une fonction affine.",
+   "origine": "Activité 3 — Partie B"
+  },
+  {
+   "type": "Notion",
+   "recto": "Qu'est-ce qu'un corps noir ?",
+   "verso": "Un corps idéal qui <b>absorbe tout</b> le rayonnement reçu (ni réflexion ni transmission). À température donnée, c'est lui qui rayonne le plus : $\\varepsilon = 1$.",
+   "origine": "Cours §III.3"
+  },
+  {
+   "type": "Formule",
+   "recto": "Loi de Wien (fournie) : que donne-t-elle ?",
+   "verso": "$$\\lambda_{max} \\times T = 2\\,898\\ \\text{µm·K}$$ La longueur d'onde du maximum d'émission : plus le corps est chaud, plus $\\lambda_{max}$ est <b>courte</b>.",
+   "origine": "Cours §III.3 — Loi de Wien"
+  },
+  {
+   "type": "Notion",
+   "recto": "Pourquoi les caméras thermiques travaillent-elles entre 8 et 14 µm ?",
+   "verso": "Les objets entre 0 °C et 100 °C rayonnent surtout vers <b>8 à 10 µm</b> (loi de Wien) : la bande 8–14 µm contient le maximum de leur rayonnement.",
+   "origine": "Activité 3 — Partie A"
+  },
+  {
+   "type": "Notion",
+   "recto": "Principe d'une caméra thermique ?",
+   "verso": "Elle mesure la <b>puissance infrarouge reçue</b> par chaque pixel (capteurs microbolomètres) puis calcule la température avec la loi de Stefan-Boltzmann et l'<b>émissivité réglée par l'opérateur</b>.",
+   "origine": "Activité 3 — Document 4"
+  },
+  {
+   "type": "Piège",
+   "recto": "Caméra réglée sur ε = 0,95, cible en métal oxydé (ε = 0,60). La mesure est-elle juste ?",
+   "verso": "<b>Non</b> : la surface émet moins que prévu, la caméra <b>sous-estime</b> la température (≈ 55 °C au lieu de 70 °C). Solution : régler ε ou coller un ruban adhésif d'émissivité 0,95.",
+   "origine": "Activité 3 — Partie C"
+  },
+  {
+   "type": "Méthode",
+   "recto": "Classer un point chaud sur un thermogramme : démarche ?",
+   "verso": "1. Relever la connexion suspecte et la même connexion d'une phase voisine (même courant).<br>2. $\\Delta\\theta$ = écart entre les deux.<br>3. Grille : < 10 °C mineur ; 10 à 30 °C important ; ≥ 30 °C critique.",
+   "origine": "Activité 3 — Partie D"
+  },
+  {
+   "type": "Notion",
+   "recto": "Pourquoi une connexion desserrée chauffe-t-elle ? Pourquoi contrôler en charge ?",
+   "verso": "Sa résistance de contact augmente, donc la puissance dissipée par effet Joule $P = R\\,I^2$ augmente. Sans courant, $P = 0$ : le défaut reste <b>invisible</b>.",
+   "origine": "Activité 3 — Partie D"
+  },
+  {
+   "type": "Piège",
+   "recto": "Le chapitre utilise deux λ. Lesquels ?",
+   "verso": "• $\\lambda$ <b>conductivité thermique</b> (W·m⁻¹·K⁻¹).<br>• $\\lambda$ <b>longueur d'onde</b> (m, µm). Toujours préciser lequel.",
+   "origine": "Bilan — Erreurs fréquentes"
+  }
+ ]
+}
