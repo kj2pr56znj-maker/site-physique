@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Banc moteurs électriques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : un « banc de mesure » — enregistreur à gauche, pupitre de réglage à droite, cahier de questions dessous. */
+:root{
+  --bg:#f3f5f8; --panel:#ffffff; --ink:#16202e; --muted:#5b6778; --line:#d5dce6; --grid:#e7ecf2;
+  --trace:#d4561c; --input:#2f6fd6; --mark:#2f6fd6; --band:rgba(47,111,214,.10); --ok:#1f8a4c; --okbg:#e6f5ec; --bad:#b4372b; --badbg:#fbeceb;
+  --chip:#eef2f7; --accent:#d4561c;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --trace:#ff8a4c; --input:#6ea2ff; --mark:#6ea2ff; --band:rgba(110,162,255,.13); --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --trace:#ff8a4c; --input:#6ea2ff; --mark:#6ea2ff; --band:rgba(110,162,255,.13); --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2rem);margin:0;letter-spacing:.01em;text-wrap:balance}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+@media (max-width:900px){.bench{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.scope{padding:12px 12px 8px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.scope-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.readout{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.readout b{color:var(--ink);font-weight:500}
+svg#plot{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair;border-radius:6px}
+svg#plot:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.pins{display:flex;flex-wrap:wrap;gap:6px}
+.pin{font-family:var(--f-mono);font-size:.78rem;background:var(--chip);border-radius:999px;padding:3px 6px 3px 10px;display:inline-flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+.pin button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:0 4px;line-height:1}
+.hint{font-size:.82rem;color:var(--muted)}
+.panel{padding:14px;display:flex;flex-direction:column;gap:14px;position:relative}
+.panel h2,.notebook h2{font-family:var(--f-display);font-size:1.05rem;margin:0;font-weight:600;letter-spacing:.02em}
+.group{display:flex;flex-direction:column;gap:8px}
+.lbl{font-size:.72rem;font-family:var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+input[type=text]{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{font:inherit;font-size:.82rem;padding:6px 4px;border:0;background:transparent;color:var(--ink);cursor:pointer;line-height:1.2}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.slider label{font-size:.88rem}
+.slider output{font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
+.slider input{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.checks label{font-size:.85rem;display:flex;gap:6px;align-items:flex-start;cursor:pointer}
+.checks input{accent-color:var(--mark);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:var(--chip);border-radius:6px;padding:6px 8px}
+.stat .k{font-size:.7rem;color:var(--muted);font-family:var(--f-mono)}
+.stat .v{font-family:var(--f-mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-size:.88rem;font-weight:500;border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:7px;padding:7px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:focus-visible,.seg button:focus-visible,.tab:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.locked{position:absolute;inset:0;background:var(--panel);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:.95rem}
+.notebook{padding:0;overflow:hidden}
+.tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tab{font:inherit;font-family:var(--f-display);font-weight:600;font-size:.98rem;padding:12px 16px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabpanel{padding:16px}
+.parts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.85rem;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.score{font-family:var(--f-mono);font-size:.85rem}
+.situ{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--chip);border-radius:8px;padding:10px 12px;margin-block:12px}
+.situ p{margin:0;max-width:75ch}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.q{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.q .qt{display:flex;gap:10px}
+.q .n{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);min-width:2.2em;padding-top:2px}
+.q .ans{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-left:calc(2.2em + 10px)}
+.q .ans input[type=text]{width:9em}
+.q .unit{font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:4px;width:100%}
+.opts label{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;cursor:pointer}
+.fb{margin-left:calc(2.2em + 10px);border-radius:6px;padding:8px 10px;font-size:.9rem}
+.fb.ok{background:var(--okbg);color:var(--ink);border-left:3px solid var(--ok)}
+.fb.bad{background:var(--badbg);color:var(--ink);border-left:3px solid var(--bad)}
+.q.done{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.linkbtn{font:inherit;font-size:.82rem;border:0;background:none;color:var(--mark);cursor:pointer;padding:0;text-decoration:underline}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+table.pts{border-collapse:collapse;font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums;width:100%}
+table.pts th,table.pts td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right}
+table.pts th{color:var(--muted);font-weight:500}
+.tablewrap{overflow-x:auto}
+.recap{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+#recap{margin:0;background:var(--chip);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.85rem;white-space:pre-wrap;overflow-x:auto;font-variant-numeric:tabular-nums}
+.form{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;max-width:460px}
+.form label{font-size:.9rem}
+.small{font-size:.82rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.seg button[aria-pressed=true] .small{color:inherit;opacity:.75}
+
+.seg.two{grid-template-columns:1fr 1fr}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">BTS CIM · Physique industrielle · Convertisseurs électromécaniques</div>
+      <h1>Banc d'essai des moteurs électriques</h1>
+    </div>
+    <div class="hint">Survolez le graphique pour mesurer, cliquez pour noter un relevé. Chaque partie charge sa situation sur le banc.</div>
+  </header>
+
+  <section class="bench">
+    <div class="card scope">
+      <div class="scope-top">
+        <div class="readout" id="readout">Curseur : déplacez la souris sur la caractéristique</div>
+        <div class="row"><button class="btn ghost" id="clearPins" type="button">Effacer les relevés</button></div>
+      </div>
+      <svg id="plot" viewBox="0 0 820 480" role="img" aria-label="Caractéristique mécanique du moteur et de la charge" tabindex="0"></svg>
+      <div class="pins" id="pins"></div>
+    </div>
+
+    <aside class="card panel" id="panel">
+      <div class="group">
+        <span class="lbl">Moteur étudié</span>
+        <select id="preset" aria-label="Moteur étudié"></select>
+        <p class="small" id="presetTxt" style="margin:0"></p>
+      </div>
+      <div class="group" id="motorCtl"></div>
+      <div class="group">
+        <span class="lbl">Charge entraînée</span>
+        <div class="seg two" role="group" aria-label="Type de charge">
+          <button type="button" data-load="const">Couple constant<br><span class="small">convoyeur, levage</span></button>
+          <button type="button" data-load="fan">Couple en n²<br><span class="small">ventilateur, pompe</span></button>
+        </div>
+        <div id="loadCtl"></div>
+      </div>
+      <div class="group">
+        <span class="lbl">Repères</span>
+        <div class="checks">
+          <label><input type="checkbox" id="ovLoad" checked> Courbe de la charge</label>
+          <label><input type="checkbox" id="ovOp" checked> Point de fonctionnement</label>
+          <label><input type="checkbox" id="ovN0"> Vitesse à vide / nS</label>
+          <label><input type="checkbox" id="ovZone"> Zone utile (asynchrone)</label>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="locked" id="locked" hidden><div><strong>Paramètres cachés</strong><br>Moteur mystère : identifiez-le à partir de sa caractéristique.</div></div>
+    </aside>
+  </section>
+
+  <section class="card notebook">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-q" aria-selected="true" aria-controls="pane-q">Questions guidées</button>
+      <button class="tab" role="tab" id="tab-m" aria-selected="false" aria-controls="pane-m">Moteur mystère</button>
+    </div>
+
+    <div class="tabpanel" id="pane-q" role="tabpanel">
+      <div class="parts">
+        <div class="chips" id="partChips"></div>
+        <div class="score" id="score"></div>
+      </div>
+      <div class="situ"><p id="partIntro"></p><div class="row"><button class="btn" id="loadPart" type="button">Recharger la situation</button></div></div>
+      <ol class="qs" id="qs"></ol>
+      <div class="recap">
+        <h2>Mon récapitulatif</h2>
+        <p class="small">À la fin de la séance, indiquez votre nom puis générez le récapitulatif de toutes les parties. Copiez-le pour le déposer à l'endroit indiqué par votre professeur (ENT, messagerie) ou faites une capture d'écran.</p>
+        <div class="row">
+          <input type="text" id="nom" placeholder="Nom Prénom" aria-label="Nom et prénom" style="max-width:260px;font-family:var(--f-body)">
+          <button class="btn" id="mkRecap" type="button">Générer le récapitulatif</button>
+          <button class="btn ghost" id="cpRecap" type="button" hidden>Copier</button>
+          <span class="small" id="cpMsg"></span>
+        </div>
+        <pre id="recap" hidden></pre>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="pane-m" role="tabpanel" hidden>
+      <div class="grid2">
+        <div>
+          <p style="margin-top:0">Un moteur inconnu entraîne une charge à couple constant. Ses paramètres sont masqués : seule sa caractéristique mécanique est affichée, avec la donnée indiquée ci-dessous. Identifiez-le au curseur, comme sur un relevé réel.</p>
+          <div class="row"><button class="btn" id="newMyst" type="button">Nouveau moteur</button><button class="btn ghost" id="solMyst" type="button">Afficher la solution</button></div>
+          <p class="small" id="mystInfo"></p>
+        </div>
+        <form class="form" id="mystForm" autocomplete="off">
+          <label for="mType">Type de moteur</label>
+          <select id="mType"><option value="">— choisir —</option><option value="mcc">Courant continu</option><option value="mas">Asynchrone</option></select><span></span>
+          <label for="mN0">Vitesse à vide (ou nS)</label><input type="text" id="mN0" inputmode="decimal"><span class="unit">tr/min</span>
+          <label for="mPar" id="mParL">K' (MCC) ou p (asynchrone)</label><input type="text" id="mPar" inputmode="decimal"><span class="unit" id="mParU"></span>
+          <label for="mNop">Vitesse au point de fonctionnement</label><input type="text" id="mNop" inputmode="decimal"><span class="unit">tr/min</span>
+          <label for="mPu">Puissance utile Pu = T·Ω</label><input type="text" id="mPu" inputmode="decimal"><span class="unit">W</span>
+          <span></span><button class="btn" type="submit">Vérifier</button><span></span>
+        </form>
+      </div>
+      <div id="mystFb" style="margin-top:12px"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s) => document.querySelector(s);
+const fmt = (v, d = 2) => {
+  if (!isFinite(v)) return '—';
+  const r = Math.round(v * 10 ** d) / 10 ** d;
+  return r.toLocaleString('fr-FR', { maximumFractionDigits: d });
+};
+const parseNum = (s) => { const v = parseFloat(String(s).replace(/\s/g, '').replace(',', '.')); return isFinite(v) ? v : NaN; };
+const PI = Math.PI;
+const toW = (n) => 2 * PI * n / 60;
+
+/* ---------- Moteurs ---------- */
+const PRESETS = {
+  mcc: {
+    name: 'Moteur à courant continu — axe de machine-outil',
+    txt: 'MCC à aimants permanents : R = 0,8 Ω, pertes collectives Pc = 20 W. La tension d\'induit U se règle au pupitre.',
+    def: { kind: 'mcc', U: 48, Kp: 0.25, R: 0.8, Pc: 20, load: 'const', Tr: 1.5, nRef: 1650, xmax: 2500, ymax: 6 },
+  },
+  mas: {
+    name: 'Moteur asynchrone — convoyeur à copeaux',
+    txt: 'Plaque : 2,2 kW ; 230 V Δ / 400 V Y ; 1430 tr/min ; 50 Hz. Réseau de l\'atelier : 3 × 400 V. Variateur de fréquence (loi U/f constante).',
+    def: { kind: 'mas', f: 50, p: 2, Tmax: 44, sm: 0.28, coupl: 'Y', load: 'const', Tr: 12, nRef: 1430, xmax: 1800, ymax: 50 },
+  },
+};
+let st = { preset: 'mcc', ...structuredClone(PRESETS.mcc.def), mystery: null, cursor: null, pins: [] };
+
+function motorT(n, s = st) {
+  if (s.kind === 'mcc') {
+    const W = toW(n);
+    return s.Kp * (s.U - s.Kp * W) / s.R;
+  }
+  if (s.coupl === 'D') return 0;
+  const ns = 60 * s.f / s.p;
+  const base = 3000 / s.p;
+  const Tm = s.Tmax * (s.f <= 50 ? 1 : (50 / s.f) ** 2);
+  const x = (ns - n) / base;
+  if (Math.abs(x) < 1e-9) return 0;
+  return 2 * Tm / (x / s.sm + s.sm / x);
+}
+function loadT(n, s = st) {
+  if (s.load === 'const') return s.Tr;
+  return s.Tr * (Math.max(n, 0) / s.nRef) ** 2;
+}
+function n0(s = st) { return s.kind === 'mcc' ? s.U / s.Kp * 60 / (2 * PI) : 60 * s.f / s.p; }
+function opPoint(s = st) {
+  const top = n0(s);
+  if (top <= 0) return null;
+  const d = (n) => motorT(n, s) - loadT(n, s);
+  if (s.kind === 'mas' && s.coupl === 'D') return null;
+  let hi = top, step = top / 600, lo = null;
+  for (let n = top; n >= 0; n -= step) { if (d(n) >= 0) { lo = n; break; } hi = n; }
+  if (lo === null) return null;
+  if (lo === top) return { n: top, T: motorT(top, s) };
+  let a = lo, b = Math.min(lo + step, top);
+  for (let i = 0; i < 60; i++) { const m = (a + b) / 2; if (d(m) >= 0) a = m; else b = m; }
+  // si le moteur ne peut pas démarrer (couple de démarrage insuffisant), il reste bloqué
+  if (d(0) < 0) return null;
+  return { n: a, T: motorT(a, s) };
+}
+function quantities(s = st) {
+  const op = opPoint(s);
+  const q = { op, n0: n0(s), Td: motorT(0, s), start: motorT(0, s) > loadT(0, s) };
+  if (s.kind === 'mcc') {
+    q.Id = s.U / s.R;
+    if (op) {
+      const W = toW(op.n); q.W = W; q.I = op.T / s.Kp; q.E = s.Kp * W; q.Pa = s.U * q.I;
+      q.PJ = s.R * q.I ** 2; q.Pem = q.E * q.I; q.Pu = q.Pem - s.Pc; q.eta = q.Pu / q.Pa;
+    }
+  } else {
+    q.ns = 60 * s.f / s.p;
+    if (op) {
+      const W = toW(op.n), Ws = toW(q.ns); q.W = W; q.g = (q.ns - op.n) / q.ns; q.Pu = op.T * W;
+      const Ptr = op.T * Ws, Pjr = q.g * Ptr, Pjs = 0.8 * Pjr + 40 * (s.f / 50), Pfer = 90 * (s.f / 50), Pm = 50 * (op.n / 1500);
+      q.Pa = q.Pu + Pjr + Pjs + Pfer + Pm; q.eta = q.Pu / q.Pa;
+      const Tn = 14.7; q.cos = Math.min(0.86, 0.15 + 0.7 * Math.pow(Math.min(1.2, Math.max(op.T, 0) / Tn), 0.6));
+      const U = 400 * Math.min(1, s.f / 50); q.I = q.Pa / (Math.sqrt(3) * U * q.cos);
+    }
+  }
+  return q;
+}
+
+/* ---------- Pupitre ---------- */
+function slider(id, label, min, max, step, val, unit, dec = 1) {
+  return `<div class="slider"><label for="${id}">${label}</label><output id="${id}O">${fmt(val, dec)} ${unit}</output>
+    <input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+}
+function buildCtl() {
+  const m = $('#motorCtl');
+  if (st.kind === 'mcc') {
+    m.innerHTML = '<span class="lbl">Alimentation de l\'induit</span>' + slider('sU', 'Tension d\'induit U', 0, 60, 1, st.U, 'V', 0);
+  } else {
+    m.innerHTML = '<span class="lbl">Alimentation du stator</span>' +
+      `<div class="seg two" role="group" aria-label="Couplage"><button type="button" data-cp="Y">Étoile (Y)</button><button type="button" data-cp="D">Triangle (Δ)</button></div>` +
+      slider('sF', 'Fréquence f (variateur)', 5, 60, 1, st.f, 'Hz', 0);
+    m.querySelectorAll('[data-cp]').forEach((b) => b.addEventListener('click', () => { st.coupl = b.dataset.cp; sync(); }));
+  }
+  const l = $('#loadCtl');
+  const max = st.kind === 'mcc' ? 4 : 40, step = st.kind === 'mcc' ? 0.1 : 0.5;
+  l.innerHTML = slider('sT', st.load === 'const' ? 'Couple résistant Tr' : `Couple résistant à ${st.nRef} tr/min`, 0, max, step, st.Tr, 'N·m', 1);
+  const bind = (id, key) => { const e = $('#' + id); if (e) e.addEventListener('input', () => { st[key] = parseFloat(e.value); sync(false); }); };
+  bind('sU', 'U'); bind('sF', 'f'); bind('sT', 'Tr');
+}
+function sync(rebuild = true) {
+  if (rebuild) buildCtl();
+  document.querySelectorAll('[data-load]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.load === st.load)));
+  document.querySelectorAll('[data-cp]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cp === st.coupl)));
+  const o = (id, v, u, d) => { const e = $('#' + id + 'O'); if (e) e.textContent = `${fmt(v, d)} ${u}`; const i = $('#' + id); if (i && parseFloat(i.value) !== v) i.value = v; };
+  o('sU', st.U, 'V', 0); o('sF', st.f, 'Hz', 0); o('sT', st.Tr, 'N·m', 1);
+  $('#preset').value = st.preset;
+  $('#presetTxt').textContent = PRESETS[st.preset].txt;
+  stats(); draw();
+}
+function stats() {
+  const q = quantities();
+  const c = (k, v) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+  let h = '';
+  if (st.kind === 'mcc') {
+    h += c('n (tr/min)', q.op ? fmt(q.op.n, 0) : 'bloqué') + c('T (N·m)', q.op ? fmt(q.op.T, 2) : '—') + c('I (A)', q.op ? fmt(q.I, 2) : '—');
+    h += c('E (V)', q.op ? fmt(q.E, 1) : '—') + c('Pa (W)', q.op ? fmt(q.Pa, 0) : '—') + c('η (%)', q.op ? fmt(100 * q.eta, 1) : '—');
+    h += c('Id direct (A)', fmt(q.Id, 0)) + c('Pu (W)', q.op ? fmt(q.Pu, 0) : '—') + c('PJ (W)', q.op ? fmt(q.PJ, 1) : '—');
+  } else if (st.coupl === 'D') {
+    h = '<div class="stat" style="grid-column:1/-1"><div class="k">Disjoncteur moteur</div><div class="v">Déclenché : en triangle sur 400 V, chaque enroulement reçoit 400 V au lieu de 230 V.</div></div>';
+  } else {
+    h += c('n (tr/min)', q.op ? fmt(q.op.n, 0) : 'bloqué') + c('T (N·m)', q.op ? fmt(q.op.T, 2) : '—') + c('g (%)', q.op ? fmt(100 * q.g, 2) : '—');
+    h += c('I (A)', q.op ? fmt(q.I, 2) : '—') + c('cos φ', q.op ? fmt(q.cos, 2) : '—') + c('Pa (W)', q.op ? fmt(q.Pa, 0) : '—');
+    h += c('Pu (W)', q.op ? fmt(q.Pu, 0) : '—') + c('η (%)', q.op ? fmt(100 * q.eta, 1) : '—') + c('Démarrage', q.start ? 'possible' : 'impossible');
+  }
+  $('#stats').innerHTML = h;
+}
+
+/* ---------- Tracé ---------- */
+const svg = $('#plot');
+const VB = { w: 820, h: 480, l: 64, r: 22, t: 20, b: 54 };
+const X = (n) => VB.l + (n / st.xmax) * (VB.w - VB.l - VB.r);
+const Y = (T) => VB.h - VB.b - (T / st.ymax) * (VB.h - VB.t - VB.b);
+const Xinv = (px) => (px - VB.l) / (VB.w - VB.l - VB.r) * st.xmax;
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function niceStep(max) { const r = max / 6, p = 10 ** Math.floor(Math.log10(r)), m = r / p; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p; }
+function draw() {
+  const s = [];
+  const grid = css('--grid'), line = css('--line'), muted = css('--muted'), ink = css('--ink');
+  const sx = niceStep(st.xmax), sy = niceStep(st.ymax);
+  s.push(`<rect x="0" y="0" width="${VB.w}" height="${VB.h}" fill="${css('--panel')}"/>`);
+  for (let x = 0; x <= st.xmax + 1e-9; x += sx) s.push(`<line x1="${X(x)}" y1="${Y(0)}" x2="${X(x)}" y2="${Y(st.ymax)}" stroke="${grid}"/><text x="${X(x)}" y="${Y(0) + 18}" font-size="12" text-anchor="middle" fill="${muted}" font-family="IBM Plex Mono,monospace">${fmt(x, 0)}</text>`);
+  for (let y = 0; y <= st.ymax + 1e-9; y += sy) s.push(`<line x1="${X(0)}" y1="${Y(y)}" x2="${X(st.xmax)}" y2="${Y(y)}" stroke="${grid}"/><text x="${X(0) - 8}" y="${Y(y) + 4}" font-size="12" text-anchor="end" fill="${muted}" font-family="IBM Plex Mono,monospace">${fmt(y, 1)}</text>`);
+  s.push(`<line x1="${X(0)}" y1="${Y(0)}" x2="${X(st.xmax)}" y2="${Y(0)}" stroke="${line}" stroke-width="1.5"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(st.ymax)}" stroke="${line}" stroke-width="1.5"/>`);
+  s.push(`<text x="${X(st.xmax)}" y="${VB.h - 8}" font-size="13" text-anchor="end" fill="${ink}">n (tr/min)</text><text x="12" y="${VB.t + 4}" font-size="13" fill="${ink}" transform="rotate(-90 12 ${VB.t + 4})" text-anchor="end">T (N·m)</text>`);
+  const clipId = 'clip';
+  s.push(`<defs><clipPath id="${clipId}"><rect x="${X(0)}" y="${Y(st.ymax)}" width="${X(st.xmax) - X(0)}" height="${Y(0) - Y(st.ymax)}"/></clipPath></defs>`);
+  if ($('#ovZone').checked && st.kind === 'mas' && st.coupl === 'Y') {
+    const ns = 60 * st.f / st.p, base = 3000 / st.p;
+    s.push(`<rect x="${X(ns - 0.08 * base)}" y="${Y(st.ymax)}" width="${X(ns) - X(ns - 0.08 * base)}" height="${Y(0) - Y(st.ymax)}" fill="var(--okbg)" opacity=".9"/>`);
+    s.push(`<text x="${X(ns - 0.04 * base)}" y="${Y(st.ymax) + 14}" font-size="11" text-anchor="middle" fill="var(--ok)">zone utile</text>`);
+  }
+  const pts = [], lpts = [];
+  const N = 400, nmax = st.xmax;
+  for (let i = 0; i <= N; i++) { const n = nmax * i / N; pts.push(`${X(n).toFixed(1)},${Y(motorT(n)).toFixed(1)}`); lpts.push(`${X(n).toFixed(1)},${Y(loadT(n)).toFixed(1)}`); }
+  s.push(`<g clip-path="url(#${clipId})">`);
+  if (!(st.kind === 'mas' && st.coupl === 'D')) s.push(`<polyline points="${pts.join(' ')}" fill="none" stroke="var(--trace)" stroke-width="2.6"/>`);
+  if ($('#ovLoad').checked) s.push(`<polyline points="${lpts.join(' ')}" fill="none" stroke="var(--input)" stroke-width="2" stroke-dasharray="7 5"/>`);
+  s.push('</g>');
+  if ($('#ovN0').checked && !st.mystery) {
+    const v = n0(); s.push(`<line x1="${X(v)}" y1="${Y(0)}" x2="${X(v)}" y2="${Y(st.ymax)}" stroke="${muted}" stroke-dasharray="3 4"/><text x="${X(v) - 4}" y="${Y(0) - 6}" font-size="12" text-anchor="end" fill="${muted}">${st.kind === 'mcc' ? 'n₀' : 'nS'} = ${fmt(v, 0)}</text>`);
+  }
+  const q = quantities();
+  if ($('#ovOp').checked && q.op && !st.mystery) {
+    s.push(`<circle cx="${X(q.op.n)}" cy="${Y(q.op.T)}" r="6" fill="var(--accent)" stroke="${css('--panel')}" stroke-width="2"/>`);
+  }
+  st.pins.forEach((p) => s.push(`<circle cx="${X(p.n)}" cy="${Y(p.T)}" r="4" fill="var(--mark)"/>`));
+  if (st.cursor != null) {
+    const n = st.cursor, T = motorT(n);
+    s.push(`<line x1="${X(n)}" y1="${Y(0)}" x2="${X(n)}" y2="${Y(st.ymax)}" stroke="var(--mark)" stroke-width="1"/>`);
+    if (T >= 0 && T <= st.ymax) s.push(`<circle cx="${X(n)}" cy="${Y(T)}" r="4.5" fill="none" stroke="var(--mark)" stroke-width="2"/>`);
+  }
+  s.push(`<text x="${X(st.xmax) - 6}" y="${Y(st.ymax) + 30}" font-size="12" text-anchor="end" fill="var(--trace)">— moteur</text>`);
+  if ($('#ovLoad').checked) s.push(`<text x="${X(st.xmax) - 6}" y="${Y(st.ymax) + 46}" font-size="12" text-anchor="end" fill="var(--input)">- - charge</text>`);
+  svg.innerHTML = s.join('');
+}
+function evtN(e) {
+  const r = svg.getBoundingClientRect();
+  const px = (e.clientX - r.left) / r.width * VB.w;
+  return Math.max(0, Math.min(st.xmax, Xinv(px)));
+}
+svg.addEventListener('pointermove', (e) => {
+  const n = evtN(e); st.cursor = n;
+  const T = motorT(n), L = loadT(n);
+  $('#readout').innerHTML = `n = <b>${fmt(n, 0)}</b> tr/min · T moteur = <b>${st.kind === 'mas' && st.coupl === 'D' ? '—' : fmt(T, 2)}</b> N·m · T charge = <b>${fmt(L, 2)}</b> N·m`;
+  draw();
+});
+svg.addEventListener('pointerleave', () => { st.cursor = null; draw(); });
+svg.addEventListener('click', (e) => { const n = evtN(e); st.pins.push({ n, T: motorT(n) }); renderPins(); draw(); });
+svg.addEventListener('keydown', (e) => {
+  if (!['ArrowLeft', 'ArrowRight', 'Enter'].includes(e.key)) return;
+  e.preventDefault();
+  if (st.cursor == null) st.cursor = st.xmax / 2;
+  if (e.key === 'Enter') { st.pins.push({ n: st.cursor, T: motorT(st.cursor) }); renderPins(); }
+  else st.cursor = Math.max(0, Math.min(st.xmax, st.cursor + (e.key === 'ArrowRight' ? 1 : -1) * st.xmax / 400));
+  $('#readout').innerHTML = `n = <b>${fmt(st.cursor, 0)}</b> tr/min · T moteur = <b>${fmt(motorT(st.cursor), 2)}</b> N·m`;
+  draw();
+});
+function renderPins() {
+  $('#pins').innerHTML = st.pins.map((p, i) => `<span class="pin">n = ${fmt(p.n, 0)} tr/min ; T = ${fmt(p.T, 2)} N·m<button type="button" data-i="${i}" aria-label="Supprimer">×</button></span>`).join('');
+  $('#pins').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { st.pins.splice(+b.dataset.i, 1); renderPins(); draw(); }));
+}
+$('#clearPins').addEventListener('click', () => { st.pins = []; renderPins(); draw(); });
+
+function load(key, over = {}) {
+  st = { ...st, preset: key, ...structuredClone(PRESETS[key].def), ...over, mystery: null, pins: [] };
+  $('#locked').hidden = true;
+  renderPins(); sync();
+}
+$('#preset').innerHTML = Object.entries(PRESETS).map(([k, p]) => `<option value="${k}">${p.name}</option>`).join('');
+$('#preset').addEventListener('change', (e) => load(e.target.value));
+document.querySelectorAll('[data-load]').forEach((b) => b.addEventListener('click', () => {
+  st.load = b.dataset.load; sync();
+}));
+['ovLoad', 'ovOp', 'ovN0', 'ovZone'].forEach((id) => $('#' + id).addEventListener('change', draw));
+
+/* ---------- Questions guidées ---------- */
+const at = (over) => () => quantities({ ...st, ...over });
+const PARTS = [
+  { id: 'A', title: 'A · Moteur à courant continu', intro: 'Axe d\'une machine-outil entraîné par un MCC à aimants permanents alimenté sous U = 48 V (R = 0,8 Ω ; pertes collectives Pc = 20 W). L\'axe impose un couple résistant constant Tr = 1,5 N·m.',
+    load: () => load('mcc'),
+    qs: [
+      { q: 'Relever au curseur la fréquence de rotation à vide n₀ (là où le couple moteur s\'annule).', u: 'tr/min', a: () => n0(), tol: 25, ex: 'La droite coupe l\'axe T = 0 à n₀ ≈ 1 833 tr/min.' },
+      { q: 'En déduire la vitesse angulaire à vide Ω₀.', u: 'rad/s', a: 192, tol: 3, hint: 'Ω = 2π·n / 60', ex: 'Ω₀ = 2π × 1 833 / 60 ≈ 192 rad/s.' },
+      { q: 'À vide, E ≈ U. Calculer la constante du moteur K\' = U / Ω₀.', u: 'V·s/rad', a: 0.25, tol: 0.01, ex: 'K\' = 48 / 192 = 0,25 V·s/rad (ou N·m/A).' },
+      { q: 'Relever la fréquence de rotation au point de fonctionnement (couple résistant 1,5 N·m).', u: 'tr/min', a: () => quantities().op.n, tol: 20, ex: 'Le point de fonctionnement est l\'intersection de la droite du moteur et de la droite horizontale de la charge : n ≈ 1 650 tr/min.' },
+      { q: 'Calculer le courant absorbé par l\'induit.', u: 'A', a: 6, tol: 0.1, hint: 'Tem = K\'·I', ex: 'I = Tem / K\' = 1,5 / 0,25 = 6 A.' },
+      { q: 'Calculer la f.é.m. E au point de fonctionnement.', u: 'V', a: 43.2, tol: 0.4, hint: 'U = E + R·I', ex: 'E = U − R·I = 48 − 0,8 × 6 = 43,2 V.' },
+      { q: 'Calculer la puissance absorbée Pa.', u: 'W', a: 288, tol: 3, ex: 'Pa = U·I = 48 × 6 = 288 W.' },
+      { q: 'Calculer le rendement du moteur.', u: '%', a: 83, tol: 1, hint: 'Pu = E·I − Pc', ex: 'Pu = 43,2 × 6 − 20 = 239,2 W ; η = 239,2 / 288 ≈ 83 %.' },
+      { q: 'Régler U = 36 V (bouton ci-dessous) et relever la nouvelle fréquence de rotation.', set: { U: 36 }, u: 'tr/min', a: () => quantities({ ...st, U: 36 }).op.n, tol: 20, ex: 'La droite se décale parallèlement à elle-même : n ≈ 1 190 tr/min. Le courant reste 6 A car la charge impose le couple.' },
+      { q: 'Quelle grandeur électrique règle la vitesse d\'un MCC ?', opts: ['Le courant I', 'La tension d\'induit U', 'La résistance R'], a: 1, ex: 'La tension règle la vitesse (E = K\'·Ω) ; le courant règle le couple (Tem = K\'·I).' },
+      { q: 'Calculer le courant de démarrage en démarrage direct sous 48 V. Pourquoi démarre-t-on avec une rampe de tension ?', u: 'A', a: 60, tol: 1, ex: 'À l\'arrêt E = 0, donc Id = U / R = 48 / 0,8 = 60 A, soit 10 fois le courant en charge : on augmente progressivement U pour limiter ce courant.' },
+    ] },
+  { id: 'B', title: 'B · Moteur asynchrone', intro: 'Le convoyeur à copeaux d\'une entreprise de décolletage est entraîné par un moteur asynchrone (2,2 kW ; 230 V Δ / 400 V Y ; 1430 tr/min) alimenté par le réseau 3 × 400 V. Couple résistant constant : 12 N·m.',
+    load: () => load('mas'),
+    qs: [
+      { q: 'Quel couplage faut-il réaliser sur le réseau 400 V ? (Essayez les deux sur le banc.)', opts: ['Étoile (Y)', 'Triangle (Δ)'], a: 0, ex: 'Chaque enroulement supporte 230 V. En étoile sur 400 V, il reçoit 400 / √3 = 230 V. En triangle, il recevrait 400 V : surintensité, le disjoncteur déclenche.' },
+      { q: 'Relever au curseur la fréquence de synchronisme nS (couple nul).', u: 'tr/min', a: 1500, tol: 10, ex: 'La courbe s\'annule à nS = 1 500 tr/min.' },
+      { q: 'En déduire le nombre de paires de pôles p.', u: '', a: 2, tol: 0.01, hint: 'nS = 60·f / p', ex: 'p = 60 × 50 / 1 500 = 2 (moteur à 4 pôles).' },
+      { q: 'Relever la fréquence de rotation au point de fonctionnement.', u: 'tr/min', a: () => quantities({ ...st, f: 50, coupl: 'Y', load: 'const', Tr: 12 }).op.n, tol: 6, ex: 'n ≈ 1 442 tr/min : le moteur tourne un peu moins vite que le champ tournant.' },
+      { q: 'Calculer le glissement g.', u: '%', a: () => 100 * quantities({ ...st, f: 50, coupl: 'Y', load: 'const', Tr: 12 }).g, tol: 0.4, hint: 'g = (nS − n) / nS', ex: 'g = (1 500 − 1 442) / 1 500 ≈ 3,9 %.' },
+      { q: 'Calculer la puissance utile Pu.', u: 'W', a: () => quantities({ ...st, f: 50, coupl: 'Y', load: 'const', Tr: 12 }).Pu, tol: 30, hint: 'Pu = T·Ω', ex: 'Pu = 12 × 2π × 1 442 / 60 ≈ 1 810 W.' },
+      { q: 'Relever le couple de démarrage Td (à n = 0).', u: 'N·m', a: () => motorT(0, { ...st, f: 50, coupl: 'Y' }), tol: 0.8, ex: 'Td ≈ 22,9 N·m, environ 1,5 fois le couple nominal (14,7 N·m).' },
+      { q: 'Bourrage : le couple résistant au démarrage passe à 30 N·m. Le moteur peut-il démarrer ? (Testez avec le curseur du pupitre.)', set: { Tr: 30, f: 50 }, opts: ['Oui', 'Non'], a: 1, ex: 'Td ≈ 22,9 N·m < 30 N·m : le moteur reste bloqué, il absorbe son courant de démarrage (4 à 8 In) et la protection thermique déclenche.' },
+      { q: 'Régler le variateur à 35 Hz (charge 12 N·m). Relever la nouvelle fréquence de rotation.', set: { f: 35, Tr: 12 }, u: 'tr/min', a: () => quantities({ ...st, f: 35, coupl: 'Y', load: 'const', Tr: 12 }).op.n, tol: 8, ex: 'nS = 60 × 35 / 2 = 1 050 tr/min ; à couple égal, l\'écart nS − n reste ≈ 58 tr/min, donc n ≈ 992 tr/min.' },
+      { q: 'Comment inverser le sens de rotation pour débourrer le convoyeur ?', opts: ['Inverser le couplage étoile/triangle', 'Permuter deux phases', 'Diminuer la fréquence'], a: 1, ex: 'Permuter deux phases inverse le sens du champ tournant, donc le sens de rotation.' },
+    ] },
+  { id: 'C', title: 'C · Moteur et charge', intro: 'Le même moteur asynchrone entraîne maintenant le ventilateur d\'extraction de l\'atelier : couple résistant proportionnel à n² (14 N·m à 1 430 tr/min).',
+    load: () => load('mas', { load: 'fan', Tr: 14 }),
+    qs: [
+      { q: 'Le moteur peut-il démarrer le ventilateur ? Comparer le couple de démarrage au couple résistant à l\'arrêt.', opts: ['Oui : à l\'arrêt, le ventilateur n\'oppose presque aucun couple', 'Non : le couple résistant est maximal à l\'arrêt'], a: 0, ex: 'Pour une charge en n², Tr(0) ≈ 0 : le démarrage est facile (Td ≈ 22,9 N·m).' },
+      { q: 'Relever la fréquence de rotation au point de fonctionnement à 50 Hz.', u: 'tr/min', a: () => quantities({ ...st, f: 50, coupl: 'Y', load: 'fan', Tr: 14 }).op.n, tol: 6, ex: 'Intersection des deux courbes : n ≈ 1 432 tr/min.' },
+      { q: 'Relever le couple au point de fonctionnement.', u: 'N·m', a: () => quantities({ ...st, f: 50, coupl: 'Y', load: 'fan', Tr: 14 }).op.T, tol: 0.4, ex: 'T ≈ 14 N·m.' },
+      { q: 'Calculer la puissance utile à 50 Hz.', u: 'W', a: () => quantities({ ...st, f: 50, coupl: 'Y', load: 'fan', Tr: 14 }).Pu, tol: 40, ex: 'Pu = T·Ω ≈ 14 × 2π × 1 432 / 60 ≈ 2 100 W.' },
+      { q: 'Le débit d\'air nécessaire diminue : régler le variateur à 40 Hz et relever la nouvelle fréquence de rotation.', set: { f: 40 }, u: 'tr/min', a: () => quantities({ ...st, f: 40, coupl: 'Y', load: 'fan', Tr: 14 }).op.n, tol: 8, ex: 'n ≈ 1 156 tr/min (nS = 1 200 tr/min).' },
+      { q: 'Calculer le rapport Pu(40 Hz) / Pu(50 Hz).', u: '', a: () => { const a = quantities({ ...st, f: 40, coupl: 'Y', load: 'fan', Tr: 14 }), b = quantities({ ...st, f: 50, coupl: 'Y', load: 'fan', Tr: 14 }); return a.Pu / b.Pu; }, tol: 0.04, ex: 'Pour une charge en n², la puissance varie comme n³ : (1 156 / 1 431)³ ≈ 0,53. Réduire la vitesse de 20 % divise presque la puissance par deux.' },
+      { q: 'Pourquoi un variateur est-il particulièrement rentable sur un ventilateur ou une pompe centrifuge ?', opts: ['Le couple augmente quand la vitesse baisse', 'La puissance varie comme n³ : une petite baisse de vitesse fait gagner beaucoup d\'énergie', 'Le glissement devient nul'], a: 1, ex: 'Pu = T·Ω avec T ∝ n², donc Pu ∝ n³.' },
+    ] },
+  { id: 'D', title: 'D · Moteur pas à pas', intro: 'La table d\'indexation d\'une machine d\'assemblage est entraînée directement par un moteur pas à pas hybride de 200 pas par tour (calculs, sans le banc).',
+    load: () => {},
+    qs: [
+      { q: 'Calculer le pas angulaire αp.', u: '°', a: 1.8, tol: 0.01, hint: 'Np = 360° / αp', ex: 'αp = 360° / 200 = 1,8°.' },
+      { q: 'La commande envoie des impulsions à f = 400 Hz. Calculer la fréquence de rotation en tr/min.', u: 'tr/min', a: 120, tol: 0.5, hint: 'n = f / Np (en tr/s)', ex: 'n = 400 / 200 = 2 tr/s = 120 tr/min.' },
+      { q: 'Combien d\'impulsions faut-il envoyer pour tourner la table de 72° ?', u: '', a: 40, tol: 0.1, ex: '72 / 1,8 = 40 impulsions.' },
+      { q: 'Pourquoi la position est-elle connue sans capteur ?', opts: ['Le moteur avance d\'un pas à chaque impulsion : il suffit de compter les impulsions', 'Le moteur contient un codeur', 'La vitesse est constante'], a: 0, ex: 'Commande en boucle ouverte : position = nombre d\'impulsions × αp, tant que le moteur ne perd pas de pas.' },
+      { q: 'Que se passe-t-il si l\'on démarre directement à une fréquence trop élevée ?', opts: ['Le moteur tourne plus vite', 'Le moteur perd des pas : il faut une rampe de fréquence', 'Le couple augmente'], a: 1, ex: 'Le couple disponible diminue quand f augmente ; au-delà de la fréquence de démarrage, le rotor ne suit plus.' },
+    ] },
+];
+const answers = {};
+PARTS.forEach((p) => { answers[p.id] = p.qs.map(() => ({ val: '', ok: null, tries: 0 })); });
+let cur = 'A';
+const valA = (q) => (typeof q.a === 'function' ? q.a() : q.a);
+function renderChips() {
+  $('#partChips').innerHTML = PARTS.map((p) => `<button class="chip" type="button" data-p="${p.id}" aria-pressed="${p.id === cur}">${p.title}</button>`).join('');
+  $('#partChips').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { cur = b.dataset.p; openPart(); }));
+  const all = PARTS.flatMap((p) => answers[p.id]); const ok = all.filter((a) => a.ok).length;
+  $('#score').textContent = `${ok} / ${all.length} réponses justes`;
+}
+function openPart() {
+  const p = PARTS.find((x) => x.id === cur);
+  p.load();
+  $('#partIntro').textContent = p.intro;
+  renderChips();
+  $('#qs').innerHTML = p.qs.map((q, i) => {
+    const a = answers[p.id][i];
+    const n = `${p.id}${i + 1}`;
+    let ans;
+    if (q.opts) ans = `<div class="opts">${q.opts.map((o, j) => `<label><input type="radio" name="q${n}" value="${j}" ${String(a.val) === String(j) ? 'checked' : ''}> <span>${o}</span></label>`).join('')}</div><button class="btn ghost" type="button" data-chk="${i}">Vérifier</button>`;
+    else ans = `<input type="text" inputmode="decimal" id="in${n}" value="${a.val}" aria-label="Réponse ${n}"><span class="unit">${q.u || ''}</span><button class="btn ghost" type="button" data-chk="${i}">Vérifier</button>`;
+    if (q.set) ans += `<button class="btn ghost" type="button" data-set="${i}">Régler le banc</button>`;
+    if (q.hint) ans += `<button class="linkbtn" type="button" data-hint="${i}">Coup de pouce</button>`;
+    return `<li class="q ${a.ok ? 'done' : ''}" id="q${n}"><div class="qt"><span class="n">${n}</span><span>${q.q}</span></div><div class="ans">${ans}</div><div class="fb-slot"></div></li>`;
+  }).join('');
+  p.qs.forEach((q, i) => { if (answers[p.id][i].ok !== null) feedback(p, i, false); });
+  $('#qs').querySelectorAll('[data-chk]').forEach((b) => b.addEventListener('click', () => check(p, +b.dataset.chk)));
+  $('#qs').querySelectorAll('[data-set]').forEach((b) => b.addEventListener('click', () => { Object.assign(st, p.qs[+b.dataset.set].set); sync(); }));
+  $('#qs').querySelectorAll('[data-hint]').forEach((b) => b.addEventListener('click', () => { b.outerHTML = `<span class="small">${p.qs[+b.dataset.hint].hint}</span>`; }));
+}
+function check(p, i) {
+  const q = p.qs[i], a = answers[p.id][i], n = `${p.id}${i + 1}`;
+  if (q.opts) {
+    const r = document.querySelector(`input[name="q${n}"]:checked`);
+    if (!r) return; a.val = r.value; a.ok = +r.value === q.a;
+  } else {
+    const v = parseNum($('#in' + n).value); a.val = $('#in' + n).value;
+    if (!isFinite(v)) return;
+    a.ok = Math.abs(v - valA(q)) <= q.tol;
+  }
+  a.tries++;
+  feedback(p, i, true); renderChips();
+}
+function feedback(p, i) {
+  const q = p.qs[i], a = answers[p.id][i], n = `${p.id}${i + 1}`;
+  const li = $('#q' + n); li.classList.toggle('done', !!a.ok);
+  const slot = li.querySelector('.fb-slot');
+  if (a.ok) slot.innerHTML = `<div class="fb ok"><strong>Juste.</strong> ${q.ex}</div>`;
+  else if (a.tries >= 2) slot.innerHTML = `<div class="fb bad"><strong>Pas encore.</strong> ${q.ex}</div>`;
+  else slot.innerHTML = '<div class="fb bad">Pas encore : vérifiez la lecture au curseur, le calcul et l\'unité, puis réessayez.</div>';
+}
+$('#loadPart').addEventListener('click', () => PARTS.find((x) => x.id === cur).load());
+
+/* ---------- Récapitulatif ---------- */
+$('#mkRecap').addEventListener('click', () => {
+  const nom = $('#nom').value.trim() || '(nom non renseigné)';
+  const L = [`Banc d'essai des moteurs électriques — ${nom}`, new Date().toLocaleString('fr-FR'), ''];
+  let tot = 0, ok = 0;
+  PARTS.forEach((p) => {
+    L.push(p.title);
+    p.qs.forEach((q, i) => {
+      const a = answers[p.id][i]; tot++; if (a.ok) ok++;
+      const v = q.opts ? (a.val !== '' ? q.opts[+a.val].replace(/<[^>]+>/g, '') : '—') : (a.val || '—') + (q.u ? ' ' + q.u : '');
+      L.push(`  ${p.id}${i + 1} ${a.ok ? '✓' : a.ok === false ? '✗' : '·'} ${v}`);
+    });
+    L.push('');
+  });
+  L.push(`Score : ${ok} / ${tot}`);
+  if (mystLog.length) { L.push('', 'Moteurs mystère :'); mystLog.forEach((m) => L.push('  ' + m)); }
+  $('#recap').textContent = L.join('\n'); $('#recap').hidden = false; $('#cpRecap').hidden = false;
+});
+$('#cpRecap').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('#recap').textContent); $('#cpMsg').textContent = 'Copié.'; }
+  catch (e) { $('#cpMsg').textContent = 'Copie impossible : sélectionnez le texte à la main.'; }
+});
+
+/* ---------- Moteur mystère ---------- */
+const mystLog = [];
+const rnd = (a, b) => a + Math.random() * (b - a);
+function newMyst() {
+  if (Math.random() < 0.5) {
+    const U = [24, 36, 48, 60][Math.floor(Math.random() * 4)];
+    const Kp = Math.round(rnd(0.15, 0.4) * 100) / 100, R = Math.round(rnd(0.4, 1.4) * 10) / 10;
+    const nn0 = U / Kp * 60 / (2 * PI);
+    const Td = Kp * U / R;
+    st = { ...st, kind: 'mcc', U, Kp, R, Pc: 20, load: 'const', Tr: Math.round(Td * rnd(0.05, 0.12) * 10) / 10, nRef: 1500, xmax: Math.ceil(nn0 * 1.25 / 500) * 500, ymax: Math.ceil(Td * 0.4) };
+    st.mystery = { kind: 'mcc', info: `Moteur alimenté sous U = ${U} V (tension continue).` };
+  } else {
+    const p = [1, 2, 3][Math.floor(Math.random() * 3)];
+    const Tmax = Math.round(rnd(20, 60)), sm = rnd(0.2, 0.3);
+    st = { ...st, kind: 'mas', f: 50, p, Tmax, sm, coupl: 'Y', load: 'const', Tr: 0, nRef: 1430, xmax: Math.ceil(3000 / p * 1.15 / 100) * 100, ymax: Math.ceil(Tmax * 1.15 / 5) * 5 };
+    st.Tr = Math.round(Math.min(Tmax * rnd(0.25, 0.4), 0.75 * motorT(0, st)));
+    st.mystery = { kind: 'mas', info: 'Moteur alimenté par le réseau triphasé 400 V, 50 Hz.' };
+  }
+  st.preset = st.kind; st.pins = [];
+  $('#locked').hidden = false;
+  $('#mystInfo').textContent = st.mystery.info + ' La charge impose un couple constant (droite en pointillés).';
+  $('#mystFb').innerHTML = ''; $('#mystForm').reset();
+  renderPins(); stats(); draw();
+}
+function mystSolution() {
+  const q = quantities();
+  const par = st.kind === 'mcc' ? `K' = ${fmt(st.Kp, 2)} V·s/rad` : `p = ${st.p}`;
+  return { q, txt: `${st.kind === 'mcc' ? 'Moteur à courant continu' : 'Moteur asynchrone'} ; vitesse à vide ${fmt(q.n0, 0)} tr/min ; ${par} ; point de fonctionnement n ≈ ${fmt(q.op.n, 0)} tr/min, T = ${fmt(q.op.T, 2)} N·m ; Pu ≈ ${fmt(q.Pu, 0)} W.` };
+}
+$('#newMyst').addEventListener('click', newMyst);
+$('#solMyst').addEventListener('click', () => { if (!st.mystery) return; $('#mystFb').innerHTML = `<div class="fb ok">${mystSolution().txt}</div>`; });
+$('#mystForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!st.mystery) { $('#mystFb').innerHTML = '<div class="fb bad">Cliquez d\'abord sur « Nouveau moteur ».</div>'; return; }
+  const { q } = mystSolution();
+  const res = [];
+  const t = $('#mType').value; res.push(['Type', t === st.kind]);
+  const v0 = parseNum($('#mN0').value); res.push(['Vitesse à vide', Math.abs(v0 - q.n0) <= 0.02 * q.n0]);
+  const par = parseNum($('#mPar').value); res.push([st.kind === 'mcc' ? "K'" : 'p', st.kind === 'mcc' ? Math.abs(par - st.Kp) <= 0.04 * st.Kp + 0.005 : par === st.p]);
+  const no = parseNum($('#mNop').value); res.push(['Point de fonctionnement', Math.abs(no - q.op.n) <= 0.015 * q.n0 + 5]);
+  const pu = parseNum($('#mPu').value); res.push(['Pu', Math.abs(pu - q.Pu) <= 0.05 * q.Pu + 2]);
+  const good = res.filter((r) => r[1]).length;
+  $('#mystFb').innerHTML = `<div class="fb ${good === res.length ? 'ok' : 'bad'}">${res.map((r) => `${r[1] ? '✓' : '✗'} ${r[0]}`).join(' · ')}${good === res.length ? ' — moteur identifié !' : ''}</div>`;
+  mystLog.push(`${st.kind === 'mcc' ? 'MCC' : 'asynchrone'} : ${good}/${res.length} (${res.map((r) => (r[1] ? '✓' : '✗') + r[0]).join(', ')})`);
+});
+
+/* ---------- Onglets ---------- */
+document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+  $('#pane-q').hidden = t.id !== 'tab-q'; $('#pane-m').hidden = t.id !== 'tab-m';
+  if (t.id === 'tab-q') { openPart(); } else if (!st.mystery) newMyst();
+}));
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+
+openPart();
+})();
+
+</script>
+</body>
+</html>

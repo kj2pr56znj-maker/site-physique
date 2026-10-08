@@ -344,6 +344,13 @@
        "pages": 12
       },
       {
+       "titre": "fiche animation à compléter",
+       "type": "Fiche",
+       "fichier": "000aeec50fff0ee08d8d6bfc.bin",
+       "taille": 117029,
+       "pages": 3
+      },
+      {
        "titre": "Prérequis",
        "type": "Fiche",
        "fichier": "4a1e6709fed91e82f9b7792f.bin",
@@ -360,6 +367,11 @@
        "titre": "animation moteur asynchrone",
        "type": "Animation",
        "lien": "animations/cim/animation-moteur-asynchrone.html"
+      },
+      {
+       "titre": "animation moteurs électriques",
+       "type": "Animation",
+       "lien": "animations/cim/animation-moteurs-electriques.html"
       },
       {
        "titre": "TP1 Moteur à courant continu",
