@@ -112,23 +112,23 @@
       {
        "titre": "activité 1. boucle 4-20 mA du pressuriseur",
        "type": "Activité",
-       "fichier": "97a1786487107353c61bd2bf.bin",
-       "taille": 286763,
+       "fichier": "8caedc62de42dd53fb71eadf.bin",
+       "taille": 330182,
        "pages": 6
       },
       {
        "titre": "activité 2. numérisation d'une mesure de température",
        "type": "Activité",
-       "fichier": "8c0e712a2e1f60fbe7467a42.bin",
-       "taille": 227955,
+       "fichier": "df6f5a5f82f5dfb9b29d90ac.bin",
+       "taille": 265746,
        "pages": 5
       },
       {
        "titre": "activité 3. temps de réponse d'une sonde Pt100",
        "type": "Activité",
-       "fichier": "6575ecbfa676d0fd90a9eb7c.bin",
-       "taille": 126016,
-       "pages": 5
+       "fichier": "e27a2cc11999cec0df61b0bf.bin",
+       "taille": 165224,
+       "pages": 4
       },
       {
        "titre": "simulation chaîne de mesure",
@@ -259,6 +259,77 @@
        "titre": "animation transferts thermiques",
        "type": "Animation",
        "lien": "animations/et/animation-transferts-thermiques.html"
+      }
+     ]
+    },
+    {
+     "num": "",
+     "titre": "Lumière et photométrie",
+     "docs": [
+      {
+       "titre": "l'essentiel du chapitre",
+       "type": "Cours",
+       "fichier": "99682ce04c159986efa88a3d.bin",
+       "taille": 1192665,
+       "pages": 19
+      },
+      {
+       "titre": "bilan",
+       "type": "Fiche",
+       "fichier": "03b4fc577774adfe98be0edf.bin",
+       "taille": 174654,
+       "pages": 3
+      },
+      {
+       "titre": "fiche animation à compléter",
+       "type": "Fiche",
+       "fichier": "adbc3897c23ec9184f9539b4.bin",
+       "taille": 126209,
+       "pages": 3
+      },
+      {
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "fe50d347c00a34f8735adca2.bin",
+       "taille": 146681,
+       "pages": 4
+      },
+      {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 28,
+       "lien": "cartes.html?c=et&ch=lumiere-et-photometrie"
+      },
+      {
+       "titre": "activité 1. spectres et sources lumineuses du hall turbine",
+       "type": "Activité",
+       "fichier": "570e651e59f117c66a1c9850.bin",
+       "taille": 319974,
+       "pages": 5
+      },
+      {
+       "titre": "activité 2. relamping de la salle des machines",
+       "type": "Activité",
+       "fichier": "d4a7b417a7a6ab88babc81e6.bin",
+       "taille": 314463,
+       "pages": 5
+      },
+      {
+       "titre": "activité 3. contrôle de l'éclairement au luxmètre",
+       "type": "Activité",
+       "fichier": "3b6b22a134bdcb2bacaceef8.bin",
+       "taille": 298617,
+       "pages": 6
+      },
+      {
+       "titre": "animation lumière et photométrie",
+       "type": "Animation",
+       "lien": "animations/et/animation-lumiere-et-photometrie.html"
+      },
+      {
+       "titre": "simulation banc photométrique",
+       "type": "Animation",
+       "lien": "animations/et/simulation-banc-photometrique.html"
       }
      ]
     }
