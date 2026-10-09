@@ -58,6 +58,11 @@
        "lien": "animations/et/simulateur-hacheur-4-quadrants.html"
       },
       {
+       "titre": "simulation maquette EL2042",
+       "type": "Animation",
+       "lien": "animations/et/simulation-maquette-el2042.html"
+      },
+      {
        "titre": "TP1 hacheur série",
        "type": "TP",
        "fichier": "0b429abd53e13621d826804e.bin",
@@ -67,9 +72,9 @@
       {
        "titre": "TP2 hacheur 4 quadrants",
        "type": "TP",
-       "fichier": "97b47a69e943f09dcd37e5cb.bin",
-       "taille": 56720,
-       "pages": 2
+       "fichier": "7e53367719dff4ca5883e714.bin",
+       "taille": 1421895,
+       "pages": 20
       }
      ]
     },
