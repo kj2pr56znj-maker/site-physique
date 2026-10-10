@@ -348,183 +348,207 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "de6c5f741edb5a3e5baf5b6b.bin",
-       "taille": 167830,
-       "pages": 5,
+       "fichier": "649f672bca7ad035f706c3cf.bin",
+       "taille": 168792,
+       "pages": 4,
        "rubrique": "Pour commencer"
       },
       {
-       "titre": "Cours",
+       "titre": "Essentiel du chapitre",
        "type": "Cours",
-       "fichier": "f3e213ea72ad6bbe8a928cf9.bin",
-       "taille": 405753,
+       "fichier": "62251e59ad42844de541d4b0.bin",
+       "taille": 415215,
        "pages": 6,
        "rubrique": "Cours"
       },
       {
-       "titre": "fiche animation à compléter",
+       "titre": "Fiche animation",
        "type": "Fiche",
-       "fichier": "482c007a938911d767243f4e.bin",
-       "taille": 137442,
-       "pages": 3,
+       "fichier": "faae7fdb88ab37f2e0f9594f.bin",
+       "taille": 175147,
+       "pages": 4,
        "rubrique": "Animation"
       },
       {
-       "titre": "animation nature des signaux",
+       "titre": "Animation – Banc d'analyse spectrale",
        "type": "Animation",
-       "lien": "animations/cira/animation-nature-des-signaux.html",
+       "lien": "animations/cira/animation-banc-d-analyse-spectrale.html",
        "rubrique": "Animation"
       },
       {
-       "titre": "TP1 Analyse spectrale",
+       "titre": "TP 1 – Analyse spectrale",
        "type": "TP",
-       "fichier": "58a7d95033bcf6ff4a68687b.bin",
-       "taille": 443656,
-       "pages": 7,
+       "fichier": "dd791e131e9149408daefb34.bin",
+       "taille": 444215,
+       "pages": 8,
        "rubrique": "TP"
       },
       {
-       "titre": "TP1 Analyse spectrale - coups de pouce",
+       "titre": "TP 1 – Analyse spectrale - coups de pouce",
        "type": "TP",
-       "fichier": "4d8c9ad8022194dff3aa4802.bin",
-       "taille": 87454,
+       "fichier": "45e817ff701bc8949136a94a.bin",
+       "taille": 87269,
        "pages": 2,
        "rubrique": "TP"
       },
       {
-       "titre": "Corrigé élève TP1 Analyse spectrale",
+       "titre": "Corrigé élève TP 1 – Analyse spectrale",
        "type": "Corrigé",
-       "fichier": "62cad045783bb85b69480cc0.bin",
-       "taille": 173945,
+       "fichier": "52268657a4244a4491784329.bin",
+       "taille": 173789,
        "pages": 4,
        "corrige": {
-        "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-tp1-analyse-spectrale",
-        "wk": "LRmaiDhrq9qEVIyHDNHbJOwIyFhdhTmVMjHPVWgkdAfpTE8H5tbfvDCHEuJFseeBgWe2Req75koTvjIb"
+        "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-tp-1-analyse-spectrale",
+        "wk": "ZqOENSizxXfvFQeuSG7cYPEbepp3+agyIU6O78i+s/QE+SLkrLE9CQW5TV/22LZx2YF69hNiXAs5LZ5W"
        },
        "rubrique": "TP"
       },
       {
-       "titre": "TP2 THD",
+       "titre": "TP 2 – Mesure du THD",
        "type": "TP",
-       "fichier": "f3a6c676227d59162c5d9efe.bin",
-       "taille": 306778,
+       "fichier": "e6c23e040b8d9a8f16f0844c.bin",
+       "taille": 306812,
        "pages": 6,
        "rubrique": "TP"
       },
       {
-       "titre": "TP2 THD - coups de pouce",
+       "titre": "TP 2 – Mesure du THD - coups de pouce",
        "type": "TP",
-       "fichier": "b48f74e6ded8aea16654ef98.bin",
-       "taille": 69082,
+       "fichier": "b161a3609b966b4874d164d3.bin",
+       "taille": 68953,
        "pages": 1,
        "rubrique": "TP"
       },
       {
-       "titre": "Corrigé élève TP2 THD",
+       "titre": "Corrigé élève TP 2 – Mesure du THD",
        "type": "Corrigé",
-       "fichier": "c0066cba3f5aaa3636f46d7d.bin",
-       "taille": 133125,
+       "fichier": "78ab5ebfc7d04eae1fca6150.bin",
+       "taille": 132995,
        "pages": 4,
        "corrige": {
-        "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-tp2-thd",
-        "wk": "wqYyQzRWmhg1zfLFrqZP4BPGJyRrNRJYVfyxXiZEUksrEpW3ZsPwVwh03H3XTwlbpdNgX/3E3p8SMSlK"
+        "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-tp-2-mesure-du-thd",
+        "wk": "JFnnSVJUjSW8Z5Bq5TlucMZaSdfdjknD2sl/NsmHIY2Flcha7GwM23wYw0KLlRELLnCbaeJmI72QqH+w"
        },
        "rubrique": "TP"
       },
       {
-       "titre": "Exercices - énoncés",
+       "titre": "Exercice 1",
        "type": "Exercices",
-       "fichier": "86f3efcc60ade5108c5707e9.bin",
-       "taille": 214602,
-       "pages": 4,
+       "fichier": "4b3d5ecc060dfce90db624e7.bin",
+       "taille": 98571,
+       "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 1 - coups de pouce",
        "type": "Exercices",
-       "fichier": "fd27b7a13971a767723ef658.bin",
-       "taille": 70606,
+       "fichier": "9bec9594290710f08b7caf79.bin",
+       "taille": 70446,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
-       "titre": "Corrigé élève exercice 1",
+       "titre": "Corrigé élève Exercice 1",
        "type": "Corrigé",
-       "fichier": "156e6833b4b7777b0ae5b472.bin",
-       "taille": 94768,
+       "fichier": "08e38b56d510d22dccdabc82.bin",
+       "taille": 94607,
        "pages": 3,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-1",
-        "wk": "lwij/UGttxN5dkXWnG07oGQJ7EuonsmvibtakZ1C6oJdVYl9m87IXJ84BqHXNKdznPa7wWyF3F9zKgQ0"
+        "wk": "2fAN0uX5b5LqSvO/ok9bzc/haX2QRTujWu/hTSZOoHK9YV906T16ajEvC8Tmp5ue6MToUYsd6mvNiOWQ"
        },
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 2",
+       "type": "Exercices",
+       "fichier": "a8ab8a51151ccfdf6113c7af.bin",
+       "taille": 82099,
+       "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 2 - coups de pouce",
        "type": "Exercices",
-       "fichier": "b35ea1db1a3db52338d52d0e.bin",
-       "taille": 88106,
+       "fichier": "19d0fb5dd7bb36ac9dc8de72.bin",
+       "taille": 88009,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
-       "titre": "Corrigé élève exercice 2",
+       "titre": "Corrigé élève Exercice 2",
        "type": "Corrigé",
-       "fichier": "3a67fab927cb08566d7fd718.bin",
-       "taille": 115041,
+       "fichier": "70152bdeae88483dea4cf5df.bin",
+       "taille": 114967,
        "pages": 2,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-2",
-        "wk": "D53t4qjuQzRSNGmeGTMkoXVqH8HOz32JB9UCn9+OTDbT+F8effxm5GcV48QGDssqvD3oPdKREuYUMq2q"
+        "wk": "R2zmi9FQ32cYSNu2hx+dhGCVanYTNBMgjOMJt6nQd2kS+ellqBsSIMal+9RF+KpboSD35U/ZedMaOaet"
        },
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 3",
+       "type": "Exercices",
+       "fichier": "8e85e6b4602436e8d88affcf.bin",
+       "taille": 104413,
+       "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 3 - coups de pouce",
        "type": "Exercices",
-       "fichier": "6137ff466ab2561778297c47.bin",
-       "taille": 69194,
+       "fichier": "356bbda6c00df05604d32fd8.bin",
+       "taille": 68936,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
-       "titre": "Corrigé élève exercice 3",
+       "titre": "Corrigé élève Exercice 3",
        "type": "Corrigé",
-       "fichier": "337e1c3316b676a7a5404ea4.bin",
-       "taille": 83044,
+       "fichier": "a77bf1af149b08579700d412.bin",
+       "taille": 82386,
        "pages": 2,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-3",
-        "wk": "yv2xjS4/pLI5yWCcQgPc4vM1X+bqHDl83LwKUCn6udsCgS3qVzgJb2ZiK5l/hOKkcojPeFv486Z9ldni"
+        "wk": "e8NvWiD5ctbQ0CKn19QPa4lI3iMqnE+1EOT+gsjf095HHDmx6elX5pTN+26PA4v2UJOPeRVleD7i/xGr"
        },
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 4",
+       "type": "Exercices",
+       "fichier": "2b5152adb3a657ea4cc14e50.bin",
+       "taille": 118978,
+       "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 4 - coups de pouce",
        "type": "Exercices",
-       "fichier": "2e3c62727bb0ada8f3ead527.bin",
-       "taille": 78600,
+       "fichier": "a54810b6be34826295d10c4e.bin",
+       "taille": 78624,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
-       "titre": "Corrigé élève exercice 4",
+       "titre": "Corrigé élève Exercice 4",
        "type": "Corrigé",
-       "fichier": "d17aae3ce00b87774a39a917.bin",
-       "taille": 102575,
+       "fichier": "f0290e9f869e0da039f6cd5e.bin",
+       "taille": 102476,
        "pages": 2,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-4",
-        "wk": "dz5K0MKkPnU+A9VXBQZrVp0HAIkF+llS+w6TSZN5+6Ct9jHgY10yoJsORzYZtGR4tvblqxIHFgEZsHdh"
+        "wk": "JeBdQ2DIVwwbYVqAgrT/cDtquEPocHjkCe1gPdwhoT6wjZ3g2W1Uxu9Rz0Q8liPioZDww9WW6YQWXT1a"
        },
        "rubrique": "Exercices"
       },
       {
-       "titre": "bilan",
+       "titre": "Bilan",
        "type": "Fiche",
-       "fichier": "096176589bb6a76643b6b1c5.bin",
-       "taille": 187770,
-       "pages": 6,
+       "fichier": "7da19ae96340c4d6c7655a10.bin",
+       "taille": 174126,
+       "pages": 5,
        "rubrique": "Réviser"
       },
       {

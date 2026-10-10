@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}#calc mjx-container,.fb mjx-container{display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden;vertical-align:middle}</style>
+<script>
+window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  chtml: { scale: 1.05 }, options: { enableMenu: false }, startup: { typeset: false } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js"></script>
+</head>
+<body>
+<title>Banc d'analyse spectrale</title>
+<style>
+/* Layout : un « banc de mesure » — oscilloscope + analyseur de spectre à gauche, pupitre à droite, cahier de questions dessous. */
+:root{
+  --bg:#F4F6F9; --panel:#ffffff; --ink:#16202e; --muted:#5b6778; --line:#d5dce6; --grid:#e7ecf2;
+  --trace:#C55A11; --input:#1F3864; --mark:#2E75B6; --band:rgba(47,111,214,.10); --ok:#1f8a4c; --okbg:#e6f5ec; --bad:#b4372b; --badbg:#fbeceb;
+  --chip:#eef2f7; --accent:#C55A11; --rec:#1f8a4c;
+  --f-display:Arial,Helvetica,sans-serif;
+  --f-body:Arial,Helvetica,sans-serif;
+  --f-mono:Arial,Helvetica,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --trace:#ff8a4c; --input:#6ea2ff; --mark:#6ea2ff; --band:rgba(110,162,255,.13); --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; --rec:#5fd08f; --h1:#e6ebf2; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --panel:#171e28; --ink:#e6ebf2; --muted:#9aa6b6; --line:#2a3442; --grid:#202a36;
+  --trace:#ff8a4c; --input:#6ea2ff; --mark:#6ea2ff; --band:rgba(110,162,255,.13); --ok:#5fd08f; --okbg:#15301f; --bad:#ff8173; --badbg:#3a1b18;
+  --chip:#202a36; --accent:#ff8a4c; --rec:#5fd08f; --h1:#e6ebf2; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.fac{color:var(--accent);font-style:italic}
+.duree{margin:0 0 12px;padding:8px 12px;border-left:4px solid var(--accent);background:var(--chip);font-size:.92rem}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:18px 40px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px}
+h1{color:var(--h1,#1F3864);font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2rem);margin:0;letter-spacing:.01em;text-wrap:balance}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
+@media (max-width:900px){.bench{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.scope{padding:12px 12px 8px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.scope-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.readout{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.5em}
+.readout b{color:var(--ink);font-weight:500}
+.inst{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 0 -4px}
+svg.plot{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair;border-radius:6px}
+svg.plot:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.pins{display:flex;flex-wrap:wrap;gap:6px}
+.pin{font-family:var(--f-mono);font-size:.78rem;background:var(--chip);border-radius:999px;padding:3px 6px 3px 10px;display:inline-flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+.pin button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:0 4px;line-height:1}
+.hint{font-size:.82rem;color:var(--muted)}
+.panel{padding:14px;display:flex;flex-direction:column;gap:14px;position:relative}
+.panel h2,.notebook h2{font-family:var(--f-display);font-size:1.05rem;margin:0;font-weight:600;letter-spacing:.02em}
+.group{display:flex;flex-direction:column;gap:8px}
+.lbl{font-size:.72rem;font-family:var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+input[type=text]{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{font:inherit;font-size:.82rem;padding:6px 4px;border:0;background:transparent;color:var(--ink);cursor:pointer;line-height:1.2}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+.slider{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center}
+.slider label{font-size:.88rem}
+.slider output{font-family:var(--f-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
+.slider input{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.checks label,.chk{font-size:.85rem;display:flex;gap:6px;align-items:flex-start;cursor:pointer}
+.checks input,.chk input{accent-color:var(--mark);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.stat{background:var(--chip);border-radius:6px;padding:6px 8px}
+.stat .k{font-size:.7rem;color:var(--muted);font-family:var(--f-mono)}
+.stat .v{font-family:var(--f-mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-size:.88rem;font-weight:500;border:1px solid var(--ink);background:var(--ink);color:var(--panel);border-radius:7px;padding:7px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:focus-visible,.seg button:focus-visible,.tab:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.locked{position:absolute;inset:0;background:var(--panel);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:.95rem}
+.notebook{padding:0;overflow:hidden}
+.tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tab{font:inherit;font-family:var(--f-display);font-weight:600;font-size:.98rem;padding:12px 16px;border:0;background:none;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabpanel{padding:16px}
+.parts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.85rem;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.situ{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--chip);border-radius:8px;padding:10px 12px;margin-block:12px}
+.situ p{margin:0;max-width:75ch}
+ol.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.q{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.q .qt{display:flex;gap:10px}
+.q .n{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);min-width:2.2em;padding-top:2px}
+.q .ans{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-left:calc(2.2em + 10px)}
+.q .ans input[type=text]{width:9em}
+.q .unit,.unit{font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.opts{display:flex;flex-direction:column;gap:4px;width:100%}
+.opts label{display:flex;gap:8px;align-items:flex-start;font-size:.92rem;cursor:pointer}
+.fb{margin-left:calc(2.2em + 10px);border-radius:6px;padding:8px 10px;font-size:.9rem}
+.fb.ok{background:var(--okbg);color:var(--ink);border-left:3px solid var(--ok)}
+.fb.bad{background:var(--badbg);color:var(--ink);border-left:3px solid var(--bad)}
+.q.done{border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.linkbtn{font:inherit;font-size:.82rem;border:0;background:none;color:var(--mark);cursor:pointer;padding:0;text-decoration:underline}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.form{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;max-width:480px}
+.form label{font-size:.9rem}
+.small{font-size:.82rem;color:var(--muted)}
+.harm{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 16px}
+.calc{background:var(--chip);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.85rem;line-height:1.7;font-variant-numeric:tabular-nums;overflow-x:auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">BTS CIRA · Physique industrielle · Nature des signaux, Fourier et THD</div>
+      <h1>Banc d'analyse spectrale</h1>
+    </div>
+    <div class="hint">Survole l'oscillogramme ou le spectre pour mesurer, clique pour noter un relevé. Chaque partie charge sa situation sur le banc.</div>
+  </header>
+
+  <section class="bench">
+    <div class="card scope">
+      <div class="scope-top">
+        <div class="readout" id="readout"></div>
+        <button class="btn ghost" id="clearPins" type="button">Effacer les relevés</button>
+      </div>
+      <div class="inst">Oscilloscope · signal temporel</div>
+      <svg class="plot" id="osc" viewBox="0 0 820 300" role="img" aria-label="Oscillogramme du signal" tabindex="0"></svg>
+      <div class="inst">Analyseur · spectre</div>
+      <svg class="plot" id="spec" viewBox="0 0 820 250" role="img" aria-label="Spectre du signal" tabindex="0"></svg>
+      <div class="pins" id="pins"></div>
+    </div>
+
+    <aside class="card panel" id="panel">
+      <div class="group">
+        <span class="lbl">Situation</span>
+        <select id="preset" aria-label="Signal étudié"></select>
+        <p class="small" id="presetTxt" style="margin:0"></p>
+      </div>
+      <div class="group" id="sliders"></div>
+      <div class="group" id="grpFilt">
+        <span class="lbl">Filtre RC passe-bas</span>
+        <label class="chk"><input type="checkbox" id="filtOn"> Placer le filtre en sortie (mesure après le filtre)</label>
+        <div class="slider" id="fcBox"><label for="sl-fc">Fréquence de coupure f<sub>c</sub></label><output id="o-fc"></output><input type="range" id="sl-fc" min="0" max="1000" step="1"></div>
+      </div>
+      <div class="group" id="grpNum">
+        <span class="lbl">Numérisation (carte d'entrée)</span>
+        <label class="chk"><input type="checkbox" id="echOn"> Échantillonner</label>
+        <div class="slider" id="feBox"><label for="sl-fe">Fréquence d'échantillonnage F<sub>e</sub></label><output id="o-fe"></output><input type="range" id="sl-fe"></div>
+        <label class="chk" id="qBox0"><input type="checkbox" id="quantOn"> Quantifier (CAN)</label>
+        <div class="slider" id="qBox"><label for="sl-bits">Résolution du CAN</label><output id="o-bits"></output><input type="range" id="sl-bits" min="1" max="12" step="1"></div>
+      </div>
+      <div class="group">
+        <span class="lbl">Affichage</span>
+        <div class="checks">
+          <label><input type="checkbox" id="noiseOn"> Bruit de mesure</label>
+          <label><input type="checkbox" id="ovFund"> Fondamental seul</label>
+          <label><input type="checkbox" id="ovRec"> Reconstitution</label>
+          <label><input type="checkbox" id="ovIn" checked> Entrée du filtre</label>
+        </div>
+        <div class="slider" id="recBox"><label for="sl-rec">Rangs utilisés pour la reconstitution</label><output id="o-rec"></output><input type="range" id="sl-rec" min="1" max="25" step="1"></div>
+        <div class="seg" role="group" aria-label="Grandeur affichée sur le spectre">
+          <button type="button" data-mode="max">Amplitudes (crête)</button>
+          <button type="button" data-mode="eff">Valeurs efficaces</button>
+        </div>
+        <label class="small" for="rmax">Rangs affichés sur le spectre</label>
+        <select id="rmax"><option value="9">jusqu'au rang 9</option><option value="15">jusqu'au rang 15</option><option value="25">jusqu'au rang 25</option><option value="50">jusqu'au rang 50</option></select>
+      </div>
+      <div class="group">
+        <span class="lbl">Mesures de l'analyseur</span>
+        <div class="stats" id="stats"></div>
+      </div>
+      <div class="locked" id="locked" hidden><div><strong>Réglages et mesures cachés</strong><br>Signal mystère en cours : mesure sur l'oscillogramme et sur le spectre.</div></div>
+    </aside>
+  </section>
+
+  <section class="card notebook">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-q" aria-selected="true" aria-controls="pane-q">Questions guidées</button>
+      <button class="tab" role="tab" id="tab-m" aria-selected="false" aria-controls="pane-m">Signal mystère ★</button>
+      <button class="tab" role="tab" id="tab-c" aria-selected="false" aria-controls="pane-c">Composer un signal ★</button>
+    </div>
+
+    <div class="tabpanel" id="pane-q" role="tabpanel">
+      <p class="duree"><strong>Durée : 1 h au maximum.</strong> Traite les parties A à E et note tes réponses sur ta fiche animation. Les questions ★ sont facultatives : fais-les seulement si tu as le temps. Les onglets « Signal mystère » et « Composer un signal » sont aussi facultatifs.</p>
+      <div class="parts">
+        <div class="chips" id="partChips"></div>
+      </div>
+      <div class="situ"><p id="partIntro"></p><div class="row"><span class="small" id="loaded" hidden>Situation chargée sur le banc</span><button class="btn" id="loadPart" type="button">Recharger la situation</button></div></div>
+      <ol class="qs" id="qs"></ol>
+    </div>
+
+    <div class="tabpanel" id="pane-m" role="tabpanel" hidden>
+      <div class="grid2">
+        <div>
+          <p style="margin-top:0">Un signal inconnu est appliqué à l'entrée du banc. Les réglages et les mesures de l'analyseur sont masqués : identifie sa forme et calcule ses grandeurs à partir de l'oscillogramme et des raies du spectre (affiché en amplitudes crête).</p>
+          <div class="row"><button class="btn" id="newMyst" type="button">Nouveau signal</button><button class="btn ghost" id="solMyst" type="button">Afficher la solution</button></div>
+          <p class="small" id="mystInfo"></p>
+        </div>
+        <form class="form" id="mystForm" autocomplete="off">
+          <label for="mForm">Forme du signal</label>
+          <select id="mForm"><option value="">— choisir —</option></select><span></span>
+          <label for="mF">Fréquence du fondamental</label><input type="text" id="mF" inputmode="decimal"><span class="unit">Hz</span>
+          <label for="mMoy">Valeur moyenne</label><input type="text" id="mMoy" inputmode="decimal"><span class="unit" id="mU1"></span>
+          <label for="mEff">Valeur efficace</label><input type="text" id="mEff" inputmode="decimal"><span class="unit" id="mU2"></span>
+          <label for="mThd">THD</label><input type="text" id="mThd" inputmode="decimal"><span class="unit">%</span>
+          <span></span><button class="btn" type="submit">Vérifier</button><span></span>
+        </form>
+      </div>
+      <div id="mystFb" style="margin-top:12px"></div>
+    </div>
+
+    <div class="tabpanel" id="pane-c" role="tabpanel" hidden>
+      <p style="margin-top:0">Théorème de Fourier à l'envers : construis un signal périodique (f = 1 kHz) en ajoutant une composante continue et des sinusoïdes de fréquences multiples de f. Une amplitude négative correspond à une sinusoïde déphasée de 180°. Le banc affiche le signal obtenu et son spectre.</p>
+      <div class="row" style="margin-bottom:12px">
+        <button class="btn ghost" type="button" data-comp="sin">Sinusoïde pure</button>
+        <button class="btn ghost" type="button" data-comp="car">Approcher un carré ±5 V</button>
+        <button class="btn ghost" type="button" data-comp="tri">Approcher un triangle ±5 V</button>
+        <button class="btn ghost" type="button" data-comp="zero">Tout à zéro</button>
+      </div>
+      <div class="grid2">
+        <div class="harm" id="harm"></div>
+        <div class="calc" id="calc"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s) => document.querySelector(s);
+const fmt = (v, d = 2) => {
+  if (!isFinite(v)) return '—';
+  const r = Math.round(v * 10 ** d) / 10 ** d;
+  return (Object.is(r, -0) ? 0 : r).toLocaleString('fr-FR', { maximumFractionDigits: d });
+};
+const sig = (v, n = 3) => {
+  if (!isFinite(v)) return '—';
+  if (Math.abs(v) < 1e-9) return '0';
+  const d = Math.max(0, n - 1 - Math.floor(Math.log10(Math.abs(v))));
+  return fmt(v, Math.min(d, 5));
+};
+const parseNum = (s) => { const v = parseFloat(String(s).replace(/\s/g, '').replace(',', '.')); return isFinite(v) ? v : NaN; };
+const fHz = (f) => f >= 1000 ? `${sig(f / 1000, 4)} kHz` : `${sig(f, 4)} Hz`;
+const SUB = '₀₁₂₃₄₅₆₇₈₉';
+const sub = (n) => String(n).split('').map((c) => SUB[+c]).join('');
+
+/* ---------- Situations ---------- */
+const PRESETS = {
+  mesure: { name: 'Mesure de niveau de la cuve (4–20 mA)', unit: 'V', periodic: false, can: [0, 10],
+    txt: 'Le transmetteur de niveau de la cuve d\'eau d\'alimentation débite 4 à 20 mA dans une résistance de 500 Ω : la tension mesurée (2 à 10 V) est numérisée par la carte d\'entrée de l\'automate (plage 0–10 V). Enregistrement sur 20 s.',
+    def: {}, sl: [] },
+  sinus: { name: 'GBF : sinusoïde', unit: 'V', periodic: true, can: [-10, 10],
+    txt: 'Signal d\'essai sinusoïdal délivré par le GBF : \\(s(t) = \\text{décalage} + A\\sin(2\\pi f t)\\).',
+    def: { A: 2, f: 1000, off: 0 }, sl: [['A', 'Amplitude A', [0.5, 10, 0.5], 'V'], ['f', 'Fréquence f', [100, 5000, 100], 'Hz'], ['off', 'Décalage (offset)', [-5, 5, 0.5], 'V']] },
+  carre: { name: 'GBF : signal carré ±A', unit: 'V', periodic: true, can: [-10, 10],
+    txt: 'Signal carré alterné symétrique, de +A à −A.',
+    def: { A: 5, f: 1000 }, sl: [['A', 'Amplitude A', [0.5, 10, 0.5], 'V'], ['f', 'Fréquence f', [100, 5000, 100], 'Hz']] },
+  triangle: { name: 'GBF : signal triangle ±A', unit: 'V', periodic: true, can: [-10, 10],
+    txt: 'Signal triangulaire alterné symétrique, de +A à −A.',
+    def: { A: 5, f: 1000 }, sl: [['A', 'Amplitude A', [0.5, 10, 0.5], 'V'], ['f', 'Fréquence f', [100, 5000, 100], 'Hz']] },
+  pwm: { name: 'Commande PWM de la vanne du brûleur', unit: 'V', periodic: true, can: [0, 10],
+    txt: 'L\'automate commande la vanne du brûleur par un signal rectangulaire 0 / A de rapport cyclique α.',
+    def: { A: 5, f: 1000, alpha: 0.5 }, sl: [['A', 'Niveau haut A', [1, 10, 0.5], 'V'], ['f', 'Fréquence f', [100, 5000, 100], 'Hz'], ['alpha', 'Rapport cyclique α', [0.05, 0.95, 0.05], '%']] },
+  redresse: { name: 'Tension redressée double alternance (alimentation 24 V)', unit: 'V', periodic: true,
+    txt: 'Le pont de diodes de l\'alimentation de l\'armoire redresse la tension secteur 50 Hz (avant lissage). La tension redressée a une période de 10 ms.',
+    def: { A: 34, f: 100 }, sl: [['A', 'Tension crête A', [10, 40, 1], 'V']] },
+  alim: { name: 'Courant absorbé par une alimentation à découpage', unit: 'A', periodic: true, eff: true,
+    txt: 'Alimentation à découpage 24 V de l\'armoire de régulation, branchée sur le secteur 230 V – 50 Hz : le condensateur d\'entrée ne se recharge qu\'au voisinage des crêtes de tension, d\'où des impulsions de courant.',
+    def: { A: 5, f: 50, cond: 60 }, sl: [['A', 'Courant crête Î', [1, 10, 0.5], 'A'], ['cond', 'Durée d\'une impulsion (angle de conduction)', [30, 180, 5], '°']] },
+  variateur: { name: 'Courant de ligne d\'un variateur (redresseur triphasé)', unit: 'A', periodic: true, eff: true,
+    txt: 'Variateur du ventilateur de tirage de la chaudière, alimenté en triphasé 400 V – 50 Hz : chaque phase absorbe des créneaux de courant de 120°. Une self de ligne adoucit les fronts.',
+    def: { A: 10, f: 50, mu: 0 }, sl: [['A', 'Courant I des créneaux', [2, 20, 1], 'A'], ['mu', 'Durée des fronts (self de ligne)', [0, 40, 5], '°']] },
+  compose: { name: 'Signal composé (onglet « Composer »)', unit: 'V', periodic: true, can: [-10, 10], hidden: true,
+    txt: 'Signal construit dans l\'onglet « Composer un signal » : composante continue + harmoniques de rangs 1 à 9, f = 1 kHz.',
+    def: { f: 1000, h: [0, 5, 0, 0, 0, 0, 0, 0, 0, 0] }, sl: [] },
+};
+const FORMS = { sinus: 'Sinusoïde', carre: 'Carré alterné ±A', triangle: 'Triangle alterné ±A', pwm: 'Rectangulaire 0 / A (PWM)', redresse: 'Redressée double alternance', alim: 'Impulsions de courant (alim. à découpage)', variateur: 'Créneaux de 120° (variateur)' };
+
+const st = { preset: 'carre', ...structuredClone(PRESETS.carre.def), filt: false, fc: 1000, ech: false, Fe: 20000, quant: false, bits: 3, noise: false, fund: false, rec: false, Nrec: 5, inp: true, mode: 'max', R: 15, pins: [], cur: null, mystery: null };
+
+/* ---------- Modèle : formes d'onde ---------- */
+function wave(k, th, p) {
+  th -= Math.floor(th);
+  switch (k) {
+    case 'sinus': return p.off + p.A * Math.sin(2 * Math.PI * th);
+    case 'carre': return th < 0.5 ? p.A : -p.A;
+    case 'triangle': return p.A * (th < 0.25 ? 4 * th : th < 0.75 ? 2 - 4 * th : 4 * th - 4);
+    case 'pwm': return th < p.alpha ? p.A : 0;
+    case 'redresse': return p.A * Math.abs(Math.sin(Math.PI * th));
+    case 'alim': { const w = p.cond / 360; let v = 0;
+      [[0.25, 1], [0.75, -1]].forEach(([c, s]) => { const x = (th - (c - w / 2)) / w; if (x >= 0 && x <= 1) v += s * p.A * Math.sin(Math.PI * x); }); return v; }
+    case 'variateur': { const mu = p.mu / 360; let v = 0;
+      [[0.25, 1], [0.75, -1]].forEach(([c, s]) => { const d = Math.abs(th - c); v += s * p.A * (mu > 0 ? Math.min(1, Math.max(0, (1 / 6 + mu / 2 - d) / mu)) : (d <= 1 / 6 ? 1 : 0)); }); return v; }
+    case 'compose': { let v = p.h[0]; for (let n = 1; n < p.h.length; n++) v += p.h[n] * Math.sin(2 * Math.PI * n * th); return v; }
+  }
+  return 0;
+}
+function mesure(t) {
+  return 6 + 2.0 * Math.sin(2 * Math.PI * 0.11 * t) + 0.8 * Math.sin(2 * Math.PI * 0.29 * t + 1.3) + 0.4 * Math.sin(2 * Math.PI * 0.63 * t + 0.4) + 0.15 * Math.sin(2 * Math.PI * 1.7 * t + 2);
+}
+
+/* ---------- Calcul : DFT, filtre, mesures ---------- */
+const NPP = 600, NP = 4, N = NPP * NP, KMAX = N / 2;
+const CO = new Float64Array(N), SI = new Float64Array(N);
+for (let i = 0; i < N; i++) { CO[i] = Math.cos(2 * Math.PI * i / N); SI[i] = Math.sin(2 * Math.PI * i / N); }
+function dft(x, kmax) {
+  const re = new Float64Array(kmax + 1), im = new Float64Array(kmax + 1);
+  for (let k = 0; k <= kmax; k++) { let r = 0, m = 0, idx = 0; for (let i = 0; i < N; i++) { r += x[i] * CO[idx]; m -= x[i] * SI[idx]; idx += k; if (idx >= N) idx -= N; } re[k] = r; im[k] = m; }
+  return { re, im };
+}
+function idft(re, im, kmax) {
+  const x = new Float64Array(N);
+  for (let i = 0; i < N; i++) { let v = re[0]; let idx = i; for (let k = 1; k <= kmax; k++) { const w = k === KMAX ? 1 : 2; v += w * (re[k] * CO[idx] - im[k] * SI[idx]); idx += i; if (idx >= N) idx -= N; } x[i] = v / N; }
+  return x;
+}
+let noiseArr = null, noiseSeed = 7;
+function gauss() { // Box-Muller sur un générateur reproductible
+  const r = () => { noiseSeed = (noiseSeed * 1664525 + 1013904223) >>> 0; return (noiseSeed + 0.5) / 4294967296; };
+  return Math.sqrt(-2 * Math.log(r())) * Math.cos(2 * Math.PI * r());
+}
+function newNoise() { noiseArr = new Float64Array(N); for (let i = 0; i < N; i++) noiseArr[i] = gauss(); }
+newNoise();
+const H = (f, fc) => { const x = f / fc; return [1 / (1 + x * x), -x / (1 + x * x)]; }; // 1/(1+jx)
+
+let C = null; // résultat du calcul courant
+function compute(p = st) {
+  const P = PRESETS[p.preset];
+  if (!P.periodic) {
+    const dt = 20 / N, x = new Float64Array(N);
+    for (let i = 0; i < N; i++) x[i] = mesure((i + 0.5) * dt) + (p.noise ? 0.12 * noiseArr[i] : 0);
+    // spectre continu : fenêtre de Hann
+    let m0 = 0; for (let i = 0; i < N; i++) m0 += x[i]; m0 /= N;
+    const w = new Float64Array(N); let sw = 0; for (let i = 0; i < N; i++) { const h = 0.5 - 0.5 * Math.cos(2 * Math.PI * (i + 0.5) / N); w[i] = (x[i] - m0) * h; sw += h; }
+    const kmax = 80, D = dft(w, kmax), bins = [];
+    for (let k = 0; k <= kmax; k++) bins.push({ f: k / 20, a: (k ? 2 : 1) * Math.hypot(D.re[k], D.im[k]) / sw });
+    let s1 = 0, s2 = 0, mn = Infinity, mx = -Infinity; for (let i = 0; i < N; i++) { s1 += x[i]; s2 += x[i] * x[i]; mn = Math.min(mn, x[i]); mx = Math.max(mx, x[i]); }
+    return { periodic: false, x, s: x, dt, Tw: 20, bins, mean: s1 / N, rms: Math.sqrt(s2 / N), min: mn, max: mx };
+  }
+  const x = new Float64Array(N);
+  let amp = 0;
+  for (let i = 0; i < N; i++) { x[i] = wave(p.preset, (i + 0.5) / NPP, p); amp = Math.max(amp, Math.abs(x[i])); }
+  if (p.noise) for (let i = 0; i < N; i++) x[i] += 0.04 * amp * noiseArr[i];
+  const kmax = p.filt ? KMAX : 4 * 50 + 4;
+  const D = dft(x, kmax);
+  let Y = D, s = x;
+  if (p.filt) {
+    const re = new Float64Array(kmax + 1), im = new Float64Array(kmax + 1);
+    for (let k = 0; k <= kmax; k++) { const [a, b] = H(k * p.f / NP, p.fc); re[k] = D.re[k] * a - D.im[k] * b; im[k] = D.re[k] * b + D.im[k] * a; }
+    Y = { re, im }; s = idft(re, im, kmax);
+  }
+  const ampOf = (Z, k) => (k ? 2 : 1) * Math.hypot(Z.re[k], Z.im[k]) / N;
+  const harm = [], harmIn = [];
+  for (let n = 0; n <= 50; n++) { harm.push(ampOf(Y, NP * n)); harmIn.push(ampOf(D, NP * n)); }
+  harm[0] = Y.re[0] / N; harmIn[0] = D.re[0] / N; // composante continue avec son signe
+  const between = [];
+  if (p.noise) for (let k = 1; k <= 4 * 50; k++) if (k % NP) between.push({ k, a: ampOf(Y, k) });
+  let s1 = 0, s2 = 0, mx = 0;
+  for (let i = 0; i < N; i++) { s1 += s[i]; s2 += s[i] * s[i]; mx = Math.max(mx, Math.abs(s[i])); }
+  const mean = s1 / N, rms = Math.sqrt(s2 / N);
+  let ad = 0; for (let i = 0; i < N; i++) ad += Math.abs(s[i] - mean);
+  let hs = 0; for (let n = 2; n <= 50; n++) hs += harm[n] ** 2;
+  const thd = harm[1] > 1e-6 * Math.max(rms, 1e-9) ? Math.sqrt(hs) / harm[1] : NaN;
+  return { periodic: true, x, s, Y, D, harm, harmIn, between, mean, rms, pince: 1.11 * ad / N, fcrete: rms > 0 ? mx / rms : NaN, thd, T: 1000 / p.f };
+}
+const recAt = (Z, i, nmax) => { let v = Z.re[0] / N; for (let n = 1; n <= nmax; n++) { const k = NP * n, idx = (k * i) % N; v += 2 * (Z.re[k] * CO[idx] - Z.im[k] * SI[idx]) / N; } return v; };
+function quantize(v, p) { const [lo, hi] = PRESETS[p.preset].can, L = 2 ** p.bits, q = (hi - lo) / L; return lo + q * Math.min(L - 1, Math.max(0, Math.floor((v - lo) / q))); }
+
+/* ---------- Tracés ---------- */
+const osc = $('#osc'), spec = $('#spec');
+const G = { L: 70, R: 806 };
+function niceStep(range, n = 6) { const raw = range / n; const e = 10 ** Math.floor(Math.log10(raw)); const m = raw / e; return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * e; }
+let geoO = null, geoS = null;
+function sampleAt(t) { // valeur du signal mesuré à l'instant t (interpolation)
+  const per = C.periodic, n = N; const dt = per ? C.T / NPP : C.dt;
+  let u = t / dt - 0.5; if (per) { u = ((u % N) + N) % N; } else u = Math.min(Math.max(u, 0), N - 1);
+  const i0 = Math.floor(u), i1 = (i0 + 1) % n, a = u - i0; return C.s[i0] * (1 - a) + C.s[Math.min(i1, n - 1)] * a;
+}
+function samples(p) {
+  const Tw = C.periodic ? 2 * C.T : C.Tw, Te = C.periodic ? 1000 / p.Fe : 1 / p.Fe, out = [];
+  for (let k = 0; k * Te <= Tw + 1e-9; k++) { const t = k * Te; let v = sampleAt(t); if (p.quant && PRESETS[p.preset].can) v = quantize(v, p); out.push({ k, t, v }); }
+  return out;
+}
+function drawOsc() {
+  const p = st, P = PRESETS[p.preset], per = C.periodic, top = 18, bottom = 250, Hh = bottom - top;
+  const Tw = per ? 2 * C.T : C.Tw, tu = per ? 'ms' : 's', nPts = per ? 2 * NPP : N;
+  const tAt = (i) => per ? (i + 0.5) * C.T / NPP : (i + 0.5) * C.dt;
+  const series = [{ y: Array.from({ length: nPts }, (_, i) => C.s[i]), col: 'var(--trace)', w: 2.4 }];
+  if (per && p.filt && p.inp && !p.mystery) series.unshift({ y: Array.from({ length: nPts }, (_, i) => C.x[i]), col: 'var(--input)', w: 1.4, op: 0.55 });
+  if (per && p.rec && !p.mystery) series.push({ y: Array.from({ length: nPts }, (_, i) => recAt(C.Y, i, p.Nrec)), col: 'var(--rec)', w: 2, dash: '0' });
+  if (per && p.fund && !p.mystery) series.push({ y: Array.from({ length: nPts }, (_, i) => recAt(C.Y, i, 1) - C.Y.re[0] / N), col: 'var(--mark)', w: 1.6, dash: '6 4' });
+  let lo = Infinity, hi = -Infinity; series.forEach((s) => s.y.forEach((v) => { lo = Math.min(lo, v); hi = Math.max(hi, v); }));
+  const qOn = p.quant && P.can && !p.mystery;
+  if (qOn) { lo = Math.min(lo, P.can[0]); hi = Math.max(hi, P.can[1]); }
+  if (lo > 0) lo = 0; if (hi < 0) hi = 0;
+  const pad = (hi - lo) * 0.06 || 1; let ylo = lo - (lo < 0 ? pad : 0), yhi = hi + pad;
+  const ys = niceStep(yhi - ylo, 6); ylo = Math.floor(ylo / ys + 1e-9) * ys; yhi = Math.ceil(yhi / ys - 1e-9) * ys;
+  const xs = niceStep(Tw, 8);
+  const X = (t) => G.L + (t / Tw) * (G.R - G.L), Y = (v) => bottom - ((v - ylo) / (yhi - ylo)) * Hh;
+  geoO = { X, Y, Tw, tu, top, bottom };
+  const o = [`<rect x="0" y="0" width="820" height="300" fill="var(--panel)"/>`];
+  for (let v = ylo; v <= yhi + ys / 2; v += ys) o.push(`<line x1="${G.L}" x2="${G.R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${G.L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)" font-family="var(--f-mono)">${sig(v, 4)}</text>`);
+  for (let t = 0; t <= Tw + xs / 2; t += xs) o.push(`<line x1="${X(t)}" x2="${X(t)}" y1="${top}" y2="${bottom}" stroke="var(--grid)"/><text x="${X(t)}" y="${bottom + 18}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--f-mono)">${sig(t, 4)}</text>`);
+  if (qOn) { const L = 2 ** p.bits, q = (P.can[1] - P.can[0]) / L; if (L <= 64) for (let j = 0; j <= L; j++) o.push(`<line x1="${G.L}" x2="${G.R}" y1="${Y(P.can[0] + j * q)}" y2="${Y(P.can[0] + j * q)}" stroke="var(--mark)" opacity=".18"/>`); }
+  o.push(`<line x1="${G.L}" x2="${G.R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--muted)"/><line x1="${G.L}" x2="${G.L}" y1="${top}" y2="${bottom}" stroke="var(--muted)"/>`);
+  o.push(`<text x="${G.R}" y="${bottom + 40}" text-anchor="end" font-size="13" fill="var(--muted)">temps t (${tu})</text>`);
+  o.push(`<text x="${G.L + 6}" y="${top + 2}" font-size="13" fill="var(--trace)" font-weight="600">${P.unit === 'A' ? 'courant i' : 'tension u'} (${P.unit})${p.filt && per ? ' en sortie du filtre' : ''}</text>`);
+  series.forEach((s) => {
+    let d = ''; s.y.forEach((v, i) => { d += (i ? 'L' : 'M') + X(tAt(i)).toFixed(1) + ',' + Y(v).toFixed(1); });
+    const isMain = s.col === 'var(--trace)';
+    o.push(`<path d="${d}" fill="none" stroke="${s.col}" stroke-width="${s.w}" ${s.dash ? `stroke-dasharray="${s.dash}"` : ''} opacity="${isMain && (p.ech || qOn) ? 0.3 : (s.op || 1)}" stroke-linejoin="round"/>`);
+  });
+  if (qOn && !p.ech) { let d = ''; for (let i = 0; i < nPts; i++) d += (i ? 'L' : 'M') + X(tAt(i)).toFixed(1) + ',' + Y(quantize(C.s[i], p)).toFixed(1); o.push(`<path d="${d}" fill="none" stroke="var(--trace)" stroke-width="2.2"/>`); }
+  if (p.ech && !p.mystery) {
+    const sm = samples(p); let hold = '';
+    sm.forEach((q, i) => { o.push(`<line x1="${X(q.t)}" x2="${X(q.t)}" y1="${Y(0)}" y2="${Y(q.v)}" stroke="var(--trace)" stroke-width="1.4"/><circle cx="${X(q.t)}" cy="${Y(q.v)}" r="3.2" fill="var(--trace)"/>`);
+      if (qOn) { const t2 = Math.min(Tw, i + 1 < sm.length ? sm[i + 1].t : Tw); hold += `M${X(q.t)},${Y(q.v)}H${X(t2)}`; } });
+    if (hold) o.push(`<path d="${hold}" fill="none" stroke="var(--trace)" stroke-width="2"/>`);
+  }
+  const leg = [];
+  if (per && p.filt && p.inp && !p.mystery) leg.push(['var(--input)', 'entrée du filtre']);
+  if (per && p.rec && !p.mystery) leg.push(['var(--rec)', `reconstitution (rangs 0 à ${p.Nrec})`]);
+  if (per && p.fund && !p.mystery) leg.push(['var(--mark)', 'fondamental']);
+  leg.forEach(([c, t], i) => o.push(`<line x1="${G.R - 210}" x2="${G.R - 186}" y1="${top + 4 + i * 16}" y2="${top + 4 + i * 16}" stroke="${c}" stroke-width="3"/><text x="${G.R - 180}" y="${top + 8 + i * 16}" font-size="12" fill="var(--ink)">${t}</text>`));
+  st.pins.filter((q) => q.kind === 't').forEach((q) => { o.push(`<circle cx="${X(q.x)}" cy="${Y(q.v)}" r="4.5" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="${X(q.x) + 7}" y="${Y(q.v) - 7}" font-size="11" fill="var(--ink)" font-family="var(--f-mono)">${q.id}</text>`); });
+  if (st.cur && st.cur.kind === 't') { const t = st.cur.x, v = st.cur.v;
+    o.push(`<line x1="${X(t)}" x2="${X(t)}" y1="${top}" y2="${bottom}" stroke="var(--ink)" opacity=".45"/><line x1="${G.L}" x2="${G.R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ink)" opacity=".25"/><circle cx="${X(t)}" cy="${Y(v)}" r="5" fill="var(--ink)"/>`); }
+  osc.innerHTML = o.join('');
+}
+function specVal(n) { const a = C.harm[n]; return n === 0 ? Math.abs(a) : (st.mode === 'eff' && !st.mystery ? a / Math.SQRT2 : a); }
+function specValIn(n) { const a = C.harmIn[n]; return n === 0 ? Math.abs(a) : (st.mode === 'eff' && !st.mystery ? a / Math.SQRT2 : a); }
+function drawSpec() {
+  const p = st, P = PRESETS[p.preset], top = 20, bottom = 192, Hh = bottom - top, o = [`<rect x="0" y="0" width="820" height="250" fill="var(--panel)"/>`];
+  const eff = p.mode === 'eff' && !p.mystery;
+  if (!C.periodic) {
+    const fmax = 3, bins = C.bins.filter((b) => b.f <= fmax);
+    let hi = Math.max(...bins.slice(1).map((b) => b.a)); const ys = niceStep(hi * 1.1, 4), yhi = Math.ceil(hi * 1.1 / ys) * ys;
+    const X = (f) => G.L + f / fmax * (G.R - G.L), Y = (v) => bottom - Math.min(v, yhi) / yhi * Hh;
+    geoS = { X, Y, fmax, per: false };
+    for (let v = 0; v <= yhi + ys / 2; v += ys) o.push(`<line x1="${G.L}" x2="${G.R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${G.L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)" font-family="var(--f-mono)">${sig(v, 3)}</text>`);
+    for (let f = 0; f <= fmax + 1e-9; f += 0.5) o.push(`<text x="${X(f)}" y="${bottom + 18}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--f-mono)">${fmt(f, 1)}</text>`);
+    const w = (G.R - G.L) / (fmax * 20);
+    bins.slice(1).forEach((b) => o.push(`<rect x="${X(b.f) - w / 2}" y="${Y(b.a)}" width="${w}" height="${bottom - Y(b.a)}" fill="var(--trace)" opacity=".85"/>`));
+    o.push(`<text x="${G.L + 6}" y="${top - 4}" font-size="12" fill="var(--muted)">composante continue : ${sig(C.mean, 3)} V (hors échelle)</text>`);
+    o.push(`<line x1="${G.L}" x2="${G.R}" y1="${bottom}" y2="${bottom}" stroke="var(--muted)"/><line x1="${G.L}" x2="${G.L}" y1="${top}" y2="${bottom}" stroke="var(--muted)"/>`);
+    o.push(`<text x="${G.R}" y="${bottom + 40}" text-anchor="end" font-size="13" fill="var(--muted)">fréquence (Hz)</text>`);
+    spec.innerHTML = o.join(''); return;
+  }
+  const R = p.mystery ? 15 : p.R, f = p.f;
+  let hi = 0; for (let n = 0; n <= R; n++) { hi = Math.max(hi, specVal(n)); if (p.filt) hi = Math.max(hi, specValIn(n)); }
+  hi = hi || 1; const ys = niceStep(hi * 1.12, 4), yhi = Math.ceil(hi * 1.12 / ys) * ys;
+  const X = (n) => G.L + 14 + n / R * (G.R - G.L - 28), Y = (v) => bottom - v / yhi * Hh;
+  geoS = { X, Y, R, per: true };
+  for (let v = 0; v <= yhi + ys / 2; v += ys) o.push(`<line x1="${G.L}" x2="${G.R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${G.L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)" font-family="var(--f-mono)">${sig(v, 3)}</text>`);
+  const bw = Math.min(16, (G.R - G.L) / R * 0.45);
+  if (p.noise) C.between.forEach((b) => { if (b.k <= NP * R) { const n = b.k / NP, a = eff ? b.a / Math.SQRT2 : b.a; o.push(`<line x1="${X(n)}" x2="${X(n)}" y1="${bottom}" y2="${Y(a)}" stroke="var(--muted)" stroke-width="1.2"/>`); } });
+  const lblEvery = R <= 25 ? 1 : 5;
+  for (let n = 0; n <= R; n++) {
+    const v = specVal(n);
+    if (p.filt && !p.mystery) { const vi = specValIn(n); if (vi > yhi * 0.002) o.push(`<rect x="${X(n) - bw / 2}" y="${Y(vi)}" width="${bw}" height="${bottom - Y(vi)}" fill="none" stroke="var(--input)" stroke-dasharray="3 2"/>`); }
+    if (v > yhi * 0.002) o.push(`<rect x="${X(n) - bw / 2}" y="${Y(v)}" width="${bw}" height="${bottom - Y(v)}" fill="${n === 0 ? 'var(--muted)' : n === 1 ? 'var(--mark)' : 'var(--trace)'}"/>`);
+    if (n % lblEvery === 0) o.push(`<text x="${X(n)}" y="${bottom + 16}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--f-mono)">${n}</text>`);
+  }
+  const fl = R <= 9 ? [1, 3, 5, 7, 9] : R <= 15 ? [1, 5, 10, 15] : R <= 25 ? [1, 5, 10, 15, 20, 25] : [1, 10, 20, 30, 40, 50];
+  fl.filter((n) => n <= R).forEach((n) => o.push(`<text x="${X(n)}" y="${bottom + 31}" text-anchor="middle" font-size="11" fill="var(--muted)">${fHz(n * f)}</text>`));
+  o.push(`<line x1="${G.L}" x2="${G.R}" y1="${bottom}" y2="${bottom}" stroke="var(--muted)"/><line x1="${G.L}" x2="${G.L}" y1="${top}" y2="${bottom}" stroke="var(--muted)"/>`);
+  o.push(`<text x="${G.L - 60}" y="${bottom + 16}" font-size="11" fill="var(--muted)">rang n</text><text x="${G.L - 60}" y="${bottom + 31}" font-size="11" fill="var(--muted)">n·f</text>`);
+  o.push(`<text x="${G.L + 6}" y="${top - 6}" font-size="12" fill="var(--trace)" font-weight="600">${eff ? 'valeur efficace' : 'amplitude crête'} de chaque raie (${P.unit})</text>`);
+  if (p.filt && !p.mystery) o.push(`<rect x="${G.R - 190}" y="${top - 16}" width="12" height="10" fill="none" stroke="var(--input)" stroke-dasharray="3 2"/><text x="${G.R - 172}" y="${top - 7}" font-size="12" fill="var(--ink)">raies en entrée du filtre</text>`);
+  st.pins.filter((q) => q.kind === 'n').forEach((q) => { if (q.x <= R) o.push(`<text x="${X(q.x)}" y="${Y(specVal(q.x)) - 6}" text-anchor="middle" font-size="11" fill="var(--ink)" font-family="var(--f-mono)">${q.id}</text>`); });
+  if (st.cur && st.cur.kind === 'n') { const n = st.cur.x; o.push(`<rect x="${X(n) - bw / 2 - 4}" y="${top}" width="${bw + 8}" height="${bottom - top}" fill="var(--band)"/>`); }
+  spec.innerHTML = o.join('');
+}
+function draw() { C = compute(); drawOsc(); drawSpec(); drawStats(); updateReadout(); if (!$('#pane-c').hidden) drawCalc(); }
+
+function updateReadout() {
+  const P = PRESETS[st.preset], c = st.cur;
+  if (!c) { $('#readout').innerHTML = 'Curseur : survole l\'oscillogramme ou le spectre (flèches ← → au clavier, Entrée pour noter)'; return; }
+  if (c.kind === 't') $('#readout').innerHTML = `${c.k != null ? `échantillon n° ${c.k} · ` : ''}t = <b>${sig(c.x, 4)} ${geoO.tu}</b>&nbsp;&nbsp;·&nbsp;&nbsp;${P.unit === 'A' ? 'i' : 'u'} = <b>${sig(c.v, 4)} ${P.unit}</b>`;
+  else if (c.kind === 'n') $('#readout').innerHTML = `rang <b>${c.x}</b> · f = <b>${fHz(c.x * st.f)}</b>&nbsp;&nbsp;·&nbsp;&nbsp;${c.x === 0 ? 'composante continue S₀' : `S${sub(c.x)}`} = <b>${sig(c.x === 0 ? C.harm[0] : specVal(c.x), 3)} ${P.unit}</b>${c.x ? (st.mode === 'eff' && !st.mystery ? ' (efficace)' : ' (crête)') : ''}`;
+  else $('#readout').innerHTML = `f = <b>${sig(c.x, 3)} Hz</b>&nbsp;&nbsp;·&nbsp;&nbsp;amplitude = <b>${sig(c.v, 3)} V</b>`;
+}
+function drawStats() {
+  const p = st, P = PRESETS[p.preset], u = P.unit;
+  if (p.mystery) { $('#stats').innerHTML = ''; return; }
+  let items;
+  if (!C.periodic) items = [['Valeur moyenne', `${sig(C.mean, 3)} ${u}`], ['Valeur efficace', `${sig(C.rms, 3)} ${u}`], ['Minimum', `${sig(C.min, 3)} ${u}`], ['Maximum', `${sig(C.max, 3)} ${u}`], ['THD', 'non périodique']];
+  else {
+    const s1 = C.harm[1], effm = p.mode === 'eff';
+    items = [['Valeur moyenne', `${sig(C.mean, 3)} ${u}`], ['Valeur efficace (True RMS)', `${sig(C.rms, 3)} ${u}`],
+      ['Appareil non True RMS', `${sig(C.pince, 3)} ${u}`], ['Facteur de crête', sig(C.fcrete, 3)],
+      [`Fondamental S₁ (${effm ? 'eff.' : 'crête'})`, `${sig(effm ? s1 / Math.SQRT2 : s1, 3)} ${u}`], ['THD (rangs 2 à 50)', isFinite(C.thd) ? `${sig(100 * C.thd, 3)} %` : '— (pas de fondamental)']];
+    if (p.filt) { const [a, b] = H(p.f, p.fc), g = Math.hypot(a, b); items.push([`Gain du filtre à f`, `${sig(g, 3)}`], ['Soit, en décibels', `${sig(20 * Math.log10(g), 3)} dB`]); }
+  }
+  if (p.quant && P.can) { const q = (P.can[1] - P.can[0]) / 2 ** p.bits; items.push([`CAN ${p.bits} bits : niveaux`, String(2 ** p.bits)], ['Quantum q', q >= 0.1 ? `${sig(q, 3)} V` : `${sig(q * 1000, 3)} mV`]); }
+  $('#stats').innerHTML = items.map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+}
+
+/* ---------- Pupitre ---------- */
+const FC_LO = 0, FC_HI = Math.log10(50000);
+const fcToSl = (fc) => Math.round((Math.log10(fc) - FC_LO) / (FC_HI - FC_LO) * 1000), slToFc = (v) => 10 ** (FC_LO + v / 1000 * (FC_HI - FC_LO));
+function buildPanel() {
+  const P = PRESETS[st.preset];
+  $('#sliders').innerHTML = P.sl.length ? `<span class="lbl">Réglages</span>` + P.sl.map(([k, l, r]) => `<div class="slider"><label for="sl-${k}">${l}</label><output id="o-${k}"></output><input type="range" id="sl-${k}" min="${r[0]}" max="${r[1]}" step="${r[2]}" value="${st[k]}"></div>`).join('') : '';
+  P.sl.forEach(([k, , , u]) => { const el = $('#sl-' + k), o = $('#o-' + k); const upd = () => { const v = +el.value; o.textContent = u === '%' ? `${fmt(v * 100, 0)} %` : u === 'Hz' ? fHz(v) : `${sig(v, 3)} ${u}`; }; upd();
+    el.addEventListener('input', () => { st[k] = +el.value; if (k === 'f') st.Fe = clampFe(st.Fe); upd(); buildNum(); draw(); }); });
+  $('#grpFilt').hidden = !P.periodic;
+  $('#filtOn').checked = st.filt; $('#fcBox').hidden = !st.filt; $('#sl-fc').value = fcToSl(st.fc); $('#o-fc').textContent = fHz(st.fc);
+  buildNum();
+  $('#noiseOn').checked = st.noise; $('#ovFund').checked = st.fund; $('#ovRec').checked = st.rec; $('#ovIn').checked = st.inp;
+  ['#ovFund', '#ovRec', '#ovIn'].forEach((s) => $(s).closest('label').hidden = !P.periodic);
+  $('#ovIn').closest('label').hidden = !P.periodic || !st.filt;
+  $('#recBox').hidden = !P.periodic || !st.rec; $('#sl-rec').value = st.Nrec; $('#o-rec').textContent = `0 à ${st.Nrec}`;
+  document.querySelectorAll('[data-mode]').forEach((b) => { b.setAttribute('aria-pressed', String(b.dataset.mode === st.mode)); b.disabled = !P.periodic; });
+  $('#rmax').value = String(st.R); $('#rmax').disabled = !P.periodic;
+  $('#presetTxt').textContent = P.txt;
+  $('#preset').value = st.preset;
+}
+function feRange() { const P = PRESETS[st.preset]; return P.periodic ? [2 * st.f, 50 * st.f, st.f] : [0.5, 10, 0.5]; }
+function clampFe(v) { const [a, b, s] = feRange(); return Math.min(b, Math.max(a, Math.round(v / s) * s)); }
+function buildNum() {
+  const P = PRESETS[st.preset], [a, b, s] = feRange(), fe = $('#sl-fe');
+  fe.min = a; fe.max = b; fe.step = s; fe.value = st.Fe;
+  $('#o-fe').textContent = `${fHz(st.Fe)}${P.periodic ? ` (${fmt(st.Fe / st.f, 0)} points par période)` : ` (Tₑ = ${sig(1 / st.Fe, 3)} s)`}`;
+  $('#echOn').checked = st.ech; $('#feBox').hidden = !st.ech;
+  $('#qBox0').hidden = !P.can; $('#quantOn').checked = st.quant; $('#qBox').hidden = !P.can || !st.quant;
+  $('#sl-bits').value = st.bits; $('#o-bits').textContent = `${st.bits} bit${st.bits > 1 ? 's' : ''} → ${2 ** st.bits} niveaux`;
+}
+$('#preset').innerHTML = Object.entries(PRESETS).map(([k, v]) => `<option value="${k}" ${v.hidden ? 'disabled' : ''}>${v.name}</option>`).join('');
+$('#preset').addEventListener('change', (e) => load(e.target.value));
+$('#filtOn').addEventListener('change', (e) => { st.filt = e.target.checked; buildPanel(); draw(); });
+$('#sl-fc').addEventListener('input', (e) => { st.fc = slToFc(+e.target.value); $('#o-fc').textContent = fHz(st.fc); draw(); });
+$('#echOn').addEventListener('change', (e) => { st.ech = e.target.checked; buildNum(); draw(); });
+$('#sl-fe').addEventListener('input', (e) => { st.Fe = +e.target.value; buildNum(); draw(); });
+$('#quantOn').addEventListener('change', (e) => { st.quant = e.target.checked; buildNum(); draw(); });
+$('#sl-bits').addEventListener('input', (e) => { st.bits = +e.target.value; buildNum(); draw(); });
+$('#noiseOn').addEventListener('change', (e) => { st.noise = e.target.checked; if (st.noise) newNoise(); draw(); });
+$('#ovFund').addEventListener('change', (e) => { st.fund = e.target.checked; draw(); });
+$('#ovRec').addEventListener('change', (e) => { st.rec = e.target.checked; buildPanel(); draw(); });
+$('#ovIn').addEventListener('change', (e) => { st.inp = e.target.checked; draw(); });
+$('#sl-rec').addEventListener('input', (e) => { st.Nrec = +e.target.value; $('#o-rec').textContent = `0 à ${st.Nrec}`; draw(); });
+document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { st.mode = b.dataset.mode; buildPanel(); draw(); }));
+$('#rmax').addEventListener('change', (e) => { st.R = +e.target.value; draw(); });
+
+function load(preset, over = {}) {
+  const P = PRESETS[preset];
+  const keepH = preset === 'compose' && st.h ? st.h : null;
+  st.preset = preset;
+  Object.assign(st, structuredClone(P.def), { filt: false, fc: 1000, ech: false, quant: false, bits: 3, noise: false, fund: false, rec: false, Nrec: 5, inp: true, mode: P.eff ? 'eff' : 'max', R: P.periodic && P.eff ? 15 : 15 });
+  if (keepH) st.h = keepH;
+  st.Fe = P.periodic ? 20 * st.f : 2;
+  Object.assign(st, over);
+  st.Fe = clampFe(st.Fe);
+  st.pins = []; st.cur = null; renderPins(); buildPanel(); draw();
+}
+
+/* ---------- Curseurs & relevés ---------- */
+let pinId = 0;
+function locOf(svg, ev) { const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+function curOsc(t) {
+  t = Math.min(Math.max(t, 0), geoO.Tw);
+  if (st.ech && !st.mystery) { const sm = samples(st); let b = sm[0]; sm.forEach((q) => { if (Math.abs(q.t - t) < Math.abs(b.t - t)) b = q; }); return { kind: 't', x: b.t, v: b.v, k: b.k }; }
+  let v = sampleAt(t); if (st.quant && PRESETS[st.preset].can && !st.mystery) v = quantize(v, st);
+  return { kind: 't', x: t, v };
+}
+function curSpec(xpx) {
+  if (!geoS.per) { const f = Math.min(Math.max((xpx - G.L) / (G.R - G.L) * geoS.fmax, 0), geoS.fmax); const b = C.bins[Math.round(f * 20)]; return { kind: 'f', x: b.f, v: b.a }; }
+  const n = Math.min(geoS.R, Math.max(0, Math.round((xpx - G.L - 14) / (G.R - G.L - 28) * geoS.R))); return { kind: 'n', x: n };
+}
+osc.addEventListener('pointermove', (e) => { const l = locOf(osc, e); st.cur = curOsc((l.x - G.L) / (G.R - G.L) * geoO.Tw); drawOsc(); drawSpec(); updateReadout(); });
+spec.addEventListener('pointermove', (e) => { st.cur = curSpec(locOf(spec, e).x); drawOsc(); drawSpec(); updateReadout(); });
+[osc, spec].forEach((s) => s.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { st.cur = null; drawOsc(); drawSpec(); updateReadout(); } }));
+osc.addEventListener('click', (e) => { const l = locOf(osc, e); addPin(curOsc((l.x - G.L) / (G.R - G.L) * geoO.Tw)); });
+spec.addEventListener('click', (e) => addPin(curSpec(locOf(spec, e).x)));
+osc.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const step = geoO.Tw / 400 * (e.shiftKey ? 10 : 1); const t0 = st.cur && st.cur.kind === 't' ? st.cur.x : 0;
+    st.cur = curOsc(st.ech ? t0 + (e.key === 'ArrowRight' ? 1 : -1) * (C.periodic ? 1000 : 1) / st.Fe : t0 + (e.key === 'ArrowRight' ? step : -step)); drawOsc(); drawSpec(); updateReadout(); }
+  if (e.key === 'Enter' && st.cur && st.cur.kind === 't') addPin(st.cur);
+});
+spec.addEventListener('keydown', (e) => {
+  if (!geoS.per) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const n0 = st.cur && st.cur.kind === 'n' ? st.cur.x : 0; st.cur = { kind: 'n', x: Math.min(geoS.R, Math.max(0, n0 + (e.key === 'ArrowRight' ? 1 : -1))) }; drawOsc(); drawSpec(); updateReadout(); }
+  if (e.key === 'Enter' && st.cur && st.cur.kind === 'n') addPin(st.cur);
+});
+function addPin(c) {
+  if (!c) return; if (st.pins.length >= 10) st.pins.shift();
+  const P = PRESETS[st.preset], q = { ...c, id: ++pinId };
+  if (c.kind === 'n') { q.v = c.x === 0 ? C.harm[0] : specVal(c.x); q.eff = st.mode === 'eff' && !st.mystery; }
+  st.pins.push(q); renderPins(); drawOsc(); drawSpec();
+}
+function pinTxt(q) {
+  const u = PRESETS[st.preset].unit;
+  if (q.kind === 't') return `${q.k != null ? `éch. ${q.k} · ` : ''}t = ${sig(q.x, 4)} ${geoO.tu} ; ${sig(q.v, 4)} ${u}`;
+  if (q.kind === 'n') return `rang ${q.x} (${fHz(q.x * st.f)}) : ${sig(q.v, 3)} ${u}${q.x ? (q.eff ? ' eff.' : ' crête') : ''}`;
+  return `f = ${sig(q.x, 3)} Hz : ${sig(q.v, 3)} V`;
+}
+function renderPins() {
+  $('#pins').innerHTML = st.pins.map((q, i) => `<span class="pin">${q.id} · ${pinTxt(q)}<button type="button" data-i="${i}" aria-label="Supprimer le relevé ${q.id}">×</button></span>`).join('');
+  $('#pins').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { st.pins.splice(+b.dataset.i, 1); renderPins(); drawOsc(); drawSpec(); }));
+}
+$('#clearPins').addEventListener('click', () => { st.pins = []; pinId = 0; renderPins(); drawOsc(); drawSpec(); });
+
+/* ---------- Questions guidées ---------- */
+const PARTS = [
+  { id: 'A', title: 'A · Nature des signaux', intro: 'Chaîne de mesure du niveau de la cuve d\'eau d\'alimentation de la chaudière : le transmetteur débite 4 à 20 mA dans une résistance de 500 Ω, puis la tension est numérisée par la carte d\'entrée de l\'automate (CAN, plage 0–10 V).',
+    load: () => load('mesure'),
+    qs: [
+      { q: 'Observe l\'oscillogramme. Quelle est la nature de la tension délivrée par le transmetteur ?', opts: ['Analogique : continue en temps et en amplitude', 'Échantillonnée : définie seulement à certains instants', 'Numérique : suite de mots binaires', 'Périodique de période 20 s'], a: 0, ex: 'La tension existe à chaque instant et peut prendre n\'importe quelle valeur entre 2 et 10 V : c\'est un signal analogique. Il n\'est pas périodique : le niveau de la cuve évolue de façon imprévisible.' },
+      { q: 'Active l\'échantillonnage. Mesure au curseur la durée entre deux échantillons successifs : c\'est la période d\'échantillonnage \\(T_e\\).', set: { ech: true, Fe: 2 }, u: 's', a: 0.5, tol: 0.02, ex: 'Les échantillons sont espacés de \\(T_e = 0{,}5\\ \\text{s}\\), soit \\(F_e = \\dfrac{1}{T_e} = 2\\ \\text{Hz}\\). Le signal échantillonné n\'est défini qu\'aux instants \\(k\\,T_e\\).' },
+      { q: 'On quantifie avec un CAN de 3 bits (pour bien voir l\'effet). Combien de niveaux de tension différents le convertisseur peut-il coder ?', set: { ech: true, Fe: 2, quant: true, bits: 3 }, u: 'niveaux', a: 8, tol: 0, ex: 'Un CAN \\(n\\) bits code \\(2^n\\) niveaux : \\(2^3 = 8\\) niveaux.' },
+      { star: true, q: 'Calculer le quantum q de ce CAN 3 bits (plage 0–10 V).', set: { ech: true, Fe: 2, quant: true, bits: 3 }, u: 'V', a: 1.25, tol: 0.01, hint: '\\(q = \\dfrac{\\text{plage}}{\\text{nombre de niveaux}}\\)', ex: '\\(q = \\dfrac{10}{8} = 1{,}25\\ \\text{V}\\) : l\'amplitude est arrondie au multiple de 1,25 V inférieur, d\'où l\'allure en escalier.' },
+      { q: 'La carte réelle possède un CAN 12 bits (plage 0–10 V). Calculer son quantum.', set: { ech: true, Fe: 2, quant: true, bits: 12 }, u: 'mV', a: 2.44, tol: 0.02, ex: '\\(2^{12} = 4\\,096\\) niveaux ; \\(q = \\dfrac{10}{4\\,096} \\approx 2{,}44\\ \\text{mV}\\). L\'escalier n\'est plus visible : la résolution est suffisante pour une mesure de niveau.' },
+      { q: 'Le signal à la sortie du CAN est à la fois échantillonné et quantifié. Comment le qualifie-t-on ?', opts: ['Analogique', 'Numérique', 'Modulé', 'Aléatoire'], a: 1, ex: 'Échantillonné + quantifié = numérique : l\'automate manipule une suite de nombres binaires.' },
+      { q: 'Retire la numérisation et active le bruit de mesure. Comment qualifier ce bruit ?', set: { ech: false, quant: false, noise: true }, opts: ['Périodique', 'Aléatoire : son évolution est imprévisible', 'Modulé'], a: 1, ex: 'Le bruit de mesure (perturbations CEM, agitation de surface) évolue de façon imprévisible : c\'est un signal aléatoire, décrit par des grandeurs statistiques.' },
+      { q: 'Observe le spectre de la mesure de niveau. De quel type est-il ?', opts: ['Discret : quelques raies isolées à des fréquences multiples d\'une fréquence f', 'Continu : de l\'énergie à toutes les fréquences d\'une bande', 'Vide : le signal n\'a pas de spectre'], a: 1, ex: 'Le signal n\'est pas périodique : son spectre est continu (ici concentré en dessous de 2 Hz). Seul un signal périodique possède un spectre de raies.' },
+    ] },
+  { id: 'B', title: 'B · Série de Fourier', intro: 'Avant de remplacer la carte de sortie de l\'automate, le technicien analyse les signaux d\'essai du GBF. Signal carré ±5 V à 1 kHz, puis signal triangle, puis signal PWM 0 / 5 V.',
+    load: () => load('carre'),
+    qs: [
+      { q: 'Signal carré ±5 V, 1 kHz : lire sur le spectre l\'amplitude du fondamental.', u: 'V', a: 6.37, tol: 0.08, ex: '\\(S_1 = \\dfrac{4A}{\\pi} = \\dfrac{4 \\times 5}{\\pi} \\approx 6{,}37\\ \\text{V}\\). Le fondamental a la fréquence du signal : 1 kHz.' },
+      { q: 'Lire l\'amplitude de l\'harmonique de rang 3 (fréquence 3 kHz).', u: 'V', a: 2.12, tol: 0.05, ex: '\\(S_3 = \\dfrac{4A}{3\\pi} = \\dfrac{S_1}{3} \\approx 2{,}12\\ \\text{V}\\). Les raies du carré décroissent en \\(1/n\\).' },
+      { q: 'Que dire des raies de rang pair (2, 4, 6…) ?', opts: ['Elles sont présentes mais faibles', 'Elles sont absentes car le signal est alterné symétrique', 'Elles sont plus grandes que les raies impaires'], a: 1, ex: 'Un signal alterné et symétrique (carré, triangle) ne contient que des harmoniques impairs.' },
+      { star: true, q: 'Coche « Reconstitution » et faites varier le nombre de rangs de 1 à 25. Que constate-t-on ?', set: { rec: true, Nrec: 1 }, opts: ['La reconstitution se rapproche du carré : les fronts deviennent de plus en plus raides', 'La reconstitution s\'éloigne du carré quand on ajoute des rangs', 'Seul le fondamental compte : rien ne change au-delà du rang 1'], a: 0, ex: 'C\'est le théorème de Fourier : la somme du fondamental et des harmoniques redonne le signal. Les harmoniques de rang élevé fabriquent les fronts raides.' },
+      { q: 'Lire le THD affiché par l\'analyseur.', u: '%', a: 47.3, tol: 1.2, ex: 'THD ≈ 47 %. La valeur théorique (≈ 48 %) suppose une infinité de rangs ; l\'analyseur s\'arrête au rang 50, d\'où le léger écart.' },
+      { q: 'Charge le signal triangle ±5 V, 1 kHz. Lire l\'amplitude du fondamental.', set: { preset: 'triangle' }, u: 'V', a: 4.05, tol: 0.06, ex: '\\(S_1 = \\dfrac{8A}{\\pi^2} = \\dfrac{8 \\times 5}{\\pi^2} \\approx 4{,}05\\ \\text{V}\\).' },
+      { q: 'Lire le THD du triangle.', set: { preset: 'triangle' }, u: '%', a: 12.1, tol: 0.5, ex: 'THD ≈ 12 % : les raies du triangle décroissent en \\(1/n^2\\) (\\(S_3 = S_1/9\\)), beaucoup plus vite que celles du carré. Ses fronts sont moins raides.' },
+      { q: 'Charge le signal PWM 0 / 5 V, α = 50 %. Lire la composante continue (rang 0).', set: { preset: 'pwm' }, u: 'V', a: 2.5, tol: 0.03, ex: '\\(\\langle u \\rangle = \\alpha \\times A = 0{,}5 \\times 5 = 2{,}5\\ \\text{V}\\). Le reste du spectre est celui d\'un carré ±2,5 V (raies impaires).' },
+      { star: true, q: 'Règle α = 20 %. Que deviennent les raies de rang pair ?', set: { preset: 'pwm', alpha: 0.2 }, opts: ['Elles restent absentes', 'Elles apparaissent : le signal n\'est plus symétrique', 'Toutes les raies disparaissent'], a: 1, ex: 'Avec \\(\\alpha \\neq 50\\ \\%\\), les alternances ne sont plus symétriques : les raies paires apparaissent. La valeur moyenne vaut \\(0{,}2 \\times 5 = 1\\ \\text{V}\\).' },
+    ] },
+  { id: 'C', title: 'C · Filtrage', intro: 'Le signal PWM 1 kHz (0 / 5 V, α = 50 %) traverse un filtre RC passe-bas (R = 1,6 kΩ) avant d\'attaquer la vanne. Chaque raie est multipliée par le gain du filtre à sa fréquence.',
+    load: () => load('pwm', { filt: true, fc: 994.7 }),
+    qs: [
+      { q: 'Calculer la fréquence de coupure du filtre pour C = 100 nF.', u: 'Hz', a: 995, tol: 10, hint: '\\(f_c = \\dfrac{1}{2\\pi RC}\\)', ex: '\\(f_c = \\dfrac{1}{2\\pi \\times 1\\,600 \\times 100 \\times 10^{-9}} \\approx 995\\ \\text{Hz}\\).' },
+      { q: 'Lire l\'amplitude du fondamental (1 kHz) en sortie du filtre.', u: 'V', a: 2.25, tol: 0.05, ex: 'En entrée, \\(S_1 = \\dfrac{4 \\times 2{,}5}{\\pi} \\approx 3{,}18\\ \\text{V}\\) ; en sortie, il reste ≈ 2,25 V.' },
+      { star: true, q: 'En déduire le gain G du filtre à 1 kHz.', u: '', a: 0.705, tol: 0.015, ex: '\\(G = \\dfrac{2{,}25}{3{,}18} \\approx 0{,}71 \\approx \\dfrac{1}{\\sqrt{2}}\\) : le fondamental est à la fréquence de coupure, où le gain vaut −3 dB.' },
+      { star: true, q: 'On remplace le condensateur par C = 10 µF (\\(f_c \\approx 10\\ \\text{Hz}\\)). Calculer l\'atténuation du fondamental en décibels.', set: { filt: true, fc: 9.947 }, u: 'dB', a: -40, tol: 0.6, hint: '\\(G = \\dfrac{1}{\\sqrt{1 + (f/f_c)^2}}\\) puis \\(G_{\\text{dB}} = 20 \\log G\\)', ex: '\\(f/f_c \\approx 100\\) donc \\(G \\approx 0{,}01\\) et \\(G_{\\text{dB}} = 20 \\log 0{,}01 = -40\\ \\text{dB}\\) : le fondamental est divisé par 100.' },
+      { q: 'Lire la valeur moyenne de la tension en sortie du filtre.', set: { filt: true, fc: 9.947 }, u: 'V', a: 2.5, tol: 0.03, ex: 'Le gain d\'un passe-bas vaut 1 pour la composante continue : la valeur moyenne 2,5 V est intégralement transmise.' },
+      { q: 'Quelle est la nature du signal obtenu en sortie ?', set: { filt: true, fc: 9.947 }, opts: ['Un signal quasi continu, égal à la valeur moyenne du PWM', 'Un signal carré d\'amplitude réduite', 'Un signal aléatoire'], a: 0, ex: 'Toutes les raies (1 kHz et au-delà) sont fortement atténuées : il ne reste que la composante continue \\(\\alpha \\times A\\), avec une ondulation résiduelle d\'environ 30 mV.' },
+    ] },
+  { id: 'D', title: 'D · THD et True RMS', intro: 'Situation déclenchante : le disjoncteur de l\'armoire de régulation déclenche alors que la pince de l\'électricien indique un courant faible. On étudie le courant absorbé par une alimentation à découpage 24 V (spectre en valeurs efficaces).',
+    load: () => load('alim'),
+    qs: [
+      { q: 'Alimentée sous une tension sinusoïdale, cette charge absorbe-t-elle un courant sinusoïdal ?', opts: ['Oui, c\'est une charge linéaire', 'Non, c\'est une charge non linéaire : le courant est formé d\'impulsions'], a: 1, ex: 'Le courant n\'est pas sinusoïdal : l\'alimentation à découpage est une charge non linéaire, source d\'harmoniques.' },
+      { q: 'Lire la valeur efficace du fondamental \\(I_1\\) (50 Hz).', u: 'A', a: 1.46, tol: 0.03, ex: '\\(I_1 \\approx 1{,}46\\ \\text{A}\\).' },
+      { q: 'Quel est le rang de l\'harmonique le plus important ?', u: '(rang)', a: 3, tol: 0, ex: 'Le rang 3 (150 Hz) domine, comme pour toutes les charges monophasées à redresseur (alimentations, LED).' },
+      { q: 'Lire la valeur efficace de l\'harmonique de rang 3.', u: 'A', a: 1.18, tol: 0.03, ex: '\\(I_3 \\approx 1{,}18\\ \\text{A}\\), soit 81 % du fondamental.' },
+      { q: 'Lire (ou calculer) le taux de distorsion harmonique du courant.', u: '%', a: 97.4, tol: 3, hint: '\\(\\text{THD} = \\dfrac{\\sqrt{I_2^2 + I_3^2 + \\dots}}{I_1}\\)', ex: 'THD ≈ 97 % : la pollution harmonique est très forte.' },
+      { q: 'Lire la valeur efficace vraie du courant (appareil True RMS).', u: 'A', a: 2.04, tol: 0.04, ex: '\\(I = \\sqrt{I_1^2 + I_3^2 + I_5^2 + \\dots} \\approx 2{,}04\\ \\text{A}\\).' },
+      { q: 'Lire l\'indication d\'un appareil non True RMS (pince à lecture moyenne).', u: 'A', a: 1.18, tol: 0.03, ex: 'La pince indique ≈ 1,18 A au lieu de 2,04 A : elle sous-estime le courant de 42 %, car elle est étalonnée pour une sinusoïde.' },
+      { q: 'Pourquoi le disjoncteur déclenche-t-il alors que la pince indique un courant inférieur à son calibre ?', opts: ['Le disjoncteur est défectueux', 'Le vrai courant efficace, qui échauffe les conducteurs, est bien plus grand que l\'indication de la pince', 'Les harmoniques n\'ont aucun effet thermique'], a: 1, ex: 'Il faut mesurer avec un appareil True RMS : le courant efficace réel (2,04 A) est celui qui échauffe les câbles et fait réagir les protections.' },
+      { star: true, q: 'Lire le facteur de crête du courant.', u: '', a: 2.45, tol: 0.05, ex: '\\(F_c = \\dfrac{\\hat{I}}{I} \\approx \\dfrac{5}{2{,}04} \\approx 2{,}45\\), bien plus que \\(\\sqrt{2} \\approx 1{,}41\\) pour une sinusoïde.' },
+    ] },
+  { id: 'E', title: 'E · Harmoniques sur le réseau', intro: 'Effets des charges non linéaires de la chaufferie sur l\'installation électrique : variateur triphasé du ventilateur de tirage, puis alimentations à découpage réparties sur les trois phases.',
+    load: () => load('variateur'),
+    qs: [
+      { q: 'Variateur triphasé : quels rangs d\'harmoniques sont présents ?', opts: ['3, 5, 7, 9…', '5, 7, 11, 13… (rangs \\(6k \\pm 1\\))', 'Tous les rangs, pairs et impairs'], a: 1, ex: 'Le courant en créneaux de 120° d\'un redresseur triphasé contient les rangs 5, 7, 11, 13… Il n\'y a ni rangs pairs, ni rangs multiples de 3.' },
+      { q: 'Lire le THD du courant de ligne.', u: '%', a: 30, tol: 1, ex: 'THD ≈ 30 % (raies en \\(1/n\\) : \\(I_5 = I_1/5\\), \\(I_7 = I_1/7\\)…).' },
+      { star: true, q: 'On installe une self de ligne : les fronts durent 20°. Lire le nouveau THD.', set: { mu: 20 }, u: '%', a: 21.5, tol: 1, ex: 'Le THD descend à ≈ 21 % : des fronts moins raides contiennent moins d\'harmoniques de rang élevé. C\'est le principe des selfs et des filtres d\'harmoniques.' },
+      { q: 'Trois alimentations à découpage identiques sont réparties sur les trois phases (400 V / 230 V + N). Calculer le courant de rang 3 dans le neutre : \\(I_{N3} = 3 \\times I_3\\).', set: { preset: 'alim' }, u: 'A', a: 3.54, tol: 0.1, ex: 'Les courants de rang 3 sont en phase d\'une phase à l\'autre et s\'additionnent : \\(I_{N3} = 3 \\times 1{,}18 \\approx 3{,}5\\ \\text{A}\\).' },
+      { q: 'Comparer ce courant au courant efficace d\'une phase (≈ 2,04 A). Quelle conséquence ?', set: { preset: 'alim' }, opts: ['Le neutre est moins chargé que les phases', 'Le neutre est plus chargé que les phases : il risque de chauffer s\'il a la même section', 'Le courant de neutre est toujours nul en triphasé'], a: 1, ex: 'Le neutre transporte ≈ 3,5 A contre 2,04 A par phase. Solutions : neutre surdimensionné, filtre d\'harmoniques, alimentations à absorption sinusoïdale (PFC).' },
+    ] },
+];
+const answers = {}; let part = 0;
+function applySet(q) {
+  if (q && q.set && q.set.preset) { const { preset, ...rest } = q.set; load(preset, rest); }
+  else { PARTS[part].load(); if (q && q.set) { Object.assign(st, q.set); if (q.set.noise) newNoise(); st.Fe = clampFe(st.Fe); buildPanel(); draw(); } }
+  flash();
+}
+function flash() { const el = $('#loaded'); el.hidden = false; clearTimeout(flash.t); flash.t = setTimeout(() => { el.hidden = true; }, 2200); }
+function renderParts() {
+  $('#partChips').innerHTML = PARTS.map((p, i) => `<button class="chip" type="button" aria-pressed="${i === part}" data-i="${i}">${p.title}</button>`).join('');
+  $('#partChips').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { part = +b.dataset.i; renderParts(); applySet(null); }));
+  const P = PARTS[part]; $('#partIntro').textContent = P.intro;
+  $('#qs').innerHTML = P.qs.map((q, i) => {
+    const id = P.id + i, a = answers[id];
+    const inner = q.opts
+      ? `<div class="opts" role="radiogroup">${q.opts.map((o, j) => `<label><input type="radio" name="r-${id}" value="${j}" ${a && a.v == j ? 'checked' : ''}> ${o}</label>`).join('')}</div>`
+      : `<input type="text" id="in-${id}" inputmode="decimal" value="${a ? a.v : ''}" aria-label="Réponse ${P.id}${i + 1}" placeholder="valeur"><span class="unit">${q.u}</span>`;
+    return `<li class="q ${a && a.ok ? 'done' : ''}" data-id="${id}" data-i="${i}">
+      <div class="qt"><span class="n">${P.id}${i + 1}${q.star ? ' ★' : ''}</span><span>${q.star ? '<em class="fac">(facultative) </em>' : ''}${q.q}</span></div>
+      <div class="ans">${inner}<button class="btn ghost" type="button" data-check>Vérifier</button>${q.set ? `<button class="linkbtn" type="button" data-set>Appliquer ce réglage</button>` : ''}${q.hint ? `<button class="linkbtn" type="button" data-hint>Indice</button>` : ''}</div>
+      <div class="fb-slot" aria-live="polite">${a ? fbHtml(q, a) : ''}</div></li>`;
+  }).join('');
+  $('#qs').querySelectorAll('.q').forEach((li) => {
+    const q = P.qs[+li.dataset.i], id = li.dataset.id, slot = li.querySelector('.fb-slot');
+    const check = () => {
+      let v, ok;
+      if (q.opts) {
+        const r = li.querySelector('input:checked');
+        if (!r) { slot.innerHTML = `<div class="fb bad">Choisis une réponse avant de vérifier.</div>`; return; }
+        v = +r.value; ok = v === q.a;
+      } else {
+        v = li.querySelector('input').value.trim(); const n = parseNum(v);
+        if (isNaN(n)) { slot.innerHTML = `<div class="fb bad">Entre une valeur numérique (la virgule est acceptée), sans l'unité.</div>`; return; }
+        ok = Math.abs(n - q.a) <= q.tol + 1e-9;
+      }
+      answers[id] = { v, ok, tries: (answers[id]?.tries || 0) + 1 };
+      slot.innerHTML = fbHtml(q, answers[id]); li.classList.toggle('done', ok);
+    };
+    li.querySelector('[data-check]').addEventListener('click', check);
+    const inp = li.querySelector('input[type=text]'); if (inp) inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); check(); } });
+    li.querySelectorAll('input[type=radio]').forEach((r) => r.addEventListener('change', () => { if (slot.querySelector('.bad')) slot.innerHTML = ''; }));
+    const s = li.querySelector('[data-set]'); if (s) s.addEventListener('click', () => applySet(q));
+    const h = li.querySelector('[data-hint]'); if (h) h.addEventListener('click', () => { slot.innerHTML = `<div class="fb ok" style="border-left-color:var(--mark)">Indice : ${q.hint}</div>`; });
+  });
+}
+function fbHtml(q, a) {
+  if (a.ok) return `<div class="fb ok"><strong>Juste.</strong> ${q.ex}</div>`;
+  if (a.tries >= 2) return `<div class="fb bad"><strong>Ce n'est pas la bonne réponse. Correction :</strong> ${q.ex}</div>`;
+  const tip = q.opts ? 'Observe à nouveau le banc et réessaie.' : `Vérifie ta lecture ou ton calcul (unité, amplitude crête ou valeur efficace ?), puis réessaie.${q.set ? ' Pense à cliquer sur « Appliquer ce réglage ».' : ''}`;
+  return `<div class="fb bad"><strong>Pas encore (1er essai).</strong> ${tip}</div>`;
+}
+$('#loadPart').addEventListener('click', () => { applySet(null); osc.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); });
+
+/* ---------- Onglets ---------- */
+let saved = null;
+document.querySelectorAll('.tab').forEach((tb) => tb.addEventListener('click', () => {
+  const was = document.querySelector('.tab[aria-selected=true]').id;
+  if (was === tb.id) return;
+  document.querySelectorAll('.tab').forEach((x) => x.setAttribute('aria-selected', String(x === tb)));
+  ['q', 'm', 'c'].forEach((k) => $('#pane-' + k).hidden = tb.id !== 'tab-' + k);
+  if (was === 'tab-q') saved = structuredClone({ ...st, mystery: null, pins: [], cur: null });
+  if (st.mystery) { st.mystery = null; $('#locked').hidden = true; }
+  if (tb.id === 'tab-m') newMystery();
+  else if (tb.id === 'tab-c') { load('compose'); buildHarm(); drawCalc(); }
+  else if (saved) { Object.assign(st, saved); buildPanel(); draw(); }
+}));
+
+/* ---------- Signal mystère ---------- */
+const mystStats = { tries: 0, ok: 0, shown: 0 };
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+$('#mForm').innerHTML += Object.entries(FORMS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+function newMystery() {
+  const k = pick(Object.keys(FORMS)), P = PRESETS[k], over = {};
+  if (['sinus', 'carre', 'triangle', 'pwm'].includes(k)) { over.f = pick([200, 500, 800, 1000, 1500, 2000]); over.A = pick([2, 3, 4, 5, 6, 8]); }
+  if (k === 'sinus') over.off = pick([0, 0, 1, 2, -1.5]);
+  if (k === 'pwm') over.alpha = pick([0.2, 0.25, 0.3, 0.4, 0.6, 0.75, 0.8]);
+  if (k === 'redresse') over.A = pick([17, 24, 34]);
+  if (k === 'alim') { over.A = pick([3, 4, 6, 8]); over.cond = pick([45, 60, 75, 90]); }
+  if (k === 'variateur') { over.A = pick([6, 8, 12, 16]); over.mu = pick([0, 10, 20]); }
+  load(k, over);
+  st.mode = 'max'; st.R = 15; C = compute();
+  st.mystery = { k, f: st.f, mean: C.mean, rms: C.rms, thd: 100 * C.thd, u: P.unit, scale: Math.max(...Array.from(C.s).map(Math.abs)) };
+  $('#locked').hidden = false; buildPanel(); draw();
+  $('#mystInfo').textContent = `Grandeur mesurée : ${P.unit === 'A' ? 'un courant (A)' : 'une tension (V)'}. Spectre affiché jusqu'au rang 15, en amplitudes crête.`;
+  $('#mU1').textContent = P.unit; $('#mU2').textContent = P.unit;
+  $('#mystForm').reset(); $('#mystFb').innerHTML = '';
+}
+$('#newMyst').addEventListener('click', newMystery);
+$('#mystForm').addEventListener('submit', (e) => {
+  e.preventDefault(); const m = st.mystery; if (!m) return;
+  const rows = [];
+  const chk = (lbl, v, ref, tol, tip) => { const n = parseNum(v); const ok = !isNaN(n) && Math.abs(n - ref) <= tol; rows.push(`<div class="fb ${ok ? 'ok' : 'bad'}" style="margin:0 0 6px">${lbl} : ${isNaN(n) ? 'non renseigné' : (ok ? 'correct' : 'à revoir' + (tip ? ` (${tip})` : ''))}</div>`); return ok; };
+  const fm = $('#mForm').value; rows.push(`<div class="fb ${fm === m.k ? 'ok' : 'bad'}" style="margin:0 0 6px">Forme : ${fm ? (fm === m.k ? 'correct' : 'à revoir : observe l\'oscillogramme et les rangs présents') : 'non choisie'}</div>`);
+  chk('Fréquence du fondamental', $('#mF').value, m.f, m.f * 0.03, '\\(f = 1/T\\), ou fréquence de la première raie non nulle');
+  chk('Valeur moyenne', $('#mMoy').value, m.mean, Math.max(0.05, 0.03 * m.scale), 'raie de rang 0');
+  chk('Valeur efficace', $('#mEff').value, m.rms, m.rms * 0.05, '\\(S^2 = S_0^2 + \\sum \\left(\\dfrac{S_n}{\\sqrt{2}}\\right)^2\\)');
+  if (isFinite(m.thd)) chk('THD', $('#mThd').value, m.thd, Math.max(3, 0.08 * m.thd), 'utilise les raies au moins jusqu\'au rang 15');
+  const allOk = !rows.some((x) => x.includes('fb bad'));
+  mystStats.tries++; if (allOk && !m.solved) { m.solved = true; mystStats.ok++; }
+  $('#mystFb').innerHTML = rows.join('') + `<p class="small">Tolérances : 3 % sur f, 5 % sur la valeur efficace, 3 points (ou 8 %) sur le THD, pour tenir compte des raies non prises en compte.</p>`;
+});
+$('#solMyst').addEventListener('click', () => {
+  const m = st.mystery; if (!m) return; if (!m.solved && !m.shown) { m.shown = true; mystStats.shown++; }
+  $('#mystFb').innerHTML = `<div class="fb ok" style="margin:0">Solution : ${FORMS[m.k]} ; f = ${fHz(m.f)} ; valeur moyenne = ${sig(m.mean, 3)} ${m.u} ; valeur efficace = ${sig(m.rms, 3)} ${m.u} ; THD (rangs 2 à 50) = ${isFinite(m.thd) ? sig(m.thd, 3) + ' %' : '—'}.</div>`;
+});
+
+/* ---------- Composer un signal ---------- */
+function buildHarm() {
+  const h = st.h;
+  $('#harm').innerHTML = h.map((v, n) => `<div class="slider"><label for="h-${n}">${n === 0 ? 'Continu S₀' : `Rang ${n} : S${sub(n)}`}</label><output id="oh-${n}">${sig(v, 3)} V</output><input type="range" id="h-${n}" min="${n === 0 ? -5 : -10}" max="${n === 0 ? 5 : 10}" step="0.05" value="${v}"></div>`).join('');
+  h.forEach((_, n) => $('#h-' + n).addEventListener('input', (e) => { st.h[n] = +e.target.value; $('#oh-' + n).textContent = `${sig(st.h[n], 3)} V`; draw(); }));
+}
+function drawCalc() {
+  if (st.preset !== 'compose') return;
+  const h = st.h, terms = [], sq = [], tx = (v) => fmt(v, 2).replace(',', '{,}').replace(/ | /g, '\\,');
+  let s2 = h[0] ** 2, hs = 0;
+  if (h[0]) terms.push(`${tx(h[0])}^2`);
+  for (let n = 1; n < h.length; n++) if (h[n]) { s2 += h[n] ** 2 / 2; terms.push(`\\left(\\dfrac{${tx(Math.abs(h[n]))}}{\\sqrt{2}}\\right)^2`); if (n >= 2) { hs += h[n] ** 2; sq.push(`${tx(Math.abs(h[n]))}^2`); } }
+  const rms = Math.sqrt(s2), tn = (v, d) => sig(v, d).replace(',', '{,}').replace(/ | /g, '\\,');
+  const st0 = ((h[0] ? tx(h[0]) : '') + h.slice(1).map((v, i) => v ? ` ${v < 0 ? '-' : '+'} ${tx(Math.abs(v))}\\sin(${i + 1 > 1 ? i + 1 : ''}\\omega t)` : '').join('')).replace(/^ \+ /, '').replace(/^ - /, '-') || '0';
+  const thd = h[1] ? `\\(\\text{THD} = \\dfrac{\\sqrt{${sq.join(' + ') || '0'}}}{${tx(Math.abs(h[1]))}} = ${tn(100 * Math.sqrt(hs) / Math.abs(h[1]), 3)}\\ \\%\\)` : '<b>THD</b> : — (pas de fondamental)';
+  $('#calc').innerHTML = `<div>\\(s(t) = ${st0}\\)</div>
+  <div style="margin-top:8px"><b>Valeur efficace</b> : \\(S = \\sqrt{${terms.join(' + ') || '0'}} = ${tn(rms, 3)}\\ \\text{V}\\)</div>
+  <div class="small">mesure True RMS de l'analyseur : ${sig(C.rms, 3)} V</div>
+  <div style="margin-top:8px">${thd}</div>
+  <div class="small" style="margin-top:8px">Amplitudes et valeurs efficaces ne se mélangent pas : ici, le THD est calculé avec les amplitudes, ce qui donne le même résultat qu'avec les valeurs efficaces.</div>`;
+}
+document.querySelectorAll('[data-comp]').forEach((b) => b.addEventListener('click', () => {
+  const t = b.dataset.comp, h = new Array(10).fill(0);
+  if (t === 'sin') h[1] = 5;
+  if (t === 'car') for (let n = 1; n <= 9; n += 2) h[n] = Math.round(20 / (n * Math.PI) * 100) / 100;
+  if (t === 'tri') for (let n = 1; n <= 9; n += 2) h[n] = Math.round((n % 4 === 1 ? 1 : -1) * 40 / (n * n * Math.PI ** 2) * 100) / 100;
+  st.h = h; buildHarm(); draw();
+}));
+
+/* ---------- Équations (MathJax) ---------- */
+const mathZones = ['#qs', '#partIntro', '#presetTxt', '#mystFb', '#calc'].map((z) => $(z));
+let mjQueue = Promise.resolve(), mjPending = false;
+function typesetMath() {
+  if (mjPending) return; mjPending = true;
+  requestAnimationFrame(() => {
+    mjPending = false;
+    const els = mathZones.filter((el) => el && el.textContent.includes('\\('));
+    if (!els.length || !window.MathJax || !MathJax.typesetPromise) return;
+    mjQueue = mjQueue.then(() => MathJax.typesetPromise(els)).catch(() => {});
+  });
+}
+const mjObs = new MutationObserver(typesetMath);
+mathZones.forEach((el) => el && mjObs.observe(el, { childList: true, subtree: true, characterData: true }));
+window.addEventListener('load', () => { if (window.MathJax && MathJax.startup) MathJax.startup.promise.then(typesetMath); });
+
+/* ---------- Démarrage ---------- */
+window.__banc = { st, compute, load, PARTS, PRESETS, applySet: (pi, q) => { part = pi; applySet(q); }, get C() { return C; } };
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', draw);
+new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+PARTS[0].load(); renderParts();
+})();
+</script>
+
+</body>
+</html>

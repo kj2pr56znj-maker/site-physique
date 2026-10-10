@@ -348,111 +348,135 @@
       {
        "titre": "Prérequis",
        "type": "Fiche",
-       "fichier": "de6c5f741edb5a3e5baf5b6b.bin",
-       "taille": 167830,
-       "pages": 5,
+       "fichier": "649f672bca7ad035f706c3cf.bin",
+       "taille": 168792,
+       "pages": 4,
        "rubrique": "Pour commencer"
       },
       {
-       "titre": "Cours",
+       "titre": "Essentiel du chapitre",
        "type": "Cours",
-       "fichier": "f3e213ea72ad6bbe8a928cf9.bin",
-       "taille": 405753,
+       "fichier": "62251e59ad42844de541d4b0.bin",
+       "taille": 415215,
        "pages": 6,
        "rubrique": "Cours"
       },
       {
-       "titre": "fiche animation à compléter",
+       "titre": "Fiche animation",
        "type": "Fiche",
-       "fichier": "482c007a938911d767243f4e.bin",
-       "taille": 137442,
-       "pages": 3,
+       "fichier": "faae7fdb88ab37f2e0f9594f.bin",
+       "taille": 175147,
+       "pages": 4,
        "rubrique": "Animation"
       },
       {
-       "titre": "animation nature des signaux",
+       "titre": "Animation – Banc d'analyse spectrale",
        "type": "Animation",
-       "lien": "animations/cira/animation-nature-des-signaux.html",
+       "lien": "animations/cira/animation-banc-d-analyse-spectrale.html",
        "rubrique": "Animation"
       },
       {
-       "titre": "TP1 Analyse spectrale",
+       "titre": "TP 1 – Analyse spectrale",
        "type": "TP",
-       "fichier": "58a7d95033bcf6ff4a68687b.bin",
-       "taille": 443656,
-       "pages": 7,
+       "fichier": "dd791e131e9149408daefb34.bin",
+       "taille": 444215,
+       "pages": 8,
        "rubrique": "TP"
       },
       {
-       "titre": "TP1 Analyse spectrale - coups de pouce",
+       "titre": "TP 1 – Analyse spectrale - coups de pouce",
        "type": "TP",
-       "fichier": "4d8c9ad8022194dff3aa4802.bin",
-       "taille": 87454,
+       "fichier": "45e817ff701bc8949136a94a.bin",
+       "taille": 87269,
        "pages": 2,
        "rubrique": "TP"
       },
       {
-       "titre": "TP2 THD",
+       "titre": "TP 2 – Mesure du THD",
        "type": "TP",
-       "fichier": "f3a6c676227d59162c5d9efe.bin",
-       "taille": 306778,
+       "fichier": "e6c23e040b8d9a8f16f0844c.bin",
+       "taille": 306812,
        "pages": 6,
        "rubrique": "TP"
       },
       {
-       "titre": "TP2 THD - coups de pouce",
+       "titre": "TP 2 – Mesure du THD - coups de pouce",
        "type": "TP",
-       "fichier": "b48f74e6ded8aea16654ef98.bin",
-       "taille": 69082,
+       "fichier": "b161a3609b966b4874d164d3.bin",
+       "taille": 68953,
        "pages": 1,
        "rubrique": "TP"
       },
       {
-       "titre": "Exercices - énoncés",
+       "titre": "Exercice 1",
        "type": "Exercices",
-       "fichier": "86f3efcc60ade5108c5707e9.bin",
-       "taille": 214602,
-       "pages": 4,
+       "fichier": "4b3d5ecc060dfce90db624e7.bin",
+       "taille": 98571,
+       "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 1 - coups de pouce",
        "type": "Exercices",
-       "fichier": "fd27b7a13971a767723ef658.bin",
-       "taille": 70606,
+       "fichier": "9bec9594290710f08b7caf79.bin",
+       "taille": 70446,
+       "pages": 1,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 2",
+       "type": "Exercices",
+       "fichier": "a8ab8a51151ccfdf6113c7af.bin",
+       "taille": 82099,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 2 - coups de pouce",
        "type": "Exercices",
-       "fichier": "b35ea1db1a3db52338d52d0e.bin",
-       "taille": 88106,
+       "fichier": "19d0fb5dd7bb36ac9dc8de72.bin",
+       "taille": 88009,
+       "pages": 1,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 3",
+       "type": "Exercices",
+       "fichier": "8e85e6b4602436e8d88affcf.bin",
+       "taille": 104413,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 3 - coups de pouce",
        "type": "Exercices",
-       "fichier": "6137ff466ab2561778297c47.bin",
-       "taille": 69194,
+       "fichier": "356bbda6c00df05604d32fd8.bin",
+       "taille": 68936,
+       "pages": 1,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 4",
+       "type": "Exercices",
+       "fichier": "2b5152adb3a657ea4cc14e50.bin",
+       "taille": 118978,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 4 - coups de pouce",
        "type": "Exercices",
-       "fichier": "2e3c62727bb0ada8f3ead527.bin",
-       "taille": 78600,
+       "fichier": "a54810b6be34826295d10c4e.bin",
+       "taille": 78624,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
-       "titre": "bilan",
+       "titre": "Bilan",
        "type": "Fiche",
-       "fichier": "096176589bb6a76643b6b1c5.bin",
-       "taille": 187770,
-       "pages": 6,
+       "fichier": "7da19ae96340c4d6c7655a10.bin",
+       "taille": 174126,
+       "pages": 5,
        "rubrique": "Réviser"
       },
       {
