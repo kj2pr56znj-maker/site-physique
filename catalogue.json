@@ -346,64 +346,105 @@
      "titre": "Nature des signaux, Fourier et THD",
      "docs": [
       {
-       "titre": "Cours",
-       "type": "Cours",
-       "fichier": "4365203e99dbc7864f80b9d5.bin",
-       "taille": 524037,
-       "pages": 9
+       "titre": "Prérequis",
+       "type": "Fiche",
+       "fichier": "8c80357169b4e222bdf97240.bin",
+       "taille": 177263,
+       "pages": 5,
+       "rubrique": "Pour commencer"
       },
       {
-       "titre": "bilan",
-       "type": "Fiche",
-       "fichier": "096176589bb6a76643b6b1c5.bin",
-       "taille": 187770,
-       "pages": 6
+       "titre": "Cours",
+       "type": "Cours",
+       "fichier": "f3e213ea72ad6bbe8a928cf9.bin",
+       "taille": 405753,
+       "pages": 6,
+       "rubrique": "Cours"
       },
       {
        "titre": "fiche animation à compléter",
        "type": "Fiche",
        "fichier": "482c007a938911d767243f4e.bin",
        "taille": 137442,
-       "pages": 3
-      },
-      {
-       "titre": "Prérequis",
-       "type": "Fiche",
-       "fichier": "8c80357169b4e222bdf97240.bin",
-       "taille": 177263,
-       "pages": 5
-      },
-      {
-       "titre": "cartes de révision",
-       "type": "Cartes",
-       "nombre": 26,
-       "lien": "cartes.html?c=cira&ch=nature-des-signaux-fourier-et-thd"
+       "pages": 3,
+       "rubrique": "Animation"
       },
       {
        "titre": "animation nature des signaux",
        "type": "Animation",
-       "lien": "animations/cira/animation-nature-des-signaux.html"
-      },
-      {
-       "titre": "Exercices - coups de pouce",
-       "type": "Exercices",
-       "fichier": "edcd70139d693afaa42988bb.bin",
-       "taille": 115854,
-       "pages": 2
+       "lien": "animations/cira/animation-nature-des-signaux.html",
+       "rubrique": "Animation"
       },
       {
        "titre": "TP1 Analyse spectrale",
        "type": "TP",
-       "fichier": "daf070e00b7541db3124b000.bin",
-       "taille": 410939,
-       "pages": 7
+       "fichier": "28c1f6d90a2cfdce11bc3719.bin",
+       "taille": 460237,
+       "pages": 8,
+       "rubrique": "TP"
       },
       {
        "titre": "TP2 THD",
        "type": "TP",
        "fichier": "3619b762f109d0206c15b325.bin",
        "taille": 317545,
-       "pages": 7
+       "pages": 7,
+       "rubrique": "TP"
+      },
+      {
+       "titre": "Exercices - énoncés",
+       "type": "Exercices",
+       "fichier": "2582f8cd16008aa4d0ae148b.bin",
+       "taille": 168170,
+       "pages": 3,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 1 - coups de pouce",
+       "type": "Exercices",
+       "fichier": "199b6fb37e2cc8510778e01e.bin",
+       "taille": 67584,
+       "pages": 1,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 2 - coups de pouce",
+       "type": "Exercices",
+       "fichier": "98967a392256ba4f154bec47.bin",
+       "taille": 85534,
+       "pages": 1,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 3 - coups de pouce",
+       "type": "Exercices",
+       "fichier": "da8f2a8c3a000001cfa00f20.bin",
+       "taille": 68663,
+       "pages": 1,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "Exercice 4 - coups de pouce",
+       "type": "Exercices",
+       "fichier": "b1c1d6f187d4fc52d94f7ad1.bin",
+       "taille": 72012,
+       "pages": 1,
+       "rubrique": "Exercices"
+      },
+      {
+       "titre": "bilan",
+       "type": "Fiche",
+       "fichier": "096176589bb6a76643b6b1c5.bin",
+       "taille": 187770,
+       "pages": 6,
+       "rubrique": "Réviser"
+      },
+      {
+       "titre": "cartes de révision",
+       "type": "Cartes",
+       "nombre": 26,
+       "lien": "cartes.html?c=cira&ch=nature-des-signaux-fourier-et-thd",
+       "rubrique": "Réviser"
       }
      ]
     }
