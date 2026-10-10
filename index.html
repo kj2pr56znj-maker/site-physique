@@ -124,6 +124,19 @@ footer p{margin:0 0 8px;max-width:68ch}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--surface);
   padding:10px 16px;border-radius:8px;font-size:.95rem;display:none;max-width:calc(100% - 32px)}
 noscript p{background:var(--accent-soft);padding:12px;border-radius:8px}
+.lock input[type=text]{flex:1 1 180px;font:inherit;padding:10px 12px;border:1px solid var(--grid);border-radius:8px;background:var(--bg);color:var(--text)}
+.lock input[type=password]{flex:1 1 180px}
+.lock h2{font-size:1.6rem;margin:0 0 6px}
+.who-line{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;justify-content:space-between;margin:20px 0 0;color:var(--muted);font-size:.95rem}
+.who-line strong{color:var(--text)}
+.type.corr{color:var(--ok);border-color:currentColor;background:var(--ok-soft)}
+.type.corr.locked{color:var(--muted);border-color:var(--grid);background:var(--bg)}
+.open.locked{border-style:dashed;color:var(--muted);border-color:var(--grid);cursor:default;opacity:1}
+.lockico{display:inline-block;width:12px;height:13px;vertical-align:-1px;margin-right:6px}
+li.fresh{animation:fresh 2.4s ease-out}
+@keyframes fresh{0%{background:var(--ok-soft)}100%{background:transparent}}
+@media (prefers-reduced-motion: reduce){li.fresh{animation:none}}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -137,29 +150,45 @@ noscript p{background:var(--accent-soft);padding:12px;border-radius:8px}
 
 <main class="wrap">
   <noscript><p>Ce site a besoin de JavaScript pour ouvrir les documents.</p></noscript>
-  <nav class="classes" id="classes" aria-label="Choisir une classe"></nav>
-  <div class="search">
+  <div class="who-line" id="whoLine" hidden></div>
+  <nav class="classes" id="classes" aria-label="Choisir une rubrique"></nav>
+  <div class="search" id="searchBox" hidden>
     <input type="search" id="q" placeholder="Rechercher un document (ex. Fourier, TP 1…)" aria-label="Rechercher un document">
   </div>
   <section id="view" aria-live="polite"></section>
   <footer>
-    <p>Les cours, TD et TP s'ouvrent avec le mot de passe de la classe, donné en cours. Ils sont déchiffrés directement sur votre appareil : rien n'est envoyé.</p>
-    <p>Sur un ordinateur du lycée, ne cochez pas « Se souvenir sur cet appareil ».</p>
+    <p>Connectez-vous avec l'identifiant et le mot de passe personnels donnés par votre professeur. Les documents sont déchiffrés directement sur votre appareil.</p>
+    <p>Les corrigés s'ouvrent quand le professeur a vérifié votre travail.</p>
+    <p>Sur un ordinateur du lycée, ne cochez pas « Rester connecté sur cet appareil ».</p>
     <p>La rubrique Outils (fiches méthodes et simulations des appareils de TP) est en accès libre.</p>
   </footer>
 </main>
 <div class="toast" id="toast" role="status"></div>
 
-<script>
-(() => {
-"use strict";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const FB = {"apiKey":"AIzaSyDH32Ma0shVbsIHR0xNJbahb5MO0RKHRS0","authDomain":"physique-neruda.firebaseapp.com","projectId":"physique-neruda","storageBucket":"physique-neruda.firebasestorage.app","messagingSenderId":"62730174289","appId":"1:62730174289:web:588c846aadd4eec2109d70"};
+const DOMAINE = "@physique-neruda.firebaseapp.com";
+const PROF = "prof" + DOMAINE;
+const app = initializeApp(FB), auth = getAuth(app), db = getFirestore(app);
+
+const BASE = /\/essai\/(index\.html)?$/.test(location.pathname) ? "../" : "";
 const $ = s => document.querySelector(s);
-const enc = new TextEncoder();
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-const tob64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
-let CAT = null, KEYS = {}, current = null;
+const enc = new TextEncoder();
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const size = n => n > 1e6 ? (n/1e6).toFixed(1).replace(".", ",") + " Mo" : Math.max(1, Math.round(n/1e3)) + " ko";
+
+let CAT = null, current = null, booted = false;
+/* Session : rôle, classe, clés */
+let S = { user:null, prof:false, nom:"", site:null, groupe:null, keys:{}, maitre:null, corr:{} };
+let unsubCorr = null, fresh = new Set();
 const opened = new Set();
-const unlocked = {};
+
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = "none", 4500); }
 
 /* Tracé d'en-tête : carré reconstruit à partir de ses harmoniques impairs */
 (function drawTrace(){
@@ -175,92 +204,103 @@ const unlocked = {};
   s.style.setProperty("--len", Math.ceil(s.getTotalLength ? s.getTotalLength() : 3000));
 })();
 
-function toast(msg){ const t = $("#toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = "none", 4000); }
+const importKey = raw => crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
 
-function store(){ try { return { get:(k)=>localStorage.getItem(k)||sessionStorage.getItem(k),
-  set:(k,v,rem)=>{ (rem?localStorage:sessionStorage).setItem(k,v); },
-  del:(k)=>{ localStorage.removeItem(k); sessionStorage.removeItem(k); } }; }
-  catch(e){ return { get:()=>null, set:()=>{}, del:()=>{} }; } }
-const S = store();
-
-async function importRaw(raw){ return crypto.subtle.importKey("raw", raw, "AES-GCM", true, ["decrypt"]); }
-
-async function restore(){
-  for (const c of CAT.classes) {
-    const v = S.get("cle-" + c.id);
-    if (v) { try { unlocked[c.id] = await importRaw(b64(v)); } catch(e) { S.del("cle-" + c.id); } }
-  }
-}
-
-async function unlock(id, pwd, remember){
-  const k = KEYS[id]; if (!k) throw new Error("ferme");
-  const base = await crypto.subtle.importKey("raw", enc.encode(pwd), "PBKDF2", false, ["deriveKey"]);
-  const kek = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(k.salt), iterations:k.iter, hash:"SHA-256"},
-    base, {name:"AES-GCM", length:256}, false, ["decrypt"]);
-  let raw;
-  try { raw = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(k.iv)}, kek, b64(k.ct)); }
-  catch(e){ throw new Error("mdp"); }
-  unlocked[id] = await importRaw(raw);
-  S.set("cle-" + id, tob64(raw), remember);
-}
-
-async function getPdf(cls, doc){
-  const r = await fetch("docs/" + cls + "/" + doc.fichier, {cache:"no-cache"});
+async function decryptBlob(url, key){
+  const r = await fetch(url, {cache:"no-cache"});
   if (!r.ok) throw new Error("introuvable");
   const buf = new Uint8Array(await r.arrayBuffer());
-  const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, unlocked[cls], buf.slice(12));
+  const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, key, buf.slice(12));
   return new Blob([plain], {type:"application/pdf"});
 }
 
-async function openDoc(cls, doc, download){
+/* Clé d'un corrigé : transmise par le professeur (élève) ou extraite de l'enveloppe (professeur) */
+async function corrKey(d){
+  const id = d.corrige.id;
+  if (S.corr[id]) return importKey(b64(S.corr[id]));
+  if (S.prof && S.maitre) {
+    const w = b64(d.corrige.wk);
+    const raw = await crypto.subtle.decrypt({name:"AES-GCM", iv:w.slice(0,12), additionalData:enc.encode(id)}, S.maitre, w.slice(12));
+    return importKey(raw);
+  }
+  return null;
+}
+
+async function openDoc(cls, d, download){
   let w = null;
-  if (!download) { w = window.open("", "_blank"); if (w) { try { w.document.title = doc.titre; w.document.body.innerHTML = "<p style='font:16px sans-serif;padding:20px'>Ouverture de « " + doc.titre.replace(/</g,"&lt;") + " »…</p>"; } catch(e){} } }
+  if (!download) { w = window.open("", "_blank"); if (w) { try { w.document.title = d.titre; w.document.body.innerHTML = "<p style='font:16px sans-serif;padding:20px'>Ouverture de « " + esc(d.titre) + " »…</p>"; } catch(e){} } }
   try {
-    const blob = await getPdf(cls, doc);
+    const key = d.corrige ? await corrKey(d) : S.keys[cls];
+    if (!key) throw new Error("verrou");
+    const blob = await decryptBlob(BASE + "docs/" + cls + "/" + d.fichier, key);
     const url = URL.createObjectURL(blob);
     if (w && !download) { w.location.href = url; }
-    else { const a = document.createElement("a"); a.href = url; a.download = doc.titre + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+    else { const a = document.createElement("a"); a.href = url; a.download = d.titre + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
     setTimeout(() => URL.revokeObjectURL(url), 120000);
   } catch(e) {
     if (w) w.close();
-    toast("Impossible d'ouvrir ce document. Rechargez la page et réessayez.");
+    toast(e.message === "verrou" ? "Ce corrigé n'est pas encore débloqué." : "Impossible d'ouvrir ce document. Rechargez la page et réessayez.");
   }
 }
 
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const typeClass = t => /^TP/i.test(t) ? "type tp" : "type";
-const size = n => n > 1e6 ? (n/1e6).toFixed(1).replace(".", ",") + " Mo" : Math.max(1, Math.round(n/1e3)) + " ko";
+const LOCK = '<svg class="lockico" viewBox="0 0 12 13" aria-hidden="true"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+
+function visibleClasses(){
+  if (!S.user) return [];
+  if (S.prof) return CAT.classes;
+  return CAT.classes.filter(c => c.id === S.site);
+}
 
 function renderNav(){
   const nav = $("#classes"); nav.innerHTML = "";
-  for (const c of CAT.classes) {
+  const items = visibleClasses().map(c => ({id:c.id, n:c.court, mini:c.mini||c.court, s:c.sous}));
+  if (!S.user) items.push({id:"connexion", n:"Connexion", mini:"Connexion", s:"Accès aux cours de votre BTS"});
+  if ((CAT.outils || []).length) items.push({id:"outils", n:"Outils", mini:"Outils", s:"Fiches méthodes et simulations"});
+  for (const it of items) {
     const b = document.createElement("button");
-    b.type = "button"; b.setAttribute("aria-pressed", String(c.id === current));
-    b.innerHTML = `<span class="n">${esc(c.court)}</span><span class="n mini">${esc(c.mini||c.court)}</span><span class="s">${esc(c.sous)}</span>`;
-    b.onclick = () => { location.hash = c.id; };
-    nav.appendChild(b);
-  }
-  if ((CAT.outils || []).length) {
-    const b = document.createElement("button");
-    b.type = "button"; b.setAttribute("aria-pressed", String(current === "outils"));
-    b.innerHTML = `<span class="n">Outils</span><span class="n mini">Outils</span><span class="s">Fiches méthodes et simulations</span>`;
-    b.onclick = () => { location.hash = "outils"; };
+    b.type = "button"; b.setAttribute("aria-pressed", String(it.id === current));
+    b.innerHTML = `<span class="n">${esc(it.n)}</span><span class="n mini">${esc(it.mini)}</span><span class="s">${esc(it.s)}</span>`;
+    b.onclick = () => { location.hash = it.id; };
     nav.appendChild(b);
   }
 }
 
-function docRow(c, d, open){
+function renderWho(){
+  const w = $("#whoLine");
+  if (!S.user) { w.hidden = true; return; }
+  w.hidden = false;
+  const grp = (CAT.groupes || []).find(g => g.id === S.groupe);
+  w.innerHTML = `<span>Connecté : <strong>${esc(S.prof ? "Professeur" : S.nom)}</strong>${grp && !S.prof ? " · " + esc(grp.nom) : ""}</span><button class="linkbtn" type="button">Se déconnecter</button>`;
+  w.querySelector("button").onclick = async () => { await signOut(auth); location.hash = ""; };
+}
+
+function docRow(c, d){
   const li = document.createElement("li");
   if (d.lien) {
+    const href = /^https?:/.test(d.lien) ? d.lien : BASE + d.lien;
     li.innerHTML = `<span class="type">${esc(d.type)}</span>
       <span class="title">${esc(d.titre)}<span class="meta">${d.type === "Cartes" ? (d.nombre ? d.nombre + " cartes, " : "") + "accès libre" : d.taille ? "PDF, " + (d.pages ? d.pages + " p., " : "") + size(d.taille) + ", accès libre" : (d.type === "Simulation" ? "Simulation interactive" : "Animation interactive") + ", accès libre"}</span></span>
-      <span class="actions"><a class="open" href="${esc(d.lien)}" target="_blank" rel="noopener">Ouvrir</a>${d.taille ? `<a class="open dl" href="${esc(d.lien)}" download="${esc(d.titre)}.pdf">Télécharger</a>` : ""}</span>`;
+      <span class="actions"><a class="open" href="${esc(href)}" target="_blank" rel="noopener">Ouvrir</a>${d.taille ? `<a class="open dl" href="${esc(href)}" download="${esc(d.titre)}.pdf">Télécharger</a>` : ""}</span>`;
     return li;
   }
-  li.innerHTML = `<span class="${typeClass(d.type)}">${esc(d.type)}</span>
-    <span class="title">${esc(d.titre)}<span class="meta">PDF, ${d.pages ? d.pages + " p., " : ""}${size(d.taille)}</span></span>
-    <span class="actions"><button class="open" type="button" ${open?"":"disabled"}>Ouvrir</button>
-    <button class="open dl" type="button" ${open?"":"disabled"} aria-label="Télécharger ${esc(d.titre)}">Télécharger</button></span>`;
+  const meta = `PDF, ${d.pages ? d.pages + " p., " : ""}${size(d.taille)}`;
+  if (d.corrige) {
+    const ok = S.prof || !!S.corr[d.corrige.id];
+    if (fresh.has(d.corrige.id)) li.className = "fresh";
+    if (!ok) {
+      li.innerHTML = `<span class="type corr locked">${LOCK}Corrigé</span>
+        <span class="title">${esc(d.titre)}<span class="meta">Verrouillé : le professeur le débloque quand il a vérifié ton travail</span></span>
+        <span class="actions"><span class="open locked">${LOCK}Verrouillé</span></span>`;
+      return li;
+    }
+    li.innerHTML = `<span class="type corr">Corrigé</span>
+      <span class="title">${esc(d.titre)}<span class="meta">${meta}${S.prof ? "" : " · débloqué"}</span></span>
+      <span class="actions"><button class="open" type="button">Ouvrir</button><button class="open dl" type="button" aria-label="Télécharger ${esc(d.titre)}">Télécharger</button></span>`;
+  } else {
+    li.innerHTML = `<span class="type${/^TP/i.test(d.type) ? " tp" : ""}">${esc(d.type)}</span>
+      <span class="title">${esc(d.titre)}<span class="meta">${meta}</span></span>
+      <span class="actions"><button class="open" type="button">Ouvrir</button><button class="open dl" type="button" aria-label="Télécharger ${esc(d.titre)}">Télécharger</button></span>`;
+  }
   const [o, dl] = li.querySelectorAll("button");
   o.onclick = () => openDoc(c.id, d, false);
   dl.onclick = () => openDoc(c.id, d, true);
@@ -268,7 +308,7 @@ function docRow(c, d, open){
 }
 
 const FOLDER = '<svg class="folder" viewBox="0 0 34 28" aria-hidden="true"><path d="M2 5a3 3 0 0 1 3-3h8l3 4h13a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3z" fill="currentColor" fill-opacity=".15" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
-function chapBlock(c, ch, docs, open, forceOpen, outil){
+function chapBlock(c, ch, docs, forceOpen, outil){
   const key = c.id + "/" + ch.titre;
   const s = document.createElement("details"); s.className = "chap";
   if (forceOpen || opened.has(key)) s.open = true;
@@ -276,32 +316,28 @@ function chapBlock(c, ch, docs, open, forceOpen, outil){
   s.innerHTML = `<summary>${outil ? FOLDER.replace('class="folder"', 'class="folder outil"') : FOLDER}<h3><span>${esc(ch.titre)}</span><span class="count">${n} document${n > 1 ? "s" : ""}</span></h3><span class="chev" aria-hidden="true"></span></summary>`;
   s.addEventListener("toggle", () => { if (s.open) opened.add(key); else opened.delete(key); });
   const ul = document.createElement("ul"); ul.className = "docs";
-  docs.forEach(d => ul.appendChild(docRow(c, d, open)));
+  docs.forEach(d => ul.appendChild(docRow(c, d)));
   s.appendChild(ul); return s;
 }
 
 function render(){
-  renderNav();
+  renderNav(); renderWho();
+  $("#searchBox").hidden = !S.user && current !== "outils";
   const view = $("#view"); view.innerHTML = "";
+  if (current === "connexion") { view.appendChild(loginBox()); return; }
   const q = $("#q").value.trim().toLowerCase();
-  const classes = q ? CAT.classes : CAT.classes.filter(c => c.id === current);
   let found = 0;
   if (q || current === "outils") found += renderOutils(view, q);
+  const classes = q ? visibleClasses() : visibleClasses().filter(c => c.id === current);
   for (const c of classes) {
-    const open = !!unlocked[c.id];
     const chaps = c.chapitres.map(ch => ({ch, docs: ch.docs.filter(d => !q || (d.titre + " " + d.type + " " + ch.titre).toLowerCase().includes(q))}))
       .filter(x => x.docs.length);
     if (q && !chaps.length) continue;
     const head = document.createElement("div"); head.className = "classhead";
-    head.innerHTML = `<h2>${esc(c.nom)}</h2>`;
-    const st = document.createElement("span");
-    if (open) { st.className = "status is-open"; st.innerHTML = `Documents ouverts. <button class="linkbtn" type="button">Verrouiller</button>`;
-      st.querySelector("button").onclick = () => { delete unlocked[c.id]; S.del("cle-" + c.id); render(); }; }
-    else if (c.chapitres.length) { st.className = "status"; st.textContent = KEYS[c.id] ? "Protégé par mot de passe" : "Pas encore ouvert aux étudiants"; }
-    head.appendChild(st); view.appendChild(head);
-    if (!open && !q && KEYS[c.id] && c.chapitres.length) view.appendChild(lockBox(c));
+    head.innerHTML = `<h2>${esc(c.nom)}</h2><span class="status is-open">Documents ouverts</span>`;
+    view.appendChild(head);
     if (!c.chapitres.length) { const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucun document pour l'instant."; view.appendChild(p); }
-    chaps.forEach(x => { found += x.docs.length; view.appendChild(chapBlock(c, x.ch, x.docs, open, !!q)); });
+    chaps.forEach(x => { found += x.docs.length; view.appendChild(chapBlock(c, x.ch, x.docs, !!q)); });
   }
   if (q && !found) { const p = document.createElement("p"); p.className = "empty"; p.textContent = "Aucun document ne correspond à « " + $("#q").value.trim() + " »."; view.appendChild(p); }
 }
@@ -312,54 +348,99 @@ function renderOutils(view, q){
     .filter(x => x.docs.length);
   if (q && !outils.length) return 0;
   const head = document.createElement("div"); head.className = "classhead";
-  head.innerHTML = `<h2>Outils</h2><span class="status libre">Accès libre, sans mot de passe</span>`;
+  head.innerHTML = `<h2>Outils</h2><span class="status libre">Accès libre, sans connexion</span>`;
   view.appendChild(head);
   if (!q) { const p = document.createElement("p"); p.className = "intro-outils"; p.textContent = "Fiches méthodes des appareils et logiciels utilisés en TP, avec une simulation pour s'entraîner avant la séance."; view.appendChild(p); }
   let grp = null, n = 0;
   outils.forEach(x => {
     if (x.ch.groupe !== grp) { grp = x.ch.groupe; const h = document.createElement("h3"); h.className = "groupe"; h.textContent = grp; view.appendChild(h); }
-    n += x.docs.length; view.appendChild(chapBlock(O, x.ch, x.docs, true, !!q, true));
+    n += x.docs.length; view.appendChild(chapBlock(O, x.ch, x.docs, !!q, true));
   });
   return n;
 }
 
-function lockBox(c){
+function loginBox(){
   const box = document.createElement("div"); box.className = "lock";
-  const fid = "pw-" + c.id;
-  box.innerHTML = `<p>Entrez le mot de passe de la classe pour ouvrir les documents.</p>
-    <form><input type="password" id="${fid}" autocomplete="current-password" aria-label="Mot de passe ${esc(c.nom)}" placeholder="Mot de passe" required>
-    <button class="btn" type="submit">Ouvrir les documents</button>
-    <label class="rem"><input type="checkbox"> Se souvenir sur cet appareil</label></form><p class="err" aria-live="assertive"></p>`;
+  box.innerHTML = `<h2>Connexion</h2><p>Entrez l'identifiant et le mot de passe donnés par votre professeur.</p>
+    <form><input type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-label="Identifiant" placeholder="Identifiant (ex. hugo.b)" required>
+    <input type="password" autocomplete="current-password" aria-label="Mot de passe" placeholder="Mot de passe" required>
+    <button class="btn" type="submit">Se connecter</button>
+    <label class="rem"><input type="checkbox" checked> Rester connecté sur cet appareil</label></form><p class="err" aria-live="assertive"></p>`;
   box.querySelector("form").onsubmit = async (e) => {
     e.preventDefault();
     const err = box.querySelector(".err"); err.textContent = "";
-    const btn = box.querySelector(".btn"); btn.disabled = true; btn.textContent = "Vérification…";
-    try { await unlock(c.id, box.querySelector("input[type=password]").value, box.querySelector("input[type=checkbox]").checked); render(); }
-    catch(x){ err.textContent = x.message === "mdp" ? "Mot de passe incorrect. Vérifiez les majuscules et réessayez." : "Les documents de cette classe ne sont pas encore ouverts."; btn.disabled = false; btn.textContent = "Ouvrir les documents"; }
+    const btn = box.querySelector(".btn"); btn.disabled = true; btn.textContent = "Connexion…";
+    let id = box.querySelector("input[type=text]").value.trim().toLowerCase();
+    if (!id.includes("@")) id += DOMAINE;
+    try {
+      await setPersistence(auth, box.querySelector("input[type=checkbox]").checked ? browserLocalPersistence : browserSessionPersistence);
+      await signInWithEmailAndPassword(auth, id, box.querySelector("input[type=password]").value);
+    } catch(x) {
+      err.textContent = /invalid|wrong|not-found|user/.test(x.code || "") ? "Identifiant ou mot de passe incorrect." : (x.code === "auth/too-many-requests" ? "Trop d'essais. Patientez quelques minutes." : "Connexion impossible. Vérifiez votre accès à Internet.");
+      btn.disabled = false; btn.textContent = "Se connecter";
+    }
   };
+  setTimeout(() => box.querySelector("input[type=text]")?.focus(), 50);
   return box;
 }
 
 function route(){
   const h = location.hash.slice(1);
-  current = (CAT.classes.some(c => c.id === h) || (h === "outils" && (CAT.outils || []).length)) ? h : (current || CAT.classes.find(c => c.chapitres.length)?.id || CAT.classes[0].id);
+  const ids = visibleClasses().map(c => c.id);
+  if (!S.user) current = (h === "outils" && (CAT.outils || []).length) ? "outils" : "connexion";
+  else current = ids.includes(h) || (h === "outils" && (CAT.outils || []).length) ? h : (S.site || ids[0]);
   render();
+}
+
+async function startSession(user){
+  if (unsubCorr) { unsubCorr(); unsubCorr = null; }
+  S = { user:null, prof:false, nom:"", site:null, groupe:null, keys:{}, maitre:null, corr:{} };
+  if (!user) return;
+  try {
+    if (user.email === PROF) {
+      const p = await getDoc(doc(db, "prive", "cles"));
+      if (!p.exists()) { toast("Clés absentes : importez le fichier dans l'appli professeur."); }
+      else {
+        const k = p.data();
+        for (const c of CAT.classes) if (k.sites && k.sites[c.id]) S.keys[c.id] = await importKey(b64(k.sites[c.id]));
+        if (k.corriges) S.maitre = await crypto.subtle.importKey("raw", b64(k.corriges), "AES-GCM", false, ["decrypt"]);
+      }
+      Object.assign(S, { user, prof:true, nom:"Professeur" });
+      return;
+    }
+    const e = await getDoc(doc(db, "eleves", user.uid));
+    if (!e.exists()) { toast("Ce compte n'est rattaché à aucune classe."); await signOut(auth); return; }
+    const { nom, site, classe } = e.data();
+    const k = await getDoc(doc(db, "clesSite", site));
+    if (k.exists()) S.keys[site] = await importKey(b64(k.data().cle));
+    Object.assign(S, { user, nom, site, groupe:classe });
+    let first = true;
+    unsubCorr = onSnapshot(query(collection(db, "deblocages"), where("uid", "==", user.uid)), snap => {
+      const before = new Set(Object.keys(S.corr)); const now = {};
+      snap.forEach(x => { const v = x.data(); if (v.doc && v.cle) now[v.doc] = v.cle; });
+      if (!first) for (const id in now) if (!before.has(id)) { fresh.add(id); toast("Un corrigé vient d'être débloqué !"); }
+      first = false; S.corr = now; render();
+    }, () => {});
+  } catch(x) {
+    toast("Problème de connexion au serveur. Rechargez la page.");
+  }
 }
 
 (async function init(){
   try {
-    const [cat, keys] = await Promise.all([fetch("catalogue.json",{cache:"no-cache"}).then(r=>r.json()), fetch("cles.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{}).catch(()=>({}))]);
-    CAT = cat; KEYS = keys || {};
+    CAT = await fetch(BASE + "catalogue-v2.json", {cache:"no-cache"}).then(r => r.json());
     $("#who").textContent = CAT.auteur || "";
-    if (CAT.titre) { document.querySelector("h1").textContent = CAT.titre; }
-    await restore();
+    if (CAT.titre) document.querySelector("h1").textContent = CAT.titre;
     $("#q").addEventListener("input", render);
     window.addEventListener("hashchange", route);
-    route();
+    onAuthStateChanged(auth, async user => {
+      await startSession(user);
+      if (user && S.user && (location.hash === "" || location.hash === "#connexion")) location.hash = S.site || CAT.classes[0].id;
+      route(); booted = true;
+    });
   } catch(e) {
     $("#view").innerHTML = "<p class='empty'>Le site n'a pas pu se charger. Rechargez la page.</p>";
   }
-})();
 })();
 </script>
 </body>
