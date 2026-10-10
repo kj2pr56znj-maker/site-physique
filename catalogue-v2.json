@@ -600,6 +600,17 @@
        "pages": 5
       },
       {
+       "titre": "Corrigé élève TP1 Moteur à courant continu",
+       "type": "Corrigé",
+       "fichier": "b7f867fae993c0833378f499.bin",
+       "taille": 387242,
+       "pages": 5,
+       "corrige": {
+        "id": "cim-les-convertisseurs-electromecaniques-corrige-eleve-tp1-moteur-a-courant-continu",
+        "wk": "pBPbc06LDvO+CltIcMoSyaiZOWH+A5uApJkSP9/5eY2rzwkrHGedAFpTk09/BO9uIQOPw0d+PQvbeqAu"
+       }
+      },
+      {
        "titre": "Annale BTS 2025 - moteur à courant continu",
        "type": "Document",
        "fichier": "f93129d2ed912ef8a6df9ceb.bin",
