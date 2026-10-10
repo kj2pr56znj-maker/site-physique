@@ -693,6 +693,11 @@
    "id": "cim2",
    "nom": "BTS CIM – 2e année",
    "site": "cim"
+  },
+  {
+   "id": "invites",
+   "nom": "Invités (collègues)",
+   "site": "tous"
   }
  ]
 }

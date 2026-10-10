@@ -195,7 +195,7 @@ const size = n => n > 1e6 ? (n/1e6).toFixed(1).replace(".", ",") + " Mo" : Math.
 
 let CAT = null, current = null, booted = false;
 /* Session : rôle, classe, clés */
-let S = { user:null, prof:false, nom:"", site:null, groupe:null, keys:{}, maitre:null, corr:{} };
+let S = { user:null, prof:false, premium:false, tous:false, nom:"", site:null, groupe:null, keys:{}, maitre:null, corr:{} };
 let unsubCorr = null, fresh = new Set();
 const opened = new Set();
 
@@ -229,7 +229,7 @@ async function decryptBlob(url, key){
 async function corrKey(d){
   const id = d.corrige.id;
   if (S.corr[id]) return importKey(b64(S.corr[id]));
-  if (S.prof && S.maitre) {
+  if ((S.prof || S.premium) && S.maitre) {
     const w = b64(d.corrige.wk);
     const raw = await crypto.subtle.decrypt({name:"AES-GCM", iv:w.slice(0,12), additionalData:enc.encode(id)}, S.maitre, w.slice(12));
     return importKey(raw);
@@ -258,7 +258,7 @@ const LOCK = '<svg class="lockico" viewBox="0 0 12 13" aria-hidden="true"><rect 
 
 function visibleClasses(){
   if (!S.user) return [];
-  if (S.prof) return CAT.classes;
+  if (S.prof || S.tous) return CAT.classes;
   return CAT.classes.filter(c => c.id === S.site);
 }
 
@@ -296,7 +296,7 @@ function docRow(c, d){
   }
   const meta = `PDF, ${d.pages ? d.pages + " p., " : ""}${size(d.taille)}`;
   if (d.corrige) {
-    const ok = S.prof || !!S.corr[d.corrige.id];
+    const ok = S.prof || S.premium || !!S.corr[d.corrige.id];
     if (fresh.has(d.corrige.id)) li.className = "fresh";
     if (!ok) {
       li.innerHTML = `<span class="type corr locked">${LOCK}Corrigé</span>
@@ -305,7 +305,7 @@ function docRow(c, d){
       return li;
     }
     li.innerHTML = `<span class="type corr">Corrigé</span>
-      <span class="title">${esc(d.titre)}<span class="meta">${meta}${S.prof ? "" : " · débloqué"}</span></span>
+      <span class="title">${esc(d.titre)}<span class="meta">${meta}${S.prof || S.premium ? "" : " · débloqué"}</span></span>
       <span class="actions"><button class="open" type="button">Ouvrir</button><button class="open dl" type="button" aria-label="Télécharger ${esc(d.titre)}">Télécharger</button></span>`;
   } else {
     li.innerHTML = `<span class="type${/^TP/i.test(d.type) ? " tp" : ""}">${esc(d.type)}</span>
@@ -422,7 +422,7 @@ function route(){
 
 async function startSession(user){
   if (unsubCorr) { unsubCorr(); unsubCorr = null; }
-  S = { user:null, prof:false, nom:"", site:null, groupe:null, keys:{}, maitre:null, corr:{} };
+  S = { user:null, prof:false, premium:false, tous:false, nom:"", site:null, groupe:null, keys:{}, maitre:null, corr:{} };
   if (!user) return;
   try {
     if (user.email === PROF) {
@@ -438,10 +438,27 @@ async function startSession(user){
     }
     const e = await getDoc(doc(db, "eleves", user.uid));
     if (!e.exists()) { toast("Ce compte n'est rattaché à aucune classe."); await signOut(auth); return; }
-    const { nom, site, classe } = e.data();
-    const k = await getDoc(doc(db, "clesSite", site));
-    if (k.exists()) S.keys[site] = await importKey(b64(k.data().cle));
-    Object.assign(S, { user, nom, site, groupe:classe });
+    const { nom, site, classe, premium } = e.data();
+    if (premium) {
+      /* Invité premium : tous les BTS et tous les corrigés ouverts (sans l'appli professeur) */
+      const p = await getDoc(doc(db, "prive", "cles"));
+      if (p.exists()) {
+        const k = p.data();
+        for (const c of CAT.classes) if (k.sites && k.sites[c.id]) S.keys[c.id] = await importKey(b64(k.sites[c.id]));
+        if (k.corriges) S.maitre = await crypto.subtle.importKey("raw", b64(k.corriges), "AES-GCM", false, ["decrypt"]);
+      }
+      Object.assign(S, { user, nom, site:null, tous:true, premium:true, groupe:classe });
+      return;
+    }
+    if (site === "tous") {
+      /* Invité : tous les BTS, version élève */
+      for (const c of CAT.classes) { try { const k = await getDoc(doc(db, "clesSite", c.id)); if (k.exists()) S.keys[c.id] = await importKey(b64(k.data().cle)); } catch(_){} }
+      Object.assign(S, { user, nom, site:null, tous:true, groupe:classe });
+    } else {
+      const k = await getDoc(doc(db, "clesSite", site));
+      if (k.exists()) S.keys[site] = await importKey(b64(k.data().cle));
+      Object.assign(S, { user, nom, site, groupe:classe });
+    }
     let first = true;
     unsubCorr = onSnapshot(query(collection(db, "deblocages"), where("uid", "==", user.uid)), snap => {
       const before = new Set(Object.keys(S.corr)); const now = {};

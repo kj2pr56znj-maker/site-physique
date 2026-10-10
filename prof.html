@@ -321,7 +321,7 @@ async function createAccounts(c){
       try { cred = await createUserWithEmailAndPassword(a2, email, e.mdp); }
       catch(x){ if (x.code === "auth/email-already-in-use") cred = await signInWithEmailAndPassword(a2, email, e.mdp); else throw x; }
       const uid = cred.user.uid; await signOut(a2);
-      await setDoc(doc(db, "eleves", uid), { nom:e.nom, classe:c.id, site:c.site, login:e.login });
+      await setDoc(doc(db, "eleves", uid), { nom:e.nom, classe:c.id, site:c.site, login:e.login, ...(e.premium ? { premium:true } : {}) });
       e.uid = uid; done++;
       await setDoc(doc(db, "classes", c.id), { eleves:c.eleves }, { merge:true });
     } catch(x) { fail++; console.warn(e.login, x.code); }
@@ -363,7 +363,7 @@ function settings(){
       for (const s in j.cles) batch.set(doc(db, "clesSite", s), { cle:j.cles[s] });
       const old = {}; CLASSES.forEach(c => (c.eleves || []).forEach(e => { if (e.uid) old[e.login] = e.uid; }));
       j.classes.forEach((c, i) => batch.set(doc(db, "classes", c.id), { nom:c.nom, site:c.site, ordre:i,
-        eleves:c.eleves.map(e => ({ nom:e.nom, login:e.login, mdp:e.mdp, ...(old[e.login] ? { uid:old[e.login] } : {}) })) }));
+        eleves:c.eleves.map(e => ({ nom:e.nom, login:e.login, mdp:e.mdp, ...(e.premium ? { premium:true } : {}), ...(old[e.login] ? { uid:old[e.login] } : {}) })) }));
       await batch.commit();
       await loadAll(); toast("Import réussi."); home();
     } catch(x){ err.textContent = x.message && !x.code ? x.message : "Import impossible (" + (x.code || "erreur") + ")."; }
