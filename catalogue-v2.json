@@ -378,9 +378,17 @@
       {
        "titre": "TP1 Analyse spectrale",
        "type": "TP",
-       "fichier": "28c1f6d90a2cfdce11bc3719.bin",
-       "taille": 460237,
-       "pages": 8,
+       "fichier": "58a7d95033bcf6ff4a68687b.bin",
+       "taille": 443656,
+       "pages": 7,
+       "rubrique": "TP"
+      },
+      {
+       "titre": "TP1 Analyse spectrale - coups de pouce",
+       "type": "TP",
+       "fichier": "4d8c9ad8022194dff3aa4802.bin",
+       "taille": 87454,
+       "pages": 2,
        "rubrique": "TP"
       },
       {
@@ -398,9 +406,17 @@
       {
        "titre": "TP2 THD",
        "type": "TP",
-       "fichier": "3619b762f109d0206c15b325.bin",
-       "taille": 317545,
-       "pages": 7,
+       "fichier": "f3a6c676227d59162c5d9efe.bin",
+       "taille": 306778,
+       "pages": 6,
+       "rubrique": "TP"
+      },
+      {
+       "titre": "TP2 THD - coups de pouce",
+       "type": "TP",
+       "fichier": "b48f74e6ded8aea16654ef98.bin",
+       "taille": 69082,
+       "pages": 1,
        "rubrique": "TP"
       },
       {
@@ -418,8 +434,8 @@
       {
        "titre": "Exercices - énoncés",
        "type": "Exercices",
-       "fichier": "2582f8cd16008aa4d0ae148b.bin",
-       "taille": 168170,
+       "fichier": "42e34a745ae87fa4a1085fd4.bin",
+       "taille": 177489,
        "pages": 3,
        "rubrique": "Exercices"
       },
@@ -514,7 +530,7 @@
       {
        "titre": "cartes de révision",
        "type": "Cartes",
-       "nombre": 26,
+       "nombre": 10,
        "lien": "cartes.html?c=cira&ch=nature-des-signaux-fourier-et-thd",
        "rubrique": "Réviser"
       }
