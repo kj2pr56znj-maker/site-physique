@@ -434,88 +434,88 @@
       {
        "titre": "Exercices - énoncés",
        "type": "Exercices",
-       "fichier": "42e34a745ae87fa4a1085fd4.bin",
-       "taille": 177489,
-       "pages": 3,
+       "fichier": "86f3efcc60ade5108c5707e9.bin",
+       "taille": 214602,
+       "pages": 4,
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 1 - coups de pouce",
        "type": "Exercices",
-       "fichier": "199b6fb37e2cc8510778e01e.bin",
-       "taille": 67584,
+       "fichier": "fd27b7a13971a767723ef658.bin",
+       "taille": 70606,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Corrigé élève exercice 1",
        "type": "Corrigé",
-       "fichier": "ca65f57c9020f68d21f028fb.bin",
-       "taille": 92269,
+       "fichier": "156e6833b4b7777b0ae5b472.bin",
+       "taille": 94768,
        "pages": 3,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-1",
-        "wk": "txngZNgoa4Avs0Ap1xCB7j5Zttn+ook44gU/tHwdDUl+EbF+D2qoNoRfeFfY4IQQz/5s9QDf534G15vz"
+        "wk": "lwij/UGttxN5dkXWnG07oGQJ7EuonsmvibtakZ1C6oJdVYl9m87IXJ84BqHXNKdznPa7wWyF3F9zKgQ0"
        },
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 2 - coups de pouce",
        "type": "Exercices",
-       "fichier": "98967a392256ba4f154bec47.bin",
-       "taille": 85534,
+       "fichier": "b35ea1db1a3db52338d52d0e.bin",
+       "taille": 88106,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Corrigé élève exercice 2",
        "type": "Corrigé",
-       "fichier": "327583c324652cabadfaac10.bin",
-       "taille": 114974,
-       "pages": 3,
+       "fichier": "3a67fab927cb08566d7fd718.bin",
+       "taille": 115041,
+       "pages": 2,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-2",
-        "wk": "mSn93ERBcgd+PVxukD2NiHhU/jIzwKB5qbWIFhe1N9+rfCmgnnAzwEPVebmvO9lDu7e352JimNiLtgVc"
+        "wk": "D53t4qjuQzRSNGmeGTMkoXVqH8HOz32JB9UCn9+OTDbT+F8effxm5GcV48QGDssqvD3oPdKREuYUMq2q"
        },
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 3 - coups de pouce",
        "type": "Exercices",
-       "fichier": "da8f2a8c3a000001cfa00f20.bin",
-       "taille": 68663,
+       "fichier": "6137ff466ab2561778297c47.bin",
+       "taille": 69194,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Corrigé élève exercice 3",
        "type": "Corrigé",
-       "fichier": "9313bb18f9d181bc12e0c56e.bin",
-       "taille": 89775,
+       "fichier": "337e1c3316b676a7a5404ea4.bin",
+       "taille": 83044,
        "pages": 2,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-3",
-        "wk": "QSQq+hxWwin840WG1fXreja9HDg+baQRCWqLXZW1kRP+Nj9SCiL1ixuDszwt/PBndaDJUbgP0xmXwjpj"
+        "wk": "yv2xjS4/pLI5yWCcQgPc4vM1X+bqHDl83LwKUCn6udsCgS3qVzgJb2ZiK5l/hOKkcojPeFv486Z9ldni"
        },
        "rubrique": "Exercices"
       },
       {
        "titre": "Exercice 4 - coups de pouce",
        "type": "Exercices",
-       "fichier": "b1c1d6f187d4fc52d94f7ad1.bin",
-       "taille": 72012,
+       "fichier": "2e3c62727bb0ada8f3ead527.bin",
+       "taille": 78600,
        "pages": 1,
        "rubrique": "Exercices"
       },
       {
        "titre": "Corrigé élève exercice 4",
        "type": "Corrigé",
-       "fichier": "b2f8e147e02729cb52842b03.bin",
-       "taille": 90871,
-       "pages": 3,
+       "fichier": "d17aae3ce00b87774a39a917.bin",
+       "taille": 102575,
+       "pages": 2,
        "corrige": {
         "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercice-4",
-        "wk": "wKTUSF372b070yemS45OZS04Hue/wY3eRnavYQBB2lM30sVxjCgCTsydwJt1L/lmpktbWzF/EtkZqWWU"
+        "wk": "dz5K0MKkPnU+A9VXBQZrVp0HAIkF+llS+w6TSZN5+6Ct9jHgY10yoJsORzYZtGR4tvblqxIHFgEZsHdh"
        },
        "rubrique": "Exercices"
       },
