@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corrigés – Prof</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1F3864">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Corrigés">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="prof.webmanifest">
+<link rel="apple-touch-icon" href="prof-icone.png">
+<link rel="icon" href="prof-icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --ink:#1F3864; --text:#18212F; --muted:#5A6577;
+  --grid:#D8E0EA; --accent:#C55A11; --accent-soft:#FBEDE3; --ok:#3F7A3A; --ok-soft:#E6F1E3;
+  --focus:#C55A11; --bar:#1F3864; --barText:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101826; --surface:#172234; --ink:#AFC4EA; --text:#E4EAF3; --muted:#9AA7BC;
+    --grid:#2A3850; --accent:#F08A4B; --accent-soft:#3A2618; --ok:#8CC784; --ok-soft:#1F3320;
+    --focus:#F08A4B; --bar:#0B1220; --barText:#E4EAF3;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101826; --surface:#172234; --ink:#AFC4EA; --text:#E4EAF3; --muted:#9AA7BC;
+  --grid:#2A3850; --accent:#F08A4B; --accent-soft:#3A2618; --ok:#8CC784; --ok-soft:#1F3320;
+  --focus:#F08A4B; --bar:#0B1220; --barText:#E4EAF3;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.45 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;line-height:1.1;margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bar);color:var(--barText);
+  padding:calc(10px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:10px;min-height:56px}
+.bar h1{flex:1;min-width:0;font-size:1.55rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .sub{display:block;font-family:"Atkinson Hyperlegible",system-ui,sans-serif;font-size:.8rem;font-weight:400;opacity:.8}
+.iconbtn{flex:none;background:none;border:0;color:inherit;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;cursor:pointer}
+.iconbtn:active{background:rgba(255,255,255,.15)}
+.iconbtn svg{width:22px;height:22px}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+.card{background:var(--surface);border:1px solid var(--grid);border-radius:12px;margin:12px 0;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--grid);min-height:58px;width:100%;
+  background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;cursor:pointer}
+.row:first-child{border-top:0}
+button.row:active{background:var(--bg)}
+.row .main{flex:1;min-width:0}
+.row .t{display:block;font-weight:700}
+.row .m{display:block;font-size:.85rem;color:var(--muted)}
+.chev{flex:none;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg)}
+.count{flex:none;font-variant-numeric:tabular-nums;font-weight:700;font-size:.95rem;color:var(--ink);background:var(--bg);border:1px solid var(--grid);border-radius:20px;padding:2px 10px}
+.count.full{color:var(--ok);border-color:currentColor;background:var(--ok-soft)}
+.sec{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:22px 4px 0}
+.tabs{display:flex;gap:6px;margin:14px 0 4px;background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:4px}
+.tabs button{flex:1;border:0;background:none;padding:9px;border-radius:7px;font-weight:700;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--surface)}
+/* Interrupteur */
+.sw{flex:none;position:relative;width:52px;height:32px}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:0;border-radius:16px;background:var(--grid);transition:background .15s}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.sw input:checked + span{background:var(--ok)}
+.sw input:checked + span::after{transform:translateX(20px)}
+.sw input:focus-visible + span{outline:3px solid var(--focus);outline-offset:2px}
+.sw input:disabled + span{opacity:.5}
+@media (prefers-reduced-motion: reduce){.sw span,.sw span::after{transition:none}}
+.btn{display:block;width:100%;border:0;border-radius:10px;padding:13px 16px;font-weight:700;cursor:pointer;background:var(--ink);color:var(--surface);margin:10px 0}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--ink)}
+.btn.ok{background:var(--ok);color:#fff}
+.btn[disabled]{opacity:.5;cursor:default}
+.btns{display:flex;gap:10px}
+.btns .btn{flex:1}
+input[type=text],input[type=password]{width:100%;font:inherit;padding:12px;border:1px solid var(--grid);border-radius:10px;background:var(--surface);color:var(--text);margin:6px 0}
+label.f{display:block;font-size:.9rem;color:var(--muted);margin-top:10px}
+.note{color:var(--muted);font-size:.92rem;margin:8px 4px}
+.err{color:var(--accent);font-weight:700;min-height:1.3em;margin:6px 0}
+.pill{display:inline-block;font-size:.78rem;font-weight:700;border-radius:20px;padding:1px 8px;border:1px solid currentColor}
+.pill.ok{color:var(--ok)}.pill.no{color:var(--accent)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--surface);
+  padding:10px 16px;border-radius:10px;font-size:.95rem;display:none;max-width:calc(100% - 32px);z-index:9}
+.empty{color:var(--muted);text-align:center;padding:24px 16px}
+.progress{height:6px;background:var(--grid);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress i{display:block;height:100%;background:var(--ok);width:0}
+#print{display:none}
+@media print{
+  body{background:#fff;padding:0}
+  .bar,#app,.toast{display:none!important}
+  #print{display:block;font:11pt Arial,sans-serif;color:#000}
+  .fiche{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .carte{border:1px dashed #888;padding:12px 14px;height:46mm;break-inside:avoid}
+  .carte b{font-size:13pt}
+  .carte .l{margin-top:6px}
+  .carte .u{font-size:9pt;margin-top:8px;color:#333}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <button class="iconbtn" id="back" aria-label="Retour" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <h1 id="title">Corrigés<span class="sub" id="subtitle"></span></h1>
+  <button class="iconbtn" id="menu" aria-label="Réglages" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
+</div>
+<main class="wrap" id="app"><p class="empty">Chargement…</p></main>
+<div id="print"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, query, where, onSnapshot, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const FB = {"apiKey":"AIzaSyDH32Ma0shVbsIHR0xNJbahb5MO0RKHRS0","authDomain":"physique-neruda.firebaseapp.com","projectId":"physique-neruda","storageBucket":"physique-neruda.firebasestorage.app","messagingSenderId":"62730174289","appId":"1:62730174289:web:588c846aadd4eec2109d70"};
+const DOMAINE = "@physique-neruda.firebaseapp.com";
+const PROF = "prof" + DOMAINE;
+const app = initializeApp(FB), auth = getAuth(app), db = getFirestore(app);
+const BASE = /\/essai\/[^/]*$/.test(location.pathname) ? "../" : "";
+const SITE_URL = location.origin + location.pathname.replace(/[^/]*$/, "");
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const tob64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+const enc = new TextEncoder();
+function toast(m){ const t = $("#toast"); t.textContent = m; t.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = "none", 3500); }
+
+let CAT = null, CLASSES = [], MAITRE = null, unsub = null;
+let stack = [];   // pile d'écrans pour le bouton retour
+
+function setBar(title, sub, canBack){
+  $("#title").innerHTML = esc(title) + (sub ? `<span class="sub">${esc(sub)}</span>` : "");
+  $("#back").hidden = !canBack; $("#menu").hidden = !auth.currentUser;
+}
+function stopLive(){ if (unsub) { unsub(); unsub = null; } }
+function go(fn, ...args){ stack.push([fn, args]); stopLive(); fn(...args); window.scrollTo(0, 0); }
+$("#back").onclick = () => { stack.pop(); const [fn, args] = stack[stack.length - 1] || [home, []]; stopLive(); fn(...args); };
+$("#menu").onclick = () => go(settings);
+
+/* ---------- Connexion ---------- */
+function loginScreen(){
+  stack = []; setBar("Corrigés", "Espace professeur", false);
+  $("#app").innerHTML = `<div class="card" style="padding:16px">
+    <h2 style="font-size:1.5rem">Connexion professeur</h2>
+    <label class="f" for="pw">Mot de passe professeur</label>
+    <input type="password" id="pw" autocomplete="current-password">
+    <p class="err" id="err"></p>
+    <button class="btn" id="go">Se connecter</button>
+    <button class="btn ghost" id="first">Première utilisation : créer le compte professeur</button>
+  </div>
+  <p class="note">Sur iPhone : touchez le bouton Partager de Safari, puis « Sur l'écran d'accueil » pour installer l'appli.</p>`;
+  const err = $("#err");
+  $("#go").onclick = async () => {
+    err.textContent = "";
+    try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, PROF, $("#pw").value); }
+    catch(e){ err.textContent = e.code === "auth/too-many-requests" ? "Trop d'essais, patientez." : "Mot de passe incorrect."; }
+  };
+  $("#pw").onkeydown = e => { if (e.key === "Enter") $("#go").click(); };
+  $("#first").onclick = () => {
+    $("#app").innerHTML = `<div class="card" style="padding:16px">
+      <h2 style="font-size:1.5rem">Créer le compte professeur</h2>
+      <p class="note">Choisissez un mot de passe d'au moins 10 caractères. Il protège l'accès à tous les corrigés et aux comptes des élèves.</p>
+      <label class="f" for="p1">Mot de passe</label><input type="password" id="p1" autocomplete="new-password">
+      <label class="f" for="p2">Confirmer</label><input type="password" id="p2" autocomplete="new-password">
+      <p class="err" id="err"></p>
+      <button class="btn" id="create">Créer le compte</button>
+      <button class="btn ghost" id="cancel">Annuler</button></div>`;
+    $("#cancel").onclick = loginScreen;
+    $("#create").onclick = async () => {
+      const e2 = $("#err"), a = $("#p1").value, b = $("#p2").value;
+      if (a.length < 10) { e2.textContent = "10 caractères minimum."; return; }
+      if (a !== b) { e2.textContent = "Les deux mots de passe sont différents."; return; }
+      try { await setPersistence(auth, browserLocalPersistence); await createUserWithEmailAndPassword(auth, PROF, a); toast("Compte professeur créé."); }
+      catch(x){ e2.textContent = x.code === "auth/email-already-in-use" ? "Le compte professeur existe déjà : connectez-vous." : "Création impossible (" + (x.code || "erreur") + ")."; }
+    };
+  };
+}
+
+/* ---------- Données ---------- */
+async function loadAll(){
+  CAT = await fetch(BASE + "catalogue-v2.json", {cache:"no-cache"}).then(r => r.json());
+  const snap = await getDocs(collection(db, "classes"));
+  CLASSES = []; snap.forEach(d => CLASSES.push({ id:d.id, ...d.data() }));
+  CLASSES.sort((a, b) => (a.ordre ?? 99) - (b.ordre ?? 99));
+  const p = await getDoc(doc(db, "prive", "cles"));
+  MAITRE = p.exists() && p.data().corriges ? await crypto.subtle.importKey("raw", b64(p.data().corriges), "AES-GCM", false, ["decrypt"]) : null;
+}
+function corriges(site){
+  const c = CAT.classes.find(x => x.id === site); if (!c) return [];
+  return c.chapitres.map(ch => ({ ch, docs: ch.docs.filter(d => d.corrige) })).filter(x => x.docs.length);
+}
+async function unwrap(d){
+  const w = b64(d.corrige.wk);
+  const raw = await crypto.subtle.decrypt({name:"AES-GCM", iv:w.slice(0,12), additionalData:enc.encode(d.corrige.id)}, MAITRE, w.slice(12));
+  return tob64(raw);
+}
+
+/* ---------- Accueil : les classes ---------- */
+function home(){
+  stack = [[home, []]]; setBar("Corrigés", "Mes classes", false);
+  if (!CLASSES.length) {
+    $("#app").innerHTML = `<div class="card" style="padding:16px"><h2 style="font-size:1.4rem">Bienvenue</h2>
+      <p>Pour commencer, importez le fichier « Fichier pour l'appli professeur.json » (dossier « Site - contenu » de votre Mac). C'est à faire une seule fois, depuis le Mac.</p>
+      <button class="btn" id="imp">Importer le fichier</button></div>`;
+    $("#imp").onclick = () => go(settings); return;
+  }
+  const html = CLASSES.map(c => {
+    const n = (c.eleves || []).length, nc = corriges(c.site).reduce((a, x) => a + x.docs.length, 0);
+    return `<button class="row" data-id="${esc(c.id)}"><span class="main"><span class="t">${esc(c.nom)}</span><span class="m">${n} élève${n>1?"s":""} · ${nc} corrigé${nc>1?"s":""}</span></span><span class="chev"></span></button>`;
+  }).join("");
+  $("#app").innerHTML = `<div class="card">${html}</div>`;
+  $("#app").querySelectorAll(".row").forEach(b => b.onclick = () => go(classe, b.dataset.id, "corriges"));
+}
+
+/* ---------- Une classe ---------- */
+function classe(id, tab){
+  const c = CLASSES.find(x => x.id === id); if (!c) return home();
+  setBar(c.nom, tab === "corriges" ? "Corrigés à débloquer" : "Élèves et comptes", true);
+  const tabs = `<div class="tabs" role="tablist"><button role="tab" aria-selected="${tab==="corriges"}" data-t="corriges">Corrigés</button><button role="tab" aria-selected="${tab==="eleves"}" data-t="eleves">Élèves et comptes</button></div>`;
+  $("#app").innerHTML = tabs + `<div id="pane"></div>`;
+  $("#app").querySelectorAll(".tabs button").forEach(b => b.onclick = () => { stack[stack.length-1] = [classe, [id, b.dataset.t]]; stopLive(); classe(id, b.dataset.t); });
+  if (tab === "corriges") paneCorriges(c); else paneEleves(c);
+}
+
+function paneCorriges(c){
+  const groups = corriges(c.site), total = (c.eleves || []).filter(e => e.uid).length;
+  if (!groups.length) { $("#pane").innerHTML = `<p class="empty">Aucun corrigé élève pour ce BTS pour l'instant.</p>`; return; }
+  const render = (counts) => {
+    $("#pane").innerHTML = groups.map(g => `<p class="sec">${esc(g.ch.titre)}</p><div class="card">` + g.docs.map(d => {
+      const n = counts[d.corrige.id] || 0;
+      return `<button class="row" data-doc="${esc(d.corrige.id)}"><span class="main"><span class="t">${esc(d.titre)}</span><span class="m">${n === total && total ? "Débloqué pour toute la classe" : n ? n + " élève" + (n>1?"s":"") + " débloqué" + (n>1?"s":"") : "Personne pour l'instant"}</span></span><span class="count${n===total&&total?" full":""}">${n}/${total}</span><span class="chev"></span></button>`;
+    }).join("") + `</div>`).join("") + (total ? "" : `<p class="note">Aucun compte élève n'est encore créé : onglet « Élèves et comptes ».</p>`);
+    $("#pane").querySelectorAll(".row").forEach(b => b.onclick = () => {
+      const d = groups.flatMap(g => g.docs).find(x => x.corrige.id === b.dataset.doc);
+      go(docEleves, c.id, d);
+    });
+  };
+  render({});
+  unsub = onSnapshot(query(collection(db, "deblocages"), where("classe", "==", c.id)), snap => {
+    const counts = {}; snap.forEach(x => { const v = x.data(); counts[v.doc] = (counts[v.doc] || 0) + 1; }); render(counts);
+  }, e => toast("Lecture impossible : " + e.code));
+}
+
+/* ---------- Un corrigé : la liste des élèves à cocher ---------- */
+function docEleves(cid, d){
+  const c = CLASSES.find(x => x.id === cid);
+  setBar(d.titre, c.nom, true);
+  const el = (c.eleves || []).filter(e => e.uid);
+  if (!el.length) { $("#app").innerHTML = `<p class="empty">Créez d'abord les comptes des élèves (onglet « Élèves et comptes »).</p>`; return; }
+  let on = new Set(), K = null;
+  $("#app").innerHTML = `<div class="progress" aria-hidden="true"><i id="pb"></i></div><p class="note" id="pn"></p>
+    <div class="card" id="list">${el.map(e => `<label class="row" style="cursor:pointer"><span class="main"><span class="t">${esc(e.nom)}</span><span class="m" data-m="${esc(e.uid)}">Verrouillé</span></span>
+      <span class="sw"><input type="checkbox" data-uid="${esc(e.uid)}" aria-label="Débloquer pour ${esc(e.nom)}"><span></span></span></label>`).join("")}</div>
+    <div class="btns"><button class="btn ok" id="all">Tout débloquer</button><button class="btn ghost" id="none">Tout verrouiller</button></div>`;
+  const boxes = [...$("#list").querySelectorAll("input")];
+  const paint = () => {
+    boxes.forEach(b => { b.checked = on.has(b.dataset.uid); $(`[data-m="${b.dataset.uid}"]`).textContent = b.checked ? "Corrigé débloqué" : "Verrouillé"; });
+    $("#pb").style.width = (100 * on.size / el.length) + "%";
+    $("#pn").textContent = `${on.size} / ${el.length} élèves ont accès au corrigé.`;
+  };
+  const key = async () => { if (!K) { if (!MAITRE) throw new Error("cles"); K = await unwrap(d); } return K; };
+  const ref = uid => doc(db, "deblocages", d.corrige.id + "_" + uid);
+  const set = async (uid, val) => {
+    if (val) await setDoc(ref(uid), { uid, doc:d.corrige.id, classe:cid, cle: await key(), at: serverTimestamp() });
+    else await deleteDoc(ref(uid));
+  };
+  boxes.forEach(b => b.onchange = async () => {
+    const uid = b.dataset.uid, val = b.checked; b.disabled = true;
+    try { await set(uid, val); if (val) on.add(uid); else on.delete(uid); }
+    catch(e){ b.checked = !val; toast(e.message === "cles" ? "Clés absentes : importez le fichier dans Réglages." : "Échec, vérifiez la connexion."); }
+    b.disabled = false; paint();
+  });
+  const bulk = async (val) => {
+    try {
+      const k = val ? await key() : null, batch = writeBatch(db);
+      el.forEach(e => { if (val) batch.set(ref(e.uid), { uid:e.uid, doc:d.corrige.id, classe:cid, cle:k, at:serverTimestamp() }); else batch.delete(ref(e.uid)); });
+      await batch.commit(); toast(val ? "Corrigé débloqué pour toute la classe." : "Corrigé verrouillé pour toute la classe.");
+    } catch(e){ toast(e.message === "cles" ? "Clés absentes : importez le fichier dans Réglages." : "Échec, vérifiez la connexion."); }
+  };
+  $("#all").onclick = () => bulk(true);
+  $("#none").onclick = () => { if (confirm("Verrouiller ce corrigé pour toute la classe ?")) bulk(false); };
+  paint();
+  unsub = onSnapshot(query(collection(db, "deblocages"), where("doc", "==", d.corrige.id), where("classe", "==", cid)), snap => {
+    on = new Set(); snap.forEach(x => on.add(x.data().uid)); paint();
+  }, e => toast("Lecture impossible : " + e.code));
+}
+
+/* ---------- Élèves et comptes ---------- */
+function paneEleves(c){
+  const el = c.eleves || [], missing = el.filter(e => !e.uid).length;
+  $("#pane").innerHTML = `<div class="card">${el.map(e => `<div class="row" style="cursor:default"><span class="main"><span class="t">${esc(e.nom)}</span>
+      <span class="m"><span class="mono">${esc(e.login)}</span> · mot de passe <span class="mono">${esc(e.mdp)}</span></span></span>
+      ${e.uid ? `<span class="pill ok">compte actif</span>` : `<span class="pill no">à créer</span>`}</div>`).join("") || `<p class="empty">Aucun élève.</p>`}</div>
+    ${missing ? `<button class="btn" id="mk">Créer les ${missing} compte${missing>1?"s":""} manquant${missing>1?"s":""}</button>` : ""}
+    <button class="btn ghost" id="pr">Imprimer les fiches identifiants</button>
+    <p class="note">Les identifiants sont à distribuer une seule fois. Si un élève oublie son mot de passe, il est affiché ici.</p>`;
+  $("#pr").onclick = () => printCards(c);
+  if (missing) $("#mk").onclick = () => createAccounts(c);
+}
+
+async function createAccounts(c){
+  const btn = $("#mk"); btn.disabled = true;
+  const app2 = initializeApp(FB, "creation-" + Date.now()), a2 = getAuth(app2);
+  let done = 0, fail = 0;
+  for (const e of c.eleves) {
+    if (e.uid) continue;
+    btn.textContent = `Création… ${done + fail + 1}`;
+    const email = e.login + DOMAINE;
+    try {
+      let cred;
+      try { cred = await createUserWithEmailAndPassword(a2, email, e.mdp); }
+      catch(x){ if (x.code === "auth/email-already-in-use") cred = await signInWithEmailAndPassword(a2, email, e.mdp); else throw x; }
+      const uid = cred.user.uid; await signOut(a2);
+      await setDoc(doc(db, "eleves", uid), { nom:e.nom, classe:c.id, site:c.site, login:e.login });
+      e.uid = uid; done++;
+      await setDoc(doc(db, "classes", c.id), { eleves:c.eleves }, { merge:true });
+    } catch(x) { fail++; console.warn(e.login, x.code); }
+    await new Promise(r => setTimeout(r, 400));
+  }
+  toast(fail ? `${done} comptes créés, ${fail} en échec (réessayez plus tard).` : `${done} comptes créés.`);
+  classe(c.id, "eleves");
+}
+
+function printCards(c){
+  const el = c.eleves || [];
+  $("#print").innerHTML = `<div class="fiche">${el.map(e => `<div class="carte"><b>${esc(e.nom)}</b> — ${esc(c.nom)}
+    <div class="l">Site : <b>${esc(SITE_URL.replace(/essai\/$/, ""))}</b></div>
+    <div class="l">Identifiant : <b>${esc(e.login)}</b></div>
+    <div class="l">Mot de passe : <b>${esc(e.mdp)}</b></div>
+    <div class="u">Garde cette fiche. Ne communique pas ton mot de passe.</div></div>`).join("")}</div>`;
+  window.print();
+}
+
+/* ---------- Réglages : import du fichier ---------- */
+function settings(){
+  setBar("Réglages", "", true);
+  $("#app").innerHTML = `<p class="sec">Clés et listes de classes</p>
+    <div class="card" style="padding:16px">
+      <p style="margin-top:0">Importez « Fichier pour l'appli professeur.json » (dossier « Site - contenu » du Mac). À refaire seulement si les listes de classes changent.</p>
+      <input type="file" id="f" accept=".json,application/json" hidden>
+      <button class="btn" id="pick">Choisir le fichier…</button><p class="err" id="err"></p></div>
+    <p class="sec">Compte</p>
+    <div class="card"><button class="row" id="out"><span class="main"><span class="t">Se déconnecter</span></span></button></div>`;
+  $("#pick").onclick = () => $("#f").click();
+  $("#f").onchange = async () => {
+    const file = $("#f").files[0]; if (!file) return;
+    const err = $("#err"); err.textContent = "";
+    try {
+      const j = JSON.parse(await file.text());
+      if (j.format !== "appli-prof-1") throw new Error("Ce n'est pas le bon fichier.");
+      const batch = writeBatch(db);
+      batch.set(doc(db, "prive", "cles"), { sites:j.cles, corriges:j.corriges });
+      for (const s in j.cles) batch.set(doc(db, "clesSite", s), { cle:j.cles[s] });
+      const old = {}; CLASSES.forEach(c => (c.eleves || []).forEach(e => { if (e.uid) old[e.login] = e.uid; }));
+      j.classes.forEach((c, i) => batch.set(doc(db, "classes", c.id), { nom:c.nom, site:c.site, ordre:i,
+        eleves:c.eleves.map(e => ({ nom:e.nom, login:e.login, mdp:e.mdp, ...(old[e.login] ? { uid:old[e.login] } : {}) })) }));
+      await batch.commit();
+      await loadAll(); toast("Import réussi."); home();
+    } catch(x){ err.textContent = x.message && !x.code ? x.message : "Import impossible (" + (x.code || "erreur") + ")."; }
+  };
+  $("#out").onclick = async () => { await signOut(auth); };
+}
+
+onAuthStateChanged(auth, async user => {
+  stopLive();
+  if (!user) return loginScreen();
+  if (user.email !== PROF) { await signOut(auth); return loginScreen(); }
+  try { await loadAll(); home(); }
+  catch(e){ $("#app").innerHTML = `<p class="empty">Chargement impossible (${esc(e.code || e.message)}). Vérifiez la connexion puis rechargez.</p>`; setBar("Corrigés", "", false); }
+});
+</script>
+</body>
+</html>

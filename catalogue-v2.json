@@ -397,6 +397,17 @@
        "fichier": "3619b762f109d0206c15b325.bin",
        "taille": 317545,
        "pages": 7
+      },
+      {
+       "titre": "Corrigé élève TP2 THD",
+       "type": "Corrigé",
+       "fichier": "c0066cba3f5aaa3636f46d7d.bin",
+       "taille": 133125,
+       "pages": 4,
+       "corrige": {
+        "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-tp2-thd",
+        "wk": "wqYyQzRWmhg1zfLFrqZP4BPGJyRrNRJYVfyxXiZEUksrEpW3ZsPwVwh03H3XTwlbpdNgX/3E3p8SMSlK"
+       }
       }
      ]
     }
@@ -529,6 +540,34 @@
      "lien": "outils/wattmetre-numerique-fiwatt/simulation-wattmetre.html"
     }
    ]
+  }
+ ],
+ "version": 2,
+ "groupes": [
+  {
+   "id": "et1a",
+   "nom": "BTS ET – 1re année alternants",
+   "site": "et"
+  },
+  {
+   "id": "et2",
+   "nom": "BTS ET – 2e année",
+   "site": "et"
+  },
+  {
+   "id": "et2a",
+   "nom": "BTS ET – 2e année alternants",
+   "site": "et"
+  },
+  {
+   "id": "cira1",
+   "nom": "BTS CIRA – 1re année",
+   "site": "cira"
+  },
+  {
+   "id": "cim2",
+   "nom": "BTS CIM – 2e année",
+   "site": "cim"
   }
  ]
 }
