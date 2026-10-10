@@ -3,136 +3,64 @@
  "titre": "Les régimes transitoires",
  "cartes": [
   {
-   "type": "Notion",
-   "recto": "Qu'appelle-t-on un échelon d'entrée ? Donner un exemple.",
-   "verso": "Une variation <b>brutale</b> de l'entrée, qui passe instantanément d'une valeur constante à une autre. Ex. : mise sous tension, démarrage d'un moteur, changement brutal de consigne.",
+   "type": "Définition",
+   "recto": "Qu'est-ce qu'un échelon d'entrée ?",
+   "verso": "Une variation <b>brutale</b> de l'entrée.",
    "origine": "Cours §1 — Notion de système"
   },
   {
-   "type": "Notion",
-   "recto": "Échauffement d'un moteur : quelle est l'entrée, quelle est la sortie ?",
-   "verso": "Entrée : la <b>puissance dissipée</b> $P$ (W).<br>Sortie : la <b>température</b> $\\theta$ (°C).",
-   "origine": "Cours §1 — Notion de système"
-  },
-  {
-   "type": "Formule",
-   "recto": "Forme de l'équation différentielle d'un système stable du premier ordre ?",
-   "verso": "$$\\tau\\,\\frac{ds}{dt} + s(t) = K\\, e(t)$$ $\\tau$ : constante de temps (s) ; $K$ : gain statique.",
-   "origine": "Cours §2 — Modéliser un système du premier ordre"
-  },
-  {
-   "type": "Notion",
-   "recto": "Équation du premier ordre : qu'est-ce qui est exigible, qu'est-ce qui ne l'est pas ?",
-   "verso": "<b>Non exigible</b> : la résolution.<br><b>Exigible</b> : reconnaître un premier ordre, puis en extraire $\\tau$ et $K$ à partir d'une loi physique ou d'un enregistrement.",
-   "origine": "Cours §2 — À retenir"
-  },
-  {
-   "type": "Formule",
-   "recto": "Définition du gain statique $K$ ? A-t-il une unité ?",
-   "verso": "$$K = \\frac{\\Delta s_\\infty}{\\Delta e} = \\frac{s_\\infty - s_0}{\\Delta e}$$ Oui : unité de $s$ divisée par celle de $e$ (ex. °C/W, tr/min/V).",
-   "origine": "Cours §2 — Gain statique"
-  },
-  {
-   "type": "Notion",
-   "recto": "Que caractérise la constante de temps $\\tau$ ?",
-   "verso": "La <b>rapidité</b> du système : plus $\\tau$ est petite, plus le système atteint vite son régime permanent.",
-   "origine": "Cours §2 — Constante de temps"
-  },
-  {
-   "type": "Notion",
-   "recto": "Système stable / système instable : définitions ?",
-   "verso": "<b>Stable</b> : soumis à un échelon, sa sortie tend vers une valeur <b>finie et constante</b>.<br><b>Instable</b> : sa sortie diverge (croît indéfiniment ou oscille sans se stabiliser).",
-   "origine": "Cours §3 — Stabilité d'un système"
-  },
-  {
-   "type": "Notion",
-   "recto": "Régime transitoire, régime permanent : définitions ?",
-   "verso": "• <b>Transitoire</b> : la sortie évolue de $s_0$ vers sa valeur finale.<br>• <b>Permanent</b> (établi) : la sortie a atteint $s_\\infty$ et n'évolue plus tant que l'entrée ne change pas.",
+   "type": "Définition",
+   "recto": "Qu'est-ce que le régime permanent ?",
+   "verso": "La sortie a atteint sa <b>valeur finale</b> et ne bouge plus.",
    "origine": "Cours §4 — Régime transitoire, régime permanent"
   },
   {
-   "type": "Formule",
-   "recto": "Réponse d'un premier ordre à un échelon : expression de $s(t)$ ?",
-   "verso": "$$s(t) = s_\\infty + (s_0 - s_\\infty)\\, e^{-t/\\tau}$$",
-   "origine": "Cours §4 — Réponse à un échelon"
+   "type": "Définition",
+   "recto": "Qu'est-ce qu'un système stable ?",
+   "verso": "Après un échelon, sa sortie tend vers une <b>valeur finie</b>.",
+   "origine": "Cours §3 — Stabilité d'un système"
   },
   {
    "type": "Formule",
-   "recto": "Pourcentage de la variation totale atteint à $t = \\tau$, $3\\tau$ et $5\\tau$ ?",
-   "verso": "• $t = \\tau$ : ≈ <b>63 %</b><br>• $t = 3\\tau$ : ≈ <b>95 %</b><br>• $t = 5\\tau$ : ≈ <b>99 %</b> (régime permanent atteint)",
-   "origine": "Cours §4 — Valeurs remarquables"
+   "recto": "Compléter : $K = \\dfrac{\\Delta s_\\infty}{\\dots}$",
+   "verso": "$K = \\dfrac{\\Delta s_\\infty}{\\Delta e}$",
+   "origine": "Cours §2 — Gain statique"
   },
   {
    "type": "Formule",
-   "recto": "Définir le temps de réponse à 5 %. Sa valeur pour un premier ordre ?",
-   "verso": "Durée au bout de laquelle la sortie entre dans la bande $s_\\infty \\pm 5\\,\\%$ de la variation totale <b>et n'en ressort plus</b>. $$t_{5\\%} \\approx 3\\tau$$",
+   "recto": "Premier ordre : compléter $t_{5\\%} \\approx \\dots$",
+   "verso": "$t_{5\\%} \\approx 3\\,\\tau$",
    "origine": "Cours §5 — Temps de réponse à 5 %"
   },
   {
-   "type": "Piège",
-   "recto": "On vient de modifier le point de fonctionnement d'un système. Peut-on relever tout de suite la nouvelle valeur ?",
-   "verso": "<b>Non</b> : tant que $t_{5\\%}$ n'est pas écoulé, la mesure n'est pas représentative du nouveau régime permanent.",
-   "origine": "Cours §5 — Point de vigilance"
+   "type": "Ordre de grandeur",
+   "recto": "À $t = \\tau$, quel pourcentage de la variation est atteint ?",
+   "verso": "Environ <b>63 %</b>.",
+   "origine": "Cours §4 — Valeurs remarquables"
   },
   {
-   "type": "Méthode",
-   "recto": "Identifier un premier ordre sur un enregistrement : les étapes ?",
-   "verso": "1. Relever $s_0$ et $s_\\infty$.<br>2. Calculer $K = \\dfrac{s_\\infty - s_0}{\\Delta e}$.<br>3. Calculer $s(\\tau) = s_0 + 0{,}63\\,(s_\\infty - s_0)$.<br>4. Lire l'instant $\\tau$ correspondant.<br>5. Vérifier (tangente à l'origine).",
-   "origine": "Cours §6 — Identifier un premier ordre"
+   "type": "Unité",
+   "recto": "Unité de la constante de temps $\\tau$ ?",
+   "verso": "La <b>seconde</b> (s).",
+   "origine": "Cours §2 — Modéliser un système du premier ordre"
   },
   {
-   "type": "Méthode",
-   "recto": "Puissance dissipée : échelon de 0 à 500 W ; température de 22 °C à 62 °C. Calculer $K$ et la température à $t = \\tau$.",
-   "verso": "$K = \\dfrac{62 - 22}{500} = \\mathbf{0{,}08\\ °C/W}$<br>$\\theta(\\tau) = 22 + 0{,}63 \\times 40 = \\mathbf{47{,}2\\ °C}$ : on lit $\\tau$ sur la courbe à cette valeur.",
-   "origine": "Cours §6 — Exemple type"
+   "type": "Sens physique",
+   "recto": "Plus $\\tau$ est petite, le système est… ?",
+   "verso": "Plus <b>rapide</b>.",
+   "origine": "Cours §2 — Constante de temps"
   },
   {
-   "type": "Notion",
-   "recto": "Quelle autre méthode permet de vérifier $\\tau$ sur une courbe ?",
-   "verso": "La <b>tangente à l'origine</b> coupe l'asymptote $s_\\infty$ à l'instant $t = \\tau$.",
-   "origine": "Cours §6 — Identifier un premier ordre"
-  },
-  {
-   "type": "Méthode",
-   "recto": "Tension appliquée de 0 à 24 V ; le courant tend vers $I_\\infty = 4{,}0$ A. Gain statique ? Courant à $t = \\tau$ ?",
-   "verso": "$K = \\dfrac{4{,}0}{24} \\approx \\mathbf{0{,}17\\ A/V}$<br>$i(\\tau) = 0{,}63 \\times 4{,}0 \\approx \\mathbf{2{,}5\\ A}$",
-   "origine": "Cours — Exercice 2"
-  },
-  {
-   "type": "Notion",
-   "recto": "Qu'est-ce que le modèle de Broïda ? Quand l'utilise-t-on ?",
-   "verso": "Un <b>retard pur</b> $T$ suivi d'un premier ordre ($\\tau$, $K$). On l'utilise quand la sortie ne commence à évoluer qu'après un délai (propagation, transport de matière, capteur lent).",
+   "type": "Sens physique",
+   "recto": "Qu'ajoute le modèle de Broïda au premier ordre ?",
+   "verso": "Un <b>retard pur</b> $T$.",
    "origine": "Cours §7 — Le modèle de Broïda"
   },
   {
-   "type": "Formule",
-   "recto": "Broïda : comment obtenir $\\tau$ et $T$ à partir de $t_{28}$ et $t_{63}$ ?",
-   "verso": "$$\\tau = 1{,}5\\,(t_{63} - t_{28}) \\qquad T = t_{63} - \\tau$$ $t_{28}$, $t_{63}$ : instants où la sortie atteint 28 % et 63 % de sa variation totale.",
-   "origine": "Cours §7 — Le modèle de Broïda"
-  },
-  {
-   "type": "Formule",
-   "recto": "Fonction de transfert du modèle de Broïda ? Son temps de réponse à 5 % ?",
-   "verso": "$$H(p) = \\frac{K\\, e^{-Tp}}{1 + \\tau p} \\qquad t_{5\\%} \\approx T + 3\\tau$$",
-   "origine": "Cours §7 — Le modèle de Broïda"
-  },
-  {
-   "type": "Méthode",
-   "recto": "On relève $t_{28} = 2{,}0$ s et $t_{63} = 3{,}0$ s. Calculer $\\tau$, $T$ et $t_{5\\%}$.",
-   "verso": "$\\tau = 1{,}5 \\times (3{,}0 - 2{,}0) = \\mathbf{1{,}5\\ s}$<br>$T = 3{,}0 - 1{,}5 = \\mathbf{1{,}5\\ s}$<br>$t_{5\\%} \\approx 1{,}5 + 3 \\times 1{,}5 = \\mathbf{6{,}0\\ s}$",
-   "origine": "Cours §7 — Le modèle de Broïda"
-  },
-  {
-   "type": "Notion",
-   "recto": "Caractéristique statique et point de fonctionnement : définitions ?",
-   "verso": "<b>Caractéristique statique</b> : sortie en régime permanent en fonction de l'entrée, pour de nombreux points ; sa pente donne $K$ localement.<br><b>Point de fonctionnement</b> : couple (entrée, sortie) où le système est stabilisé.",
-   "origine": "Cours §8 — Caractéristique statique"
-  },
-  {
-   "type": "Notion",
-   "recto": "Qu'est-ce qu'une perturbation ? Qu'observe-t-on après elle sur un système stable ?",
-   "verso": "Une action extérieure qui modifie le fonctionnement <b>sans changement volontaire de la commande</b> (ex. charge ajoutée sur un convoyeur). On observe un <b>écart transitoire</b>, puis un retour à un point de fonctionnement stabilisé.",
-   "origine": "Cours §8 — Perturbation"
+   "type": "Calcul mental",
+   "recto": "Échelon de 10 V, la sortie varie de 50 °C : gain statique ?",
+   "verso": "<b>5 °C/V</b>",
+   "origine": "Cours §2 — Gain statique"
   }
  ]
 }

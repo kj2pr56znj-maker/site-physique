@@ -3,160 +3,64 @@
  "titre": "Le hacheur",
  "cartes": [
   {
-   "type": "Notion",
-   "recto": "Quelle conversion d'énergie un hacheur réalise-t-il ?",
-   "verso": "Une conversion <b>continu → continu</b> : à partir d'une tension continue fixe (le <b>bus continu</b>), il fournit une tension continue dont la <b>valeur moyenne est réglable</b> entre 0 et la tension d'entrée.",
+   "type": "Définition",
+   "recto": "Quelle conversion d'énergie réalise un hacheur ?",
+   "verso": "<b>Continu → continu</b>, avec une valeur moyenne réglable.",
    "origine": "Cours §1 — Position du hacheur dans la chaîne d'énergie"
   },
   {
-   "type": "Notion",
-   "recto": "Dans le variateur du treuil, citer dans l'ordre les éléments de la chaîne d'énergie, du réseau à la charge.",
-   "verso": "Réseau 400 V triphasé → <b>redresseur</b> (pont de diodes) → <b>bus continu</b> ≈ 540 V filtré par condensateur → <b>hacheur</b> → moteur à courant continu → treuil.",
-   "origine": "Cours §1 — Position du hacheur dans la chaîne d'énergie"
-  },
-  {
-   "type": "Notion",
-   "recto": "Pourquoi ne pas alimenter le moteur du treuil directement par le bus continu à 540 V ?",
-   "verso": "Une tension fixe ne permet <b>ni de régler la vitesse</b>, ni un <b>démarrage progressif</b> qui limite l'appel de courant (et le moteur est prévu pour 440 V). Le hacheur module la tension moyenne.",
-   "origine": "Cours §1 — Pourquoi ne pas alimenter le moteur directement ?"
-  },
-  {
-   "type": "Notion",
-   "recto": "Hacheur série : quels sont les deux interrupteurs et leur nature ?",
-   "verso": "• <b>K</b> : transistor (IGBT ou MOSFET), <b>commandable</b> à l'ouverture et à la fermeture.<br>• <b>D</b> : diode de puissance, <b>non commandable</b>, appelée diode de roue libre.",
-   "origine": "Cours §2.1 et §3 — Structure, interrupteurs statiques"
-  },
-  {
-   "type": "Notion",
-   "recto": "Hacheur série : que se passe-t-il pendant $\\alpha T$, puis pendant $(1-\\alpha)T$ ?",
-   "verso": "• Pendant $\\alpha T$ : K <b>fermé</b>, la charge est reliée à la source, $u = E$, D bloquée.<br>• Pendant $(1-\\alpha)T$ : K <b>ouvert</b>, le courant de l'inductance se referme par D (passante), $u = 0$.",
+   "type": "Définition",
+   "recto": "Pourquoi D s'appelle-t-elle « diode de roue libre » ?",
+   "verso": "Quand K s'ouvre, elle laisse <b>continuer le courant</b> de l'inductance.",
    "origine": "Cours §2.1 — Structure"
   },
   {
-   "type": "Notion",
-   "recto": "Pourquoi la diode D est-elle appelée « diode de roue libre » ?",
-   "verso": "Quand K s'ouvre, le courant dans l'<b>inductance</b> de la charge ne peut pas s'annuler instantanément : il continue de circuler « en roue libre » à travers D.",
+   "type": "Définition",
+   "recto": "Quelle est la structure d'un hacheur quatre quadrants ?",
+   "verso": "Un <b>pont en H</b> : 4 interrupteurs commandés.",
+   "origine": "Cours §6 — Le hacheur quatre quadrants"
+  },
+  {
+   "type": "Formule",
+   "recto": "Compléter : $\\alpha = \\dfrac{\\dots}{T}$",
+   "verso": "$\\alpha = \\dfrac{t_{ON}}{T}$",
    "origine": "Cours §2.1 — Structure"
   },
   {
    "type": "Formule",
-   "recto": "Définir le rapport cyclique $\\alpha$. Quelles valeurs peut-il prendre ?",
-   "verso": "$$\\alpha = \\frac{t_{ON}}{T}$$ compris entre <b>0 et 1</b>. C'est le <b>seul paramètre de réglage</b> du hacheur, imposé par la commande MLI du transistor.",
-   "origine": "Cours §2.1 — Structure"
-  },
-  {
-   "type": "Formule",
-   "recto": "Valeur moyenne de la tension de sortie d'un hacheur série ? Comment la retrouver ?",
-   "verso": "$$U_{moy} = \\frac{E\\cdot\\alpha T + 0\\cdot(1-\\alpha)T}{T} = \\alpha\\, E$$ Aire du créneau sur une période, divisée par la période.",
+   "recto": "Hacheur série : compléter $U_{moy} = \\dots$",
+   "verso": "$U_{moy} = \\alpha\\,E$",
    "origine": "Cours §2.2 — Valeur moyenne de la tension de sortie"
   },
   {
-   "type": "Méthode",
-   "recto": "Bus continu $E = 540$ V. Quel rapport cyclique pour que le moteur reçoive $U_{moy} = 440$ V ? Et 220 V ?",
-   "verso": "$\\alpha = \\dfrac{U_{moy}}{E} = \\dfrac{440}{540} = \\mathbf{0{,}81}$<br>Pour 220 V : $\\alpha = \\dfrac{220}{540} = \\mathbf{0{,}41}$",
-   "origine": "Cours §10 — Application chiffrée"
+   "type": "Ordre de grandeur",
+   "recto": "Entre quelles valeurs varie le rapport cyclique $\\alpha$ ?",
+   "verso": "Entre <b>0 et 1</b>.",
+   "origine": "Cours §2.1 — Structure"
   },
   {
-   "type": "Méthode",
-   "recto": "$f = 5$ kHz et $\\alpha = 0{,}81$ : durées de conduction de K et de D sur une période ?",
-   "verso": "$T = \\dfrac{1}{f} = 200\\ \\mu s$<br>$t_{ON} = \\alpha T = \\mathbf{162\\ \\mu s}$ (K conduit)<br>$t_{OFF} = (1-\\alpha)T = \\mathbf{38\\ \\mu s}$ (D conduit)",
-   "origine": "Cours §10 — Application chiffrée"
+   "type": "Ordre de grandeur",
+   "recto": "Variateur sur réseau 400 V triphasé : tension du bus continu ?",
+   "verso": "Environ <b>540 V</b>.",
+   "origine": "Cours §1 — Position du hacheur dans la chaîne d'énergie"
   },
   {
-   "type": "Piège",
-   "recto": "Le hacheur série peut-il freiner le moteur (fonctionnement en génératrice) ?",
-   "verso": "<b>Non</b> : la diode ne conduit que dans un sens, le courant reste <b>positif</b> et la tension garde le <b>même signe</b>. Le hacheur série n'est <b>pas réversible</b>.",
+   "type": "Sens physique",
+   "recto": "Pour réduire l'ondulation du courant, on augmente… ?",
+   "verso": "La <b>fréquence de découpage</b> ou l'<b>inductance</b> $L$.",
+   "origine": "Cours §4 — Ondulation du courant"
+  },
+  {
+   "type": "Sens physique",
+   "recto": "Un hacheur série peut-il freiner le moteur ?",
+   "verso": "<b>Non</b> : il n'est pas réversible.",
    "origine": "Cours §3 — Point de vigilance : non-réversibilité"
   },
   {
-   "type": "Notion",
-   "recto": "Allure du courant dans l'induit : quand croît-il, quand décroît-il ?",
-   "verso": "Ondulation <b>triangulaire</b> autour de $I_{moy}$ :<br>• K fermé : $i$ <b>croît</b> (car $E > E'$) ;<br>• K ouvert : $i$ <b>décroît</b> (roue libre dans D).",
-   "origine": "Cours §4 — Ondulation du courant"
-  },
-  {
-   "type": "Formule",
-   "recto": "Définir le taux d'ondulation du courant.",
-   "verso": "$$\\tau = \\frac{\\Delta I}{I_{moy}} \\quad\\text{avec}\\quad \\Delta I = i_{max} - i_{min}$$",
-   "origine": "Cours §4 — Ondulation du courant"
-  },
-  {
-   "type": "Notion",
-   "recto": "Comment diminuer l'ondulation du courant dans la charge ?",
-   "verso": "Augmenter la <b>fréquence de découpage</b> $f$ ou l'<b>inductance</b> $L$ (inductance de lissage en série avec le moteur).",
-   "origine": "Cours §4 — Ondulation du courant"
-  },
-  {
-   "type": "Notion",
-   "recto": "Conduction continue / conduction discontinue : quelle différence ? Laquelle évite-t-on ?",
-   "verso": "• <b>Continue</b> : le courant ne s'annule jamais (fonctionnement normal).<br>• <b>Discontinue</b> : à faible charge, le courant s'annule avant la fin de la période ; elle dégrade la régulation de vitesse, on l'<b>évite</b>.",
-   "origine": "Cours §4 — Ondulation du courant"
-  },
-  {
-   "type": "Formule",
-   "recto": "Hacheur parfait : relation entre les grandeurs d'entrée et de sortie ?",
-   "verso": "Pas de pertes : $P_{entrée} = P_{sortie}$ $$E \\cdot I_{e,moy} = U_{s,moy}\\cdot I_{s,moy}$$ et comme $U_{s,moy} = \\alpha E$ : $I_{e,moy} = \\alpha\\, I_{s,moy}$.",
-   "origine": "Cours §5 — Bilan de puissance d'un hacheur parfait"
-  },
-  {
-   "type": "Méthode",
-   "recto": "Hacheur parfait, $E = 300$ V, $\\alpha = 0{,}5$, courant moteur $I = 15$ A. Courant moyen prélevé sur le bus ?",
-   "verso": "$I_e = \\alpha \\cdot I = 0{,}5 \\times 15 = \\mathbf{7{,}5\\ A}$<br>Vérification : $300 \\times 7{,}5 = 150 \\times 15 = 2\\,250$ W.",
-   "origine": "Cours §5 — Bilan de puissance"
-  },
-  {
-   "type": "Notion",
-   "recto": "Hacheur quatre quadrants : structure et intérêt ?",
-   "verso": "<b>Pont en H</b> : 4 interrupteurs commandés (chacun avec sa diode) sur deux bras. Il est <b>réversible en tension et en courant</b> : moteur et génératrice dans les deux sens de rotation.",
-   "origine": "Cours §6 — Le hacheur quatre quadrants"
-  },
-  {
-   "type": "Notion",
-   "recto": "Pont en H : tension $u_{AB}$ selon les interrupteurs fermés ?",
-   "verso": "• K1 et K4 : $u = +E$<br>• K2 et K3 : $u = -E$<br>• K1 et K3 (ou K2 et K4) : $u = 0$, roue libre.",
-   "origine": "Cours §6 — Le hacheur quatre quadrants"
-  },
-  {
-   "type": "Piège",
-   "recto": "Pont en H : pourquoi ne ferme-t-on jamais les deux interrupteurs d'un même bras ?",
-   "verso": "Cela mettrait le <b>bus continu en court-circuit</b>.",
-   "origine": "Cours §6 — Le hacheur quatre quadrants"
-  },
-  {
-   "type": "Notion",
-   "recto": "Les 4 quadrants du plan couple-vitesse pour le treuil ?",
-   "verso": "<b>Q1</b> : avant, moteur (montée).<br><b>Q2</b> : avant, frein (décélération en fin de montée).<br><b>Q3</b> : arrière, moteur (descente du crochet à vide).<br><b>Q4</b> : arrière, frein (descente contrôlée d'une charge lourde).",
-   "origine": "Cours §6 — Le hacheur quatre quadrants"
-  },
-  {
-   "type": "Notion",
-   "recto": "Treuil : dans quel quadrant fonctionne-t-on lors de la descente d'une charge lourde ? Que fait le moteur ?",
-   "verso": "<b>Quadrant 4</b> : rotation arrière, la charge entraîne le moteur qui fonctionne en <b>génératrice</b> et retient la charge.",
-   "origine": "Cours §6 — Le hacheur quatre quadrants"
-  },
-  {
-   "type": "Notion",
-   "recto": "Rôles du condensateur de bus continu ?",
-   "verso": "1. <b>Filtrer / lisser</b> la tension redressée (source de tension quasi constante).<br>2. <b>Tampon d'énergie</b> : il absorbe temporairement l'énergie renvoyée lors d'un freinage.",
-   "origine": "Cours §7.1 — Rôle du condensateur de bus"
-  },
-  {
-   "type": "Notion",
-   "recto": "Pourquoi et comment utilise-t-on une résistance de freinage ?",
-   "verso": "Si le redresseur est un pont de diodes (<b>non réversible</b>), l'énergie de freinage ne repart pas au réseau et la tension du bus monte. Un <b>hacheur auxiliaire</b> connecte la résistance dès qu'un seuil est dépassé : l'énergie est dissipée en chaleur.",
-   "origine": "Cours §7.2 — Résistance de freinage"
-  },
-  {
-   "type": "Méthode",
-   "recto": "Descente d'une charge $m = 800$ kg à $v = 0{,}4$ m/s. Puissance à dissiper ? Valeur de la résistance ?",
-   "verso": "$P = m\\,g\\,v = 800 \\times 9{,}81 \\times 0{,}4 \\approx \\mathbf{3{,}1\\ kW}$<br>Puis $R = \\dfrac{U_{seuil}^2}{P}$ avec $U_{seuil}$ la tension de déclenchement du bus.",
-   "origine": "Cours §7.2 et §10 — Dimensionnement"
-  },
-  {
-   "type": "Notion",
-   "recto": "Sur le variateur, où le courant est-il le plus déformé : côté réseau ou côté moteur ? Pourquoi ?",
-   "verso": "<b>Côté réseau</b> : le pont de diodes est une <b>charge polluante</b> (harmoniques). Côté moteur, l'inductance de l'induit lisse le courant (continu ondulé).",
-   "origine": "Cours §8 — Lecture et exploitation de signaux réels"
+   "type": "Calcul mental",
+   "recto": "$E = 500$ V et $\\alpha = 0{,}5$ : valeur de $U_{moy}$ ?",
+   "verso": "<b>250 V</b>",
+   "origine": "Cours §2.2 — Valeur moyenne de la tension de sortie"
   }
  ]
 }

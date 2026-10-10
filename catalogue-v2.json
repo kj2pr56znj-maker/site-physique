@@ -44,7 +44,7 @@
       {
        "titre": "cartes de révision",
        "type": "Cartes",
-       "nombre": 26,
+       "nombre": 10,
        "lien": "cartes.html?c=et&ch=le-hacheur"
       },
       {
@@ -106,7 +106,7 @@
       {
        "titre": "cartes de révision",
        "type": "Cartes",
-       "nombre": 28,
+       "nombre": 10,
        "lien": "cartes.html?c=et&ch=les-chaines-de-mesure"
       },
       {
@@ -172,7 +172,7 @@
       {
        "titre": "cartes de révision",
        "type": "Cartes",
-       "nombre": 22,
+       "nombre": 10,
        "lien": "cartes.html?c=et&ch=les-regimes-transitoires"
       },
       {
@@ -231,7 +231,7 @@
       {
        "titre": "cartes de révision",
        "type": "Cartes",
-       "nombre": 28,
+       "nombre": 10,
        "lien": "cartes.html?c=et&ch=les-transferts-thermiques"
       },
       {
@@ -297,7 +297,7 @@
       {
        "titre": "cartes de révision",
        "type": "Cartes",
-       "nombre": 28,
+       "nombre": 10,
        "lien": "cartes.html?c=et&ch=lumiere-et-photometrie"
       },
       {
@@ -572,7 +572,7 @@
       {
        "titre": "cartes de révision",
        "type": "Cartes",
-       "nombre": 32,
+       "nombre": 10,
        "lien": "cartes.html?c=cim&ch=les-convertisseurs-electromecaniques"
       },
       {

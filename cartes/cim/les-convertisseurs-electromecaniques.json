@@ -3,196 +3,64 @@
  "titre": "Les convertisseurs électromécaniques",
  "cartes": [
   {
-   "type": "Notion",
-   "recto": "Qu'est-ce qu'un moteur électrique ? Que signifie « machine réversible » ?",
-   "verso": "Un <b>convertisseur électromécanique</b> : énergie électrique → énergie mécanique. Réversible : entraînée mécaniquement, la machine fonctionne en <b>génératrice</b> (dynamo, alternateur).",
+   "type": "Définition",
+   "recto": "Stator et rotor : définitions ?",
+   "verso": "<b>Stator</b> : partie fixe. <b>Rotor</b> : partie tournante.",
    "origine": "Cours §1 — Généralités"
   },
   {
-   "type": "Notion",
-   "recto": "Stator, rotor, inducteur, induit : définitions ?",
-   "verso": "<b>Stator</b> : partie fixe. <b>Rotor</b> : partie tournante.<br><b>Inducteur</b> : crée le champ magnétique. <b>Induit</b> : reçoit la f.é.m.",
+   "type": "Définition",
+   "recto": "Que veut dire « machine réversible » ?",
+   "verso": "Elle peut aussi fonctionner en <b>génératrice</b>.",
+   "origine": "Cours §1 — Généralités"
+  },
+  {
+   "type": "Définition",
+   "recto": "Qu'est-ce que le glissement d'un moteur asynchrone ?",
+   "verso": "L'écart relatif entre la vitesse du <b>champ tournant</b> et celle du <b>rotor</b>.",
+   "origine": "Cours §3 — Le moteur asynchrone triphasé"
+  },
+  {
+   "type": "Formule",
+   "recto": "Compléter : $P_u = T_u \\times \\dots$",
+   "verso": "$P_u = T_u \\times \\Omega$",
    "origine": "Cours §1 — Généralités"
   },
   {
    "type": "Formule",
-   "recto": "Puissance utile, vitesse angulaire, rendement : relations ?",
-   "verso": "$$P_u = T_u\\cdot\\Omega \\qquad \\Omega = \\frac{2\\pi n}{60} \\qquad \\eta = \\frac{P_u}{P_a}$$ $n$ en tr/min, $\\Omega$ en rad/s, et $P_a = P_u + \\text{pertes}$.",
+   "recto": "Compléter : $\\eta = \\dots$",
+   "verso": "$\\eta = \\dfrac{P_u}{P_a}$",
    "origine": "Cours §1 — Généralités"
   },
   {
-   "type": "Formule",
-   "recto": "Puissance absorbée en continu ? En triphasé sinusoïdal équilibré ?",
-   "verso": "Continu : $P_a = U\\cdot I$<br>Triphasé : $P_a = \\sqrt{3}\\,U\\,I\\cos\\varphi$ ($U$ entre phases, $I$ en ligne)",
+   "type": "Ordre de grandeur",
+   "recto": "Glissement nominal d'un moteur asynchrone ?",
+   "verso": "De <b>2 à 6 %</b>.",
+   "origine": "Cours §3 — Le moteur asynchrone triphasé"
+  },
+  {
+   "type": "Unité",
+   "recto": "Unité de la vitesse angulaire $\\Omega$ ?",
+   "verso": "Le <b>radian par seconde</b> (rad/s).",
    "origine": "Cours §1 — Généralités"
   },
   {
-   "type": "Notion",
-   "recto": "Quelles sont les pertes d'un moteur ? Que deviennent-elles ?",
-   "verso": "Pertes par <b>effet Joule</b> (bobinages), pertes <b>fer</b>, pertes <b>mécaniques</b>. Elles sont dissipées en <b>chaleur</b>.",
-   "origine": "Cours §1 — Généralités"
-  },
-  {
-   "type": "Notion",
-   "recto": "Quelle grandeur règle la vitesse de chaque moteur : MCC, asynchrone, synchrone, pas à pas ?",
-   "verso": "• MCC : la <b>tension</b> $U$<br>• Asynchrone : la <b>fréquence</b> $f$<br>• Synchrone : la <b>fréquence</b> $f$<br>• Pas à pas : la <b>fréquence des impulsions</b>",
-   "origine": "Cours §1 — Grandeurs de commande"
-  },
-  {
-   "type": "Formule",
-   "recto": "Moteur à courant continu : les trois relations fondamentales ?",
-   "verso": "$$U = E + R\\,I \\qquad E = K'\\,\\Omega \\qquad T_{em} = K'\\,I$$ La <b>tension règle la vitesse</b>, le <b>courant règle le couple</b>.",
+   "type": "Sens physique",
+   "recto": "Moteur à courant continu : que règle la tension ? Et le courant ?",
+   "verso": "La tension règle la <b>vitesse</b>, le courant règle le <b>couple</b>.",
    "origine": "Cours §2 — Le moteur à courant continu"
   },
   {
-   "type": "Formule",
-   "recto": "MCC : équation de la caractéristique mécanique $\\Omega(T_{em})$ ? Vitesse à vide ?",
-   "verso": "$$\\Omega = \\frac{U}{K'} - \\frac{R}{K'^2}\\,T_{em}$$ Droite de faible pente ; à vide $\\Omega_0 = U/K'$. Changer $U$ décale la droite parallèlement.",
-   "origine": "Cours §2 — Caractéristique mécanique"
-  },
-  {
-   "type": "Piège",
-   "recto": "Pourquoi ne démarre-t-on pas un MCC en lui appliquant directement sa tension nominale ?",
-   "verso": "À l'arrêt $E = 0$ : $I_d = U/R$ est <b>très élevé</b>. On démarre en <b>augmentant progressivement</b> $U$ (rampe).",
-   "origine": "Cours §2 — Caractéristique mécanique"
-  },
-  {
-   "type": "Formule",
-   "recto": "MCC : écrire le bilan de puissance complet.",
-   "verso": "$P_a = U I + u_e i_e$ ; $P_J = R I^2$ ; $P_{em} = E\\,I$ ; $P_u = P_{em} - P_c$ ; $\\eta = \\dfrac{P_u}{P_a}$<br>$P_c$ : pertes collectives (fer + mécaniques), mesurées à vide : $P_c \\approx U_v I_v$.",
-   "origine": "Cours §2 — Bilan de puissance"
-  },
-  {
-   "type": "Notion",
-   "recto": "MCC : que se passe-t-il quand la charge entraîne le moteur ?",
-   "verso": "$E > U$ : le courant <b>s'inverse</b> ($I \\lt 0$) et le moteur renvoie de l'énergie à la source : <b>freinage récupératif</b>. $T$ et $\\Omega$ sont de signes opposés.",
-   "origine": "Cours §2 — Fonctionnement en génératrice"
-  },
-  {
-   "type": "Piège",
-   "recto": "MCC à excitation séparée : que risque-t-on si on coupe l'inducteur, induit sous tension ? Bon ordre de mise en route ?",
-   "verso": "Sans flux, $E \\to 0$, le courant explose et le moteur <b>s'emballe</b>.<br>Mise en route : <b>inducteur d'abord</b>, puis tension d'induit progressive. Arrêt : induit à zéro, <b>puis</b> inducteur.",
-   "origine": "Cours §2 — Attention"
-  },
-  {
-   "type": "Méthode",
-   "recto": "MCC : $U = 24$ V, $R = 0{,}35\\ \\Omega$, $K' = 0{,}080$ V·s·rad⁻¹, $n = 2\\,400$ tr/min. Calculer $\\Omega$, $E$ et $I$.",
-   "verso": "$\\Omega = \\dfrac{2\\pi \\times 2\\,400}{60} \\approx 251$ rad/s<br>$E = 0{,}080 \\times 251 \\approx 20{,}1$ V<br>$I = \\dfrac{U - E}{R} = \\dfrac{24 - 20{,}1}{0{,}35} \\approx \\mathbf{11\\ A}$",
-   "origine": "Cours — Exercice 1 (AGV)"
-  },
-  {
-   "type": "Notion",
-   "recto": "Moteur asynchrone : principe de fonctionnement en une phrase ?",
-   "verso": "Le stator triphasé crée un <b>champ tournant</b> ; le rotor (cage d'écureuil, sans balais) est entraîné par les courants induits et tourne <b>un peu moins vite</b> que le champ.",
+   "type": "Sens physique",
+   "recto": "Comment inverser le sens d'un moteur asynchrone ?",
+   "verso": "En <b>échangeant deux phases</b>.",
    "origine": "Cours §3 — Le moteur asynchrone triphasé"
   },
   {
-   "type": "Formule",
-   "recto": "Vitesse de synchronisme et glissement d'un moteur asynchrone ?",
-   "verso": "$$n_S = \\frac{60 f}{p}\\ \\text{(tr/min)} \\qquad g = \\frac{n_S - n}{n_S}$$ $p$ : nombre de paires de pôles. Au nominal, $g \\approx 2$ à 6 %.",
-   "origine": "Cours §3 — Le moteur asynchrone triphasé"
-  },
-  {
-   "type": "Méthode",
-   "recto": "Plaque : 1 440 tr/min, 50 Hz. Trouver $n_S$, $p$ et le glissement.",
-   "verso": "$n_S$ = valeur normalisée juste au-dessus : <b>1 500 tr/min</b><br>$p = \\dfrac{60 \\times 50}{1\\,500} = \\mathbf{2}$<br>$g = \\dfrac{1\\,500 - 1\\,440}{1\\,500} = \\mathbf{4\\ \\%}$",
-   "origine": "Cours §3 et Exercice 2"
-  },
-  {
-   "type": "Notion",
-   "recto": "Plaque 230/400 V : quel couplage sur un réseau 400 V ? Sur un réseau 230 V ?",
-   "verso": "Chaque enroulement supporte la <b>plus petite</b> tension de la plaque (230 V).<br>Réseau 400 V → <b>étoile</b> ; réseau 230 V → <b>triangle</b>.",
-   "origine": "Cours §3 — Couplage"
-  },
-  {
-   "type": "Notion",
-   "recto": "Asynchrone : relation couple-glissement dans la zone utile ? Courant de démarrage direct ?",
-   "verso": "Zone utile : $T \\approx k\\,g$ (quand le moteur « force », $n$ baisse légèrement).<br>Démarrage direct : <b>4 à 8 fois</b> le courant nominal ; $T_d \\approx 1{,}5$ à $2{,}5\\,T_n$.",
-   "origine": "Cours §3 — Le moteur asynchrone triphasé"
-  },
-  {
-   "type": "Notion",
-   "recto": "Comment inverser le sens de rotation d'un moteur asynchrone ? Comment régler sa vitesse ?",
-   "verso": "Sens : <b>échanger deux phases</b>.<br>Vitesse : par la <b>fréquence</b> $f$, puisque $n = n_S(1 - g)$.",
-   "origine": "Cours §3 — Le moteur asynchrone triphasé"
-  },
-  {
-   "type": "Méthode",
-   "recto": "Asynchrone : 400 V, 8,2 A, $\\cos\\varphi = 0{,}83$, $P_u = 4$ kW. Puissance absorbée et rendement ?",
-   "verso": "$P_a = \\sqrt{3} \\times 400 \\times 8{,}2 \\times 0{,}83 \\approx \\mathbf{4{,}7\\ kW}$<br>$\\eta = \\dfrac{4\\,000}{4\\,715} \\approx \\mathbf{85\\ \\%}$",
-   "origine": "Cours — Exercice 2"
-  },
-  {
-   "type": "Notion",
-   "recto": "Moteur synchrone : vitesse ? Que se passe-t-il si le couple résistant est trop grand ?",
-   "verso": "Il tourne <b>exactement</b> à $n_S = 60 f/p$, sans glissement. Si l'angle interne dépasse 90°, il <b>décroche</b>. Son démarrage n'est pas autonome.",
-   "origine": "Cours §4 — Moteurs synchrones"
-  },
-  {
-   "type": "Notion",
-   "recto": "Moteur sans balai (brushless) : comment remplace-t-il le collecteur ? Avantages ?",
-   "verso": "La commutation est faite <b>électroniquement</b> à partir d'un <b>capteur de position</b> du rotor (effet Hall, codeur, résolveur). Ni usure ni arcs : durée de vie et rendement accrus.",
-   "origine": "Cours §4 — Sans balai"
-  },
-  {
-   "type": "Formule",
-   "recto": "Moteur pas à pas : nombre de pas par tour et vitesse ?",
-   "verso": "$$N_p = \\frac{360^\\circ}{\\alpha_p} \\qquad n = \\frac{f}{N_p}\\ \\text{(tr/s)}$$ $\\alpha_p$ : angle d'un pas ; $f$ : fréquence des impulsions.",
+   "type": "Calcul mental",
+   "recto": "Pas à pas de 200 pas/tour, 1 000 impulsions/s : vitesse ?",
+   "verso": "<b>5 tr/s</b>",
    "origine": "Cours §5 — Le moteur pas à pas"
-  },
-  {
-   "type": "Méthode",
-   "recto": "Pas à pas de pas 1,8°, commandé à 1 000 impulsions/s. Vitesse de rotation ?",
-   "verso": "$N_p = \\dfrac{360}{1{,}8} = 200$ pas/tour<br>$n = \\dfrac{1\\,000}{200} = \\mathbf{5\\ tr/s = 300\\ tr/min}$",
-   "origine": "Cours §5 — Le moteur pas à pas"
-  },
-  {
-   "type": "Notion",
-   "recto": "Pourquoi commande-t-on un moteur pas à pas en boucle ouverte ?",
-   "verso": "À chaque impulsion le rotor avance d'un pas connu : sa <b>position est connue sans capteur</b>.",
-   "origine": "Cours §5 — Le moteur pas à pas"
-  },
-  {
-   "type": "Notion",
-   "recto": "Pas à pas : aimant permanent, réluctance variable, hybride — quelles différences ?",
-   "verso": "• <b>Aimant permanent</b> : peu de pas (≤ 48), couple élevé, couple à l'arrêt.<br>• <b>Réluctance variable</b> : beaucoup de pas, couple faible, nul hors alimentation.<br>• <b>Hybride</b> : 200 à 400 pas, couple élevé, meilleur compromis (plus cher).",
-   "origine": "Cours §5 — Types de moteurs pas à pas"
-  },
-  {
-   "type": "Piège",
-   "recto": "Pourquoi un moteur pas à pas peut-il « perdre des pas » ? Comment l'éviter ?",
-   "verso": "Le couple disponible <b>diminue quand $f$ augmente</b>. Au-delà de la fréquence de démarrage, il faut une <b>rampe de fréquence</b>.",
-   "origine": "Cours §5 — Le moteur pas à pas"
-  },
-  {
-   "type": "Notion",
-   "recto": "Couple de maintien / couple de détente : différence ?",
-   "verso": "<b>Maintien</b> : couple maximal supportable à l'arrêt, moteur <b>alimenté</b>.<br><b>Détente</b> : même chose, moteur <b>non alimenté</b>.",
-   "origine": "Cours §5 — Le moteur pas à pas"
-  },
-  {
-   "type": "Notion",
-   "recto": "Les deux conditions pour qu'un moteur entraîne correctement sa charge ?",
-   "verso": "1. Il doit <b>démarrer</b> : $T_d$ du moteur > couple résistant à l'arrêt.<br>2. Le <b>point de fonctionnement</b> (intersection de $T_m(n)$ et $T_r(n)$) doit être admissible pour les deux.",
-   "origine": "Cours §6 — Couplage moteur-charge"
-  },
-  {
-   "type": "Formule",
-   "recto": "Principe fondamental de la dynamique en rotation ?",
-   "verso": "$$J\\,\\frac{d\\Omega}{dt} = T_m - T_r$$ Accélération si $T_m > T_r$, régime permanent si $T_m = T_r$.",
-   "origine": "Cours §6 — Couplage moteur-charge"
-  },
-  {
-   "type": "Notion",
-   "recto": "Charges types : couple constant ou couple en $n^2$ ? Exemples ?",
-   "verso": "<b>Couple constant</b> : levage, convoyeur.<br><b>Couple en $n^2$</b> (puissance en $n^3$) : ventilateur, pompe centrifuge.",
-   "origine": "Cours §6 — Charges types"
-  },
-  {
-   "type": "Formule",
-   "recto": "Réducteur de rapport $r \\lt 1$ et de rendement $\\eta_{red}$ : vitesse et couple côté charge ?",
-   "verso": "$$\\Omega_{charge} = r\\,\\Omega_{moteur} \\qquad T_{charge} = \\frac{T_{moteur}\\,\\eta_{red}}{r}$$ La vitesse baisse, le couple augmente.",
-   "origine": "Cours §6 — Réducteur"
   }
  ]
 }
