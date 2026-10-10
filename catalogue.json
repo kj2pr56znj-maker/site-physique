@@ -385,6 +385,13 @@
        "lien": "animations/cira/animation-nature-des-signaux.html"
       },
       {
+       "titre": "Exercices - coups de pouce",
+       "type": "Exercices",
+       "fichier": "edcd70139d693afaa42988bb.bin",
+       "taille": 115854,
+       "pages": 2
+      },
+      {
        "titre": "TP1 Analyse spectrale",
        "type": "TP",
        "fichier": "daf070e00b7541db3124b000.bin",

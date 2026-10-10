@@ -385,6 +385,13 @@
        "lien": "animations/cira/animation-nature-des-signaux.html"
       },
       {
+       "titre": "Exercices - coups de pouce",
+       "type": "Exercices",
+       "fichier": "edcd70139d693afaa42988bb.bin",
+       "taille": 115854,
+       "pages": 2
+      },
+      {
        "titre": "TP1 Analyse spectrale",
        "type": "TP",
        "fichier": "daf070e00b7541db3124b000.bin",
@@ -397,6 +404,17 @@
        "fichier": "3619b762f109d0206c15b325.bin",
        "taille": 317545,
        "pages": 7
+      },
+      {
+       "titre": "Corrigé élève exercices",
+       "type": "Corrigé",
+       "fichier": "3846936a7c991f95b987ce7f.bin",
+       "taille": 192369,
+       "pages": 7,
+       "corrige": {
+        "id": "cira-nature-des-signaux-fourier-et-thd-corrige-eleve-exercices",
+        "wk": "0NfqHqKBusZfYwrb6vPlAvv/iU1T/tswMtDO/2aHxgR+JJCQcgUctez6HKT+EEy78zntGMr9MQmFeTiC"
+       }
       },
       {
        "titre": "Corrigé élève TP2 THD",
